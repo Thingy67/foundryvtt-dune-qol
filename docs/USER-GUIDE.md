@@ -6,110 +6,156 @@ Ce fichier est l’unique manuel utilisateur du module.
 
 ### Test guidé
 
-Le système Dune fournit son propre lanceur. Dune QoL propose **Test guidé**, qui ajoute notamment la difficulté, le Momentum généré, la source des dés supplémentaires, la Détermination et des actions dans le résultat du chat.
+Ouvrez une fiche compatible et cliquez sur **Test guidé**. Le module gère Compétence, Motivation, Spécialisation, difficulté, 2 à 5 dés, plage de complication, source des dés supplémentaires, Détermination et contexte facultatif.
 
-Par défaut, ouvrez une fiche de personnage et cliquez sur **Test guidé**. Le réglage **Emplacement du test guidé** permet aussi d’utiliser les contrôles de token avec une scène active.
-
-Champs disponibles :
-
-- Compétence et Motivation du personnage ;
-- Spécialisation facultative ;
-- difficulté ;
-- 2 à 5 dés ;
-- plage de complication de 15 à 20 ;
-- source des dés supplémentaires ;
-- Détermination ;
-- contexte facultatif.
-
-Les résultats affichent une information par ligne afin de rester lisibles dans le chat.
-
-### Momentum et Menace
-
-Le résultat calcule les changements proposés. Les réserves ne changent qu’après un clic sur **Appliquer les changements**.
-
-Le Momentum dépensé doit être disponible avant le jet. Le Momentum généré ne peut pas financer rétroactivement les dés supplémentaires. La réserve finale est plafonnée à 6.
+Le résultat affiche les succès, complications, Momentum généré et actions associées. Les changements de Momentum et de Menace ne sont appliqués qu’après confirmation explicite.
 
 ### Complications et Traits
 
-Une complication permet de créer un Item Dune natif de type `trait`, temporaire par défaut. Chaque complication ne peut être résolue qu’une fois. La suppression ultérieure du Trait ne rouvre pas la complication.
+Une complication permet de créer un Item Dune natif de type `trait`, temporaire par défaut. Chaque complication ne peut être résolue qu’une fois. Supprimer ensuite le Trait ne rouvre pas la complication.
 
-### Gérer les Traits temporaires
+Depuis une fiche, **Traits temporaires** permet de sélectionner plusieurs Traits et de les rendre persistants ou de les supprimer. Une action effectuée par un joueur passe par le MJ actif.
 
-Depuis la fiche d’un personnage, cliquez sur **Traits temporaires**.
+### Demandes de test
 
-La fenêtre permet de :
+Depuis une fiche, le MJ peut envoyer une demande individuelle au propriétaire du personnage.
 
-1. sélectionner un ou plusieurs Traits ;
-2. les rendre persistants ;
-3. ou les supprimer.
+Depuis les contrôles de token, **Demander un test groupé** permet de :
 
-Les Traits issus d’une complication sont signalés. Une action effectuée par un joueur passe par le MJ actif. Un message d’historique est créé.
+1. cocher un ou plusieurs joueurs ;
+2. choisir explicitement le personnage utilisé par chacun ;
+3. imposer ou laisser libres Compétence et Motivation ;
+4. définir difficulté, complications, Spécialisation proposée et contexte ;
+5. envoyer une demande indépendante à chaque destinataire.
 
-### Demander un test individuel en tant que MJ
+Une demande reste ouverte tant qu’aucun résultat correspondant n’existe. Après le jet, **Ouvrir le test** disparaît uniquement pour le joueur ayant terminé sa demande.
 
-Depuis la fiche du personnage :
+### Feuille de groupe
 
-1. cliquez sur **Demander un test** ;
-2. choisissez son propriétaire ;
-3. définissez difficulté et plage de complication ;
-4. saisissez éventuellement un contexte ;
-5. imposez une Compétence ou une Motivation, ou laissez **Au choix du joueur** ;
-6. proposez éventuellement une Spécialisation ;
-7. envoyez la demande.
+À partir de `0.8.0`, le bouton **Feuille de groupe** est disponible dans les contrôles de token pour le MJ et les joueurs.
 
-Une Compétence ou Motivation choisie par le MJ est verrouillée côté joueur. La demande reste disponible tant qu’aucun résultat correspondant n’a été créé. Après le jet, **Ouvrir le test** disparaît.
+La fenêtre reste ouverte comme une application Foundry normale et contient plusieurs onglets.
 
-### Demander un test à plusieurs joueurs
+#### Vue d’ensemble
 
-À partir de la version `0.7.0`, le MJ dispose du bouton **Demander un test groupé** dans les contrôles de token.
+Affiche les réserves collectives lorsqu’elles sont disponibles.
 
-1. Activez une scène.
-2. Ouvrez les contrôles de token.
-3. Cliquez sur **Demander un test groupé**.
-4. Cochez un ou plusieurs joueurs.
-5. Vérifiez le personnage utilisé par chaque joueur dans sa liste déroulante.
-6. Définissez les paramètres communs du test.
-7. Envoyez.
+Le MJ peut enregistrer pour tout le monde :
 
-Une demande indépendante est créée pour chaque destinataire. Chaque joueur possède son propre message, sa propre file de livraison et son propre état de fin. Le résultat d’un joueur ne termine pas la demande des autres.
+- le nom et les informations de Maison ;
+- l’état global du groupe ;
+- les objectifs communs ;
+- les notes du groupe.
 
-Les personnages attribués aux utilisateurs sont proposés en premier. Un autre personnage possédé peut être choisi explicitement.
+Les joueurs voient ces informations en lecture seule.
 
-### Voir tous les Traits du groupe
+#### Personnages
 
-Le bouton **Voir les Traits du groupe**, dans les contrôles de token, ouvre une vue globale réservée au MJ.
+Les personnages possédés par les joueurs sont regroupés automatiquement :
 
-Elle affiche pour chaque personnage joueur :
+- le personnage attribué à un utilisateur est principal par défaut ;
+- les autres personnages possédés sont secondaires par défaut ;
+- le MJ peut modifier ce classement et définir le rôle de chaque personnage.
 
-- le portrait ;
-- les propriétaires ;
-- tous les Traits ;
-- l’état temporaire ou persistant ;
-- l’origine « complication » lorsqu’elle est connue.
+Chaque carte affiche portrait, propriétaires, ressources individuelles détectées et quelques Traits.
 
-La recherche accepte un nom de joueur, de personnage ou de Trait. Un filtre permet d’afficher les personnages possédant des Traits temporaires ou persistants. Le bouton de fiche ouvre directement le personnage concerné.
+Actions rapides :
 
-Cette vue est en lecture seule. Les modifications restent accessibles depuis **Traits temporaires** sur la fiche individuelle.
+- **Ouvrir la fiche** ;
+- **Test** ;
+- **Traits** ;
+- **Sélectionner le token** sur la scène active.
 
-### Langue
+#### Traits
+
+Tous les Traits sont regroupés par personnage.
+
+Le MJ peut sélectionner des Traits sur plusieurs personnages puis :
+
+- rendre persistants les Traits temporaires sélectionnés ;
+- supprimer les Traits sélectionnés.
+
+La suppression de Traits persistants demande une confirmation. Un message d’historique récapitule les personnages et Traits concernés.
+
+#### Demandes de test
+
+Le tableau affiche les demandes visibles avec leur date, joueur, personnage, contexte et état :
+
+- en attente ;
+- terminée ;
+- annulée.
+
+Les filtres limitent l’affichage à un état. Les boutons permettent d’afficher dans le chat la demande ou son résultat. Le MJ peut annuler une demande en attente ; elle est alors retirée de la file de livraison et ne peut plus être validée par un résultat ultérieur.
+
+### Gestion du combat
+
+À partir de `0.9.0`, Dune QoL ajoute un suivi adapté à Dune au-dessus du Combat Tracker natif.
+
+Il faut d’abord créer ou activer un Combat Foundry et y ajouter les tokens concernés.
+
+Le panneau apparaît :
+
+- dans le Combat Tracker ;
+- dans l’onglet **Combat** de la Feuille de groupe.
+
+Le suivi indique :
+
+- le round ;
+- le camp actif ;
+- les combattants disponibles ou ayant déjà agi ;
+- Momentum et Menace lorsqu’ils sont accessibles ;
+- l’historique des actions.
+
+Le MJ peut :
+
+1. donner l’initiative aux personnages joueurs ou à l’opposition ;
+2. sélectionner plusieurs combattants et les marquer comme ayant agi ;
+3. rendre des combattants de nouveau disponibles ;
+4. passer l’initiative à l’autre camp ;
+5. conserver l’initiative avec un coût facultatif ;
+6. réinitialiser les activations ;
+7. passer au round suivant.
+
+Pour **Conserver l’initiative**, le MJ saisit explicitement un coût entre 0 et 6 :
+
+- le camp des joueurs dépense du Momentum ;
+- l’opposition dépense de la Menace.
+
+Le module vérifie la réserve avant de la modifier. Il n’impose pas automatiquement un coût de règle.
+
+**Round suivant** utilise le Combat natif de Foundry, vide la liste des combattants ayant agi et redonne par défaut l’initiative aux joueurs. Une modification manuelle du round dans Foundry synchronise également le suivi.
+
+Le bouton en forme de viseur sélectionne et centre le token du combattant.
+
+### Langue et mise à jour
 
 Dans **Game Settings → Configure Settings → Dune: Adventures in the Imperium QoL → Langue du module**, choisissez **English** ou **Français**, puis rechargez.
 
+Depuis le Setup Foundry, utilisez **Update**, puis rechargez complètement les clients.
+
 ### Dépannage
 
-#### Les boutons de groupe ne sont pas visibles
+#### La Feuille de groupe ou les outils de groupe ne sont pas visibles
 
-Ils sont réservés au MJ, se trouvent dans les contrôles de token et nécessitent une scène active. Vérifiez que le module affiche au minimum la version `0.7.0`, puis rechargez complètement.
+Une scène active et les contrôles de token sont nécessaires. Vérifiez que le module affiche au minimum `0.9.0`, puis rechargez complètement.
 
-#### Un joueur n’apparaît pas dans la demande groupée
+#### Un personnage n’apparaît pas
 
-Il doit posséder au moins un personnage compatible fournissant les Compétences et Motivations Dune.
+Il doit être possédé par au moins un joueur non-MJ et fournir les Compétences et Motivations du système Dune.
 
-#### Un joueur ne reçoit pas sa demande
+#### Sélectionner le token ne fonctionne pas
 
-Vérifiez que les deux clients utilisent la même version, que le joueur possède toujours le personnage sélectionné et qu’un MJ est actif. Le message privé et la file persistante doivent permettre une réception après reconnexion.
+Le token du personnage doit exister sur la scène active.
 
-#### Le bouton Ouvrir le test reste après le résultat
+#### Le panneau de combat indique qu’aucun combat n’est actif
+
+Créez un Combat depuis le Combat Tracker, ajoutez les tokens, puis vérifiez que ce Combat est actif.
+
+#### Un coût de conservation est refusé
+
+La réserve de Momentum ou de Menace doit contenir au moins le montant saisi.
+
+#### Une demande reste ouverte après un résultat
 
 Dans la console MJ, cherchez :
 
@@ -117,51 +163,56 @@ Dans la console MJ, cherchez :
 Dune QoL | Test request marked as completed.
 ```
 
-Copiez toute erreur `Dune QoL | Test-request completion failed.`.
-
-#### Mettre à jour
-
-Depuis le Setup Foundry, utilisez **Update**, puis rechargez complètement la partie.
+Copiez toute erreur préfixée par `Dune QoL`.
 
 ---
 
 ## English
 
-### Guided test
+### Guided tests, pools and Traits
 
-Open a supported Actor sheet and click **Guided test**. The module adds difficulty, extra-die source, Determination, generated Momentum, complication handling and readable chat actions.
+Use **Guided test** on a compatible Actor sheet. Shared Momentum and Threat changes require explicit confirmation. Complications may create native Dune `trait` Items. Deleting a generated Trait never reopens the original complication.
 
-### Momentum, Threat and complication Traits
+### Test requests
 
-Shared pools change only after explicit confirmation. Momentum spent on extra dice must exist before the roll. A complication may create one native Dune `trait` Item and is then considered resolved.
+A GM may send one request from an Actor sheet or independent requests to several checked players from Token controls. Selected Skill and Drive values are mandatory; **Player chooses** remains editable. A request completes only after its matching result exists.
 
-### Temporary Trait manager
+### Party Sheet
 
-Use **Temporary Traits** on an Actor sheet to select one or several temporary Traits, make them persistent or delete them. Player actions are executed by the active GM and recorded in chat.
+Starting with `0.8.0`, **Party Sheet** is available in Token controls to GMs and players.
 
-### Individual GM test request
+It provides:
 
-Use **Request test** on the target Actor sheet. A selected Skill or Drive is mandatory and locked; **Player chooses** remains editable. The request completes only after the matching result exists.
+- shared House information, status, objectives and notes;
+- Momentum and Threat display;
+- primary and supporting characters;
+- owners, roles, portraits and detected individual resources;
+- quick Test, Traits, sheet and token actions;
+- cross-Actor Trait management for the GM;
+- pending, completed and cancelled request tracking;
+- request/result chat navigation and request cancellation.
 
-### Group test request
+Only the GM can edit world-persistent information or perform group Trait changes.
 
-Starting with `0.7.0`, a GM can use **Request a group test** in Token controls:
+### Combat management
 
-1. select one or several players with checkboxes;
-2. verify the Actor assigned to each player;
-3. set shared test parameters;
-4. send independent requests.
+Starting with `0.9.0`, a Dune combat panel appears in the native Combat Tracker and the Party Sheet Combat tab.
 
-Each recipient has a separate message, inbox entry and completion state.
+Create or activate a normal Foundry Combat first. The GM can then:
 
-### Party Trait overview
+- choose the active side;
+- mark selected combatants as acted or available;
+- pass or retain initiative;
+- enter an optional Momentum or Threat retention cost;
+- reset activations;
+- advance the native round;
+- inspect combat history;
+- select and pan to combatant tokens.
 
-Use **View party Traits** in Token controls to display every compatible player-owned Actor, owners and all Traits. Search by player, Actor or Trait, filter by temporary or persistent state and open the Actor sheet directly.
-
-The overview is read-only; use the individual Temporary Trait manager for changes.
+Players spend Momentum when their side retains initiative; the opposition spends Threat. The module validates the pool but does not impose a fixed rules cost.
 
 ### Language and troubleshooting
 
-Choose the module language in **Game Settings → Configure Settings** and reload. Group buttons require an active Scene, GM permissions and module `0.7.0` or newer.
+Choose the module language in **Game Settings → Configure Settings**, then reload. Party and combat controls require an active Scene. Combat tracking additionally requires an active native Foundry Combat.
 
 For runtime errors, press **F12**, reproduce the issue and copy the complete console entry prefixed with `Dune QoL`.
