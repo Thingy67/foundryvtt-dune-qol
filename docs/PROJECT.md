@@ -8,7 +8,7 @@ Last updated: 2026-08-06
 
 - Foundry VTT 13, build 351;
 - Dune system id `dune`, version 13.0.1;
-- module id `dune-qol`, version 0.6.0;
+- module id `dune-qol`, version 0.7.0;
 - public pre-alpha repository;
 - English and French interfaces;
 - manual validation only, without GitHub Actions;
@@ -65,7 +65,7 @@ Status: **creation workflow manually validated**.
 
 ### Temporary Trait manager
 
-Status: **implemented in 0.6.0; Foundry validation required**.
+Status: **manually validated in 0.6.0**.
 
 - **Temporary Traits** button on Actor sheets for the GM or Actor owner;
 - lists all embedded `trait` Items whose `system.temporary` is true;
@@ -77,9 +77,9 @@ Status: **implemented in 0.6.0; Foundry validation required**.
 - promotion updates source-result provenance when available;
 - deletion records provenance but does not reopen a resolved complication.
 
-### Game-master test requests
+### Single-recipient test requests
 
-Status: **single-recipient workflow implemented through 0.5.4; two-client validation still required**.
+Status: **implemented and manually validated through 0.5.4**.
 
 - GM action on the target Actor sheet;
 - one non-GM owner as recipient;
@@ -90,37 +90,47 @@ Status: **single-recipient workflow implemented through 0.5.4; two-client valida
 - request completed only after a matching result exists and the active GM validates it;
 - completed request no longer displays **Open test**.
 
-Not yet implemented: cancelled/expired states and visible result backlink.
+### Group tools
+
+Status: **implemented in 0.7.0; Foundry validation required**.
+
+Two GM-only actions are added to Token scene controls.
+
+**Request a group test**:
+
+- lists every non-GM player with at least one compatible owned Actor;
+- checkbox selection of one or several recipients;
+- explicit Actor selector for every player;
+- common difficulty, complication range, context and optional Focus;
+- common Skill and Drive may be imposed only when available on all eligible Actors;
+- creates one independent request, message, inbox entry and completion state per recipient;
+- partial delivery keeps successful requests and reports failures.
+
+**View party Traits**:
+
+- gathers compatible Actors owned by non-GM players and deduplicates shared ownership;
+- displays owners, portrait and all embedded Traits;
+- distinguishes temporary, persistent and complication-generated Traits;
+- supports text and state filters;
+- opens the corresponding Actor sheet directly.
+
+This Actor/owner roster is the first reusable data layer for the future Party Sheet.
 
 ## 4. Planned work
 
-### Next functional block — group test requests and group overview
+### Next functional block — Party Sheet MVP
 
-Group test requests:
-
-- keep Actor-sheet requests single-recipient;
-- add a distinct GM-only action to Token scene controls;
-- display non-GM players with checkboxes;
-- allow one or several recipients;
-- resolve and show the Actor used by each selected player before sending;
-- create independent request and completion state per recipient.
-
-Global Trait overview:
-
-- add a second GM-only action to Token scene controls;
-- display all player-character Traits in one window, grouped by player and Actor;
-- distinguish temporary and persistent Traits;
-- show complication provenance when available;
-- allow filtering and opening the relevant Actor sheet;
-- keep bulk modification behind explicit selection and confirmation.
+- persistent group window accessible to GM and players;
+- player and Actor roster based on explicit ownership and assigned characters;
+- portraits, owners and direct sheet access;
+- Traits and key resources;
+- future extension points for supporting characters, House information and campaign tools.
 
 ### Medium priority
 
-- Dune Party Sheet, inspired by the PF2e Party Sheet but adapted to Dune;
-- centralize player characters, owners, portraits, Traits, key resources and quick actions;
-- provide an extensible group-level home for later supporting-character, House, project and campaign information;
+- cancelled or expired test-request states and result backlinks;
 - supporting-character handoff and control conveniences;
-- token HUD and campaign conveniences;
+- token HUD conveniences;
 - conflict zones and Asset movement;
 - House projects and campaign clocks.
 
@@ -150,7 +160,8 @@ scripts/
     ├── complication-traits.mjs
     ├── temporary-traits.mjs
     ├── test-requests.mjs
-    └── test-request-completion.mjs
+    ├── test-request-completion.mjs
+    └── group-tools.mjs
 ```
 
 - `domain/`: pure calculations with no Foundry access.
@@ -170,7 +181,7 @@ flags.dune-qol.testRequestInbox
 flags.dune-qol.testRequestResult
 ```
 
-Supplemental feature translations are loaded by `scripts/localization.mjs` and merged with the base language file. This avoids duplicating or rewriting the large base dictionaries for isolated workflows.
+Supplemental feature translations are loaded by `scripts/localization.mjs` and merged with the base language file.
 
 ## 6. Documentation policy
 
@@ -193,44 +204,52 @@ npm run check
 
 This checks JavaScript syntax, JSON, manifest consistency, required files, documentation policy and pure domain regressions.
 
-### Foundry checklist — 0.6.0
+### Foundry checklist — 0.7.0
 
 Loading:
 
-- [ ] Foundry displays version 0.6.0 after full reload.
+- [ ] Foundry displays version 0.7.0 after full reload.
 - [ ] No initialization error appears.
-- [ ] English and French supplemental translations load.
+- [ ] English and French group-tool translations load.
+- [ ] Both new buttons appear only for a GM in Token controls.
 
-Temporary Traits:
+Group request:
 
-- [ ] The Actor-sheet button appears for GM and owner, not unauthorized users.
-- [ ] An Actor without temporary Traits shows an empty state.
-- [ ] Temporary Traits are listed alphabetically.
-- [ ] Complication-generated Traits display the origin badge.
-- [ ] No selection keeps the dialog open and shows a warning.
-- [ ] **Make persistent** changes `system.temporary` to false.
-- [ ] **Delete** removes the selected Items.
-- [ ] A history message lists the affected Traits.
-- [ ] A promoted complication Trait updates its source record.
-- [ ] A deleted complication Trait does not reopen the complication.
-- [ ] A player-owned Actor sends the action to the active GM and receives the result.
+- [ ] Every eligible player appears with a checkbox and Actor selector.
+- [ ] Assigned characters appear first when available.
+- [ ] No selected player keeps the dialog open with a warning.
+- [ ] One selected player receives one normal request.
+- [ ] Several selected players each receive an independent request.
+- [ ] Different Actors may be selected for different players.
+- [ ] Imposed Skill and Drive remain locked in every recipient dialog.
+- [ ] One completed result removes only that player's **Open test** button.
+- [ ] An offline recipient receives the queued request after connecting.
+- [ ] A failure for one recipient does not erase successful deliveries.
+
+Party Traits:
+
+- [ ] All compatible player-owned Actors appear once.
+- [ ] Multiple owners are displayed without duplicating the Actor.
+- [ ] Temporary, persistent and complication-generated Traits are identified.
+- [ ] Text search filters by player, Actor or Trait name.
+- [ ] State filters show Actors with temporary or persistent Traits.
+- [ ] The sheet button opens the correct Actor.
 
 Regression:
 
 - [ ] Guided tests still work.
-- [ ] Result cards remain readable.
-- [ ] Momentum/Threat application still works.
-- [ ] Complication Trait creation still works.
-- [ ] Single-player GM test requests still work and complete after the result.
+- [ ] Temporary Trait management still works.
+- [ ] Individual test requests still work and complete correctly.
+- [ ] Momentum/Threat and complication workflows still work.
 
 ## 8. Known risks
 
 - Multiplayer workflows require every client to load the same module version.
 - User-flag delivery and authoritative changes depend on an active GM.
 - Shared-state operations cannot be fully atomic across distributed clients.
-- Temporary-Trait history creation is best effort after the Item operation succeeds.
-- Provenance updates are best effort if the original ChatMessage was deleted.
-- Deleting a generated Trait intentionally does not reopen its original complication.
+- Group delivery writes one User inbox at a time; partial success is intentional and reported.
+- Actors jointly owned by several players appear once in the Trait overview but separately in each player's group-request row.
+- The Party Trait overview is read-only; mutation remains on individual Actor sheets.
 - Foundry or upstream schema changes require explicit compatibility testing.
 
 ## 9. Decision log
@@ -280,8 +299,9 @@ All decisions are dated 2026-08-06 unless stated otherwise. Superseded decisions
 - **D-0041 — Accepted:** request context is optional and an empty value must not block or silently close sending.
 - **D-0042 — Accepted:** complete a request only after a matching Guided-test result exists and the active GM validates it.
 - **D-0043 — Accepted:** place combat/initiative near the end and guided character creation last.
-- **D-0044 — Accepted:** keep Actor-sheet requests single-recipient and add a distinct Token-controls group workflow with per-recipient Actors and independent request states.
+- **D-0044 — Implemented in 0.7.0:** keep Actor-sheet requests single-recipient and add a Token-controls group workflow with per-recipient Actors and independent request states.
 - **D-0045 — Accepted:** manage temporary Traits from the Actor sheet with checkbox-based bulk promotion or deletion; player actions use active-GM authority, provenance is preserved, and deletion never reopens resolved complications.
 - **D-0046 — Accepted:** allow isolated workflows to add supplemental per-language JSON dictionaries merged by the module localization service.
-- **D-0047 — Accepted:** add a GM Token-controls action that presents all player-character Traits together, grouped by player and Actor, with temporary/persistent state and safe navigation or management actions.
-- **D-0048 — Accepted:** plan a Dune Party Sheet inspired by PF2e as the central group interface for characters, owners, Traits, resources and future campaign-level conveniences.
+- **D-0047 — Implemented in 0.7.0:** add a GM Token-controls action presenting all player-character Traits together, grouped by Actor and owners, with state filters and safe sheet navigation.
+- **D-0048 — Accepted:** build a Dune Party Sheet inspired by PF2e as the central group interface for characters, owners, Traits, resources and campaign conveniences.
+- **D-0049 — Accepted:** group request delivery is independent per recipient and may partially succeed; every request stores its own Actor, message, inbox entry and completion state.
