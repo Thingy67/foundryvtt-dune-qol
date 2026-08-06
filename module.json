@@ -3,7 +3,7 @@
   "type": "module",
   "title": "Dune: Adventures in the Imperium QoL",
   "description": "Optional quality-of-life workflows for the community Dune: Adventures in the Imperium game system.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "authors": [
     {
       "name": "Thingy67",
@@ -21,8 +21,8 @@
         "id": "dune",
         "type": "system",
         "compatibility": {
-          "minimum": "13.0.2",
-          "verified": "13.0.2"
+          "minimum": "13.0.1",
+          "verified": "13.0.1"
         }
       }
     ]
