@@ -9,13 +9,15 @@ export async function initializeLocalization() {
   activeLanguage = configuredLanguage === "fr" ? "fr" : "en";
 
   try {
-    const response = await fetch(`/modules/${MODULE_ID}/lang/${activeLanguage}.json`, {
-      cache: "no-store"
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status} ${response.statusText}`);
-    }
-    translations = await response.json();
+    const base = await fetchTranslationFile(`${activeLanguage}.json`);
+    const supplemental = await fetchTranslationFile(
+      `${activeLanguage}-temporary-traits.json`,
+      { optional: true }
+    );
+    translations = {
+      ...base,
+      ...supplemental
+    };
   } catch (error) {
     translations = {};
     console.error(
@@ -25,6 +27,22 @@ export async function initializeLocalization() {
     ui.notifications?.warn(
       `Dune QoL: could not load ${activeLanguage} translations; Foundry language fallback is used.`
     );
+  }
+}
+
+async function fetchTranslationFile(fileName, { optional = false } = {}) {
+  try {
+    const response = await fetch(`/modules/${MODULE_ID}/lang/${fileName}`, {
+      cache: "no-store"
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    if (!optional) throw error;
+    console.warn(`Dune QoL | Optional translation file '${fileName}' was not loaded.`, error);
+    return {};
   }
 }
 
