@@ -56,6 +56,7 @@ const requiredFiles = [
   "scripts/services/party-sheet.mjs",
   "scripts/services/combat-manager.mjs",
   "scripts/services/party-sheet-combat.mjs",
+  "scripts/services/party-sheet-shortcuts.mjs",
   "styles/dune-qol.css",
   "styles/temporary-traits.css",
   "styles/group-tools.css",
