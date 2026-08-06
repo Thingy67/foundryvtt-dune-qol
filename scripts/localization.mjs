@@ -4,7 +4,8 @@ const MODULE_ID = "dune-qol";
 const SUPPLEMENTAL_DICTIONARIES = [
   "temporary-traits",
   "group-tools",
-  "party-sheet"
+  "party-sheet",
+  "combat"
 ];
 let translations = {};
 let activeLanguage = "en";
