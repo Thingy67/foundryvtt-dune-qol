@@ -130,6 +130,49 @@
   color: var(--color-level-error, #7a0b0b);
 }
 
+.dune-qol-pool-plan,
+.dune-qol-pool-card {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.55rem;
+  border: 1px solid var(--color-border-light-tertiary, #888);
+  border-radius: 0.35rem;
+}
+
+.dune-qol-pool-plan__values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  font-weight: 600;
+}
+
+.dune-qol-pool-plan button {
+  width: 100%;
+  margin: 0;
+}
+
+.dune-qol-pool-card p,
+.dune-qol-pool-card dl {
+  margin: 0;
+}
+
+.dune-qol-pool-card dl {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.dune-qol-pool-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-bottom: 1px dotted var(--color-border-light-tertiary, #999);
+}
+
+.dune-qol-pool-card dt,
+.dune-qol-pool-card dd {
+  margin: 0;
+}
+
 @media (max-width: 520px) {
   .dune-qol-form-grid,
   .dune-qol-test-card__parameters {
