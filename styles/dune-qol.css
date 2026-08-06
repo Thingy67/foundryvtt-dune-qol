@@ -19,7 +19,8 @@
 }
 
 .dune-qol-form-grid label,
-.dune-qol-context {
+.dune-qol-context,
+.dune-qol-complication-dialog label:not(.dune-qol-checkbox) {
   display: grid;
   gap: 0.25rem;
 }
@@ -131,7 +132,9 @@
 }
 
 .dune-qol-pool-plan,
-.dune-qol-pool-card {
+.dune-qol-pool-card,
+.dune-qol-complication-resolution,
+.dune-qol-complication-history {
   display: grid;
   gap: 0.45rem;
   padding: 0.55rem;
@@ -146,13 +149,18 @@
   font-weight: 600;
 }
 
-.dune-qol-pool-plan button {
+.dune-qol-pool-plan button,
+.dune-qol-complication-resolution button {
   width: 100%;
   margin: 0;
 }
 
 .dune-qol-pool-card p,
-.dune-qol-pool-card dl {
+.dune-qol-pool-card dl,
+.dune-qol-complication-resolution p,
+.dune-qol-complication-resolution ul,
+.dune-qol-complication-history p,
+.dune-qol-complication-dialog p {
   margin: 0;
 }
 
@@ -171,6 +179,20 @@
 .dune-qol-pool-card dt,
 .dune-qol-pool-card dd {
   margin: 0;
+}
+
+.dune-qol-complication-resolution ul {
+  padding-inline-start: 1.25rem;
+}
+
+.dune-qol-complication-resolution__complete {
+  font-weight: 600;
+  color: var(--color-level-success, #18520b);
+}
+
+.dune-qol-complication-dialog {
+  display: grid;
+  gap: 0.75rem;
 }
 
 @media (max-width: 520px) {
