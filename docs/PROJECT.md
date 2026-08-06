@@ -1,6 +1,6 @@
 # Project source of truth
 
-Central living reference for **Dune: Adventures in the Imperium QoL**. Keep product scope, architecture, roadmap, status, testing notes, risks and decisions here instead of creating many separate documents.
+Central living reference for **Dune: Adventures in the Imperium QoL**. Scope, architecture, roadmap, status, testing notes, risks and decisions stay in this document instead of being distributed across many files.
 
 Last updated: 2026-08-06
 
@@ -14,7 +14,7 @@ Current baseline:
 - upstream system id: `dune`;
 - supported upstream version: **13.0.1**;
 - module id: `dune-qol`;
-- module version: **0.5.0**;
+- module version: **0.5.1**;
 - repository: public, pre-alpha.
 
 ## 2. Principles
@@ -27,7 +27,7 @@ Current baseline:
 6. Minimize runtime dependencies.
 7. Support English and French for user-facing features.
 8. Do not reproduce commercial rules text or copyrighted assets.
-9. Record meaningful decisions, but keep documentation concentrated.
+9. Record meaningful decisions while keeping documentation concentrated.
 10. Disclose AI assistance and retain human responsibility for accepted changes.
 
 ## 3. Scope and priorities
@@ -38,7 +38,7 @@ Status: **implemented and manually validated on the current baseline**.
 
 Implemented:
 
-- Foundry module manifest and public installation URL;
+- public Foundry manifest and development installation URL;
 - ES-module entry points, settings, localization and stylesheet;
 - English and French resources;
 - dependency-free local validation command;
@@ -109,10 +109,10 @@ Implemented:
 - upstream `trait` Item type with `system.temporary` enabled by default;
 - active-GM authority for player requests;
 - requester and Actor permission checks;
-- in-memory duplicate-processing protection;
+- duplicate-processing protection;
 - source-message record of created Traits and remaining complications;
 - Item provenance under module flags;
-- rollback of the new Item if source-message recording fails;
+- rollback if source-message recording fails;
 - separate public history message for each created Trait;
 - pure resolution calculations and regression checks.
 
@@ -124,7 +124,7 @@ Remaining:
 
 ### Phase 4 — Game-master test requests
 
-Status: **initial MVP implemented in 0.5.0; two-client validation required**.
+Status: **MVP corrected in 0.5.1; two-client validation required**.
 
 Implemented:
 
@@ -135,15 +135,26 @@ Implemented:
 - optional Skill, Drive and Focus suggestions;
 - private request card whispered to the game master and selected player;
 - durable **Open test** action on the request card;
-- automatic socket notification and dialog opening for an active recipient;
+- the private ChatMessage acts as the primary live-delivery event;
+- the module socket accelerates immediate opening but is not the sole delivery mechanism;
 - one-shot Guided-test preset applied at render time;
 - requesting-game-master banner in the player dialog;
 - suggestions remain editable before the player rolls;
+- duplicate live openings prevented per request id;
+- explicit console diagnostics for creation, reception and rejected payloads;
 - no automatic mutation or roll execution.
+
+Corrected in 0.5.1:
+
+- injected sheet links no longer use Foundry's native `control` class;
+- click handlers stop native delegated processing before opening the request dialog;
+- incoming request authorship is resolved from the ChatMessage `user` id;
+- socket notification is emitted independently from the cached `User.active` value;
+- the player can receive a request through either ChatMessage creation or socket notification without opening it twice.
 
 Remaining:
 
-- validate simultaneous game-master and player clients;
+- validate simultaneous game-master and player clients after both reload 0.5.1;
 - validate online automatic opening and offline later opening;
 - validate Actors with one and several owning players;
 - decide whether a request should later track opened, rolled, cancelled or expired states;
@@ -223,16 +234,7 @@ flags.dune-qol.poolTransaction
 
 `domain/complication-resolution.mjs` calculates total, resolved and remaining complications and prevents recording more Traits than the roll produced.
 
-`services/complication-traits.mjs` injects the result-card UI at render time. This avoids rewriting old chat content and lets compatible older Guided-test messages receive the new action.
-
-A player request is sent through the module socket and executed by the first active GM ordered by user id. The service creates an upstream embedded Item:
-
-```js
-{
-  type: "trait",
-  system: { temporary: true }
-}
-```
+`services/complication-traits.mjs` injects the result-card UI at render time and executes player requests through the active GM.
 
 Created Items store provenance under:
 
@@ -248,7 +250,7 @@ flags.dune-qol.guidedTest.complicationResolution
 
 ### Game-master test requests
 
-`services/test-requests.mjs` adds the game-master Actor-sheet action, validates Actor ownership, creates the private request card and emits the optional online notification.
+`services/test-requests.mjs` adds the game-master Actor-sheet action, validates Actor ownership, creates the private request card and coordinates live opening.
 
 Request cards store their complete preset and provenance under:
 
@@ -256,7 +258,15 @@ Request cards store their complete preset and provenance under:
 flags.dune-qol.testRequest
 ```
 
-The request is a suggestion and communication document, not an authoritative rule mutation. An active recipient receives the preset through the module socket; an offline recipient uses the persisted private card later.
+The private ChatMessage is authoritative for delivery and recovery. The receiving client processes the document's `createChatMessage` hook and validates:
+
+- the intended recipient id;
+- the author from the ChatMessage `user` id;
+- the author's GM role;
+- the private whisper recipients;
+- current Actor ownership.
+
+The socket carries only a message id and recipient id. It may trigger faster opening, but the receiver reloads and validates the persisted message before acting. Per-client processing sets prevent the ChatMessage and socket paths from opening the same request twice.
 
 The preset is intentionally client-local and one-shot. `features/guided-test-ui.mjs` consumes it when the next Guided-test dialog renders, fills only fields that remain available on the Actor and adds a visible requester banner.
 
@@ -292,12 +302,13 @@ npm run check
 
 The command performs JavaScript syntax checks, required-file and JSON checks, manifest validation, documentation-policy checks and pure regression checks for tests, pools and complication resolution. No GitHub Actions workflow is used.
 
-### Foundry checklist — 0.5.0
+### Foundry checklist — 0.5.1
 
 Loading:
 
-- [ ] Foundry 13.351 installs and displays module 0.5.0.
+- [ ] Foundry 13.351 installs and displays module 0.5.1.
 - [ ] Dune 13.0.1 satisfies the system relationship.
+- [ ] Both clients fully reload after updating.
 - [ ] The module activates without console errors.
 
 Guided test, pools and complications:
@@ -311,7 +322,7 @@ Guided test, pools and complications:
 
 Game-master test requests — preparation:
 
-- [ ] A GM sees **Request test** on a supported Actor sheet.
+- [ ] Clicking **Request test** opens one dialog without a Foundry `onclick` error.
 - [ ] A normal player does not see the request button.
 - [ ] Only non-GM Actor owners are offered as recipients.
 - [ ] Active owners appear before offline owners.
@@ -322,11 +333,12 @@ Game-master test requests — preparation:
 Game-master test requests — online recipient:
 
 - [ ] The player receives a notification.
-- [ ] The Guided-test dialog opens automatically once.
+- [ ] The Guided-test dialog opens automatically exactly once.
 - [ ] Difficulty, complication range, context and valid suggestions are prefilled.
 - [ ] The requester banner identifies the GM.
 - [ ] The player can change suggested Skill, Drive and Focus.
 - [ ] Reopening from the private card works.
+- [ ] Player console contains `Dune QoL | Test request received by player.`.
 
 Game-master test requests — offline recipient:
 
@@ -338,26 +350,27 @@ Game-master test requests — offline recipient:
 ## 7. Risks
 
 - **Request completion is not tracked:** the same request card may be reopened and reused until a later status workflow is designed.
-- **One-shot client preset:** another Guided-test dialog opened between queuing and rendering could consume the preset; the current request flow opens immediately to minimize that window.
-- **Offline delivery:** the private ChatMessage is durable, but automatic opening is only attempted for an active recipient.
+- **One-shot client preset:** another Guided-test dialog opened between queuing and rendering could consume the preset; the request flow opens immediately to minimize that window.
+- **Client version mismatch:** an outdated or non-reloaded player client cannot execute the new delivery hooks even though the private message remains stored.
 - **Upstream Item schema changes:** the current system defines `trait` with a `temporary` boolean; retest each supported release.
 - **Concurrent requests:** local locks and source-message state reduce duplicates, but Foundry does not provide distributed atomic transactions.
 - **Deleted Traits:** deleting a created Trait does not automatically reopen the original complication.
 - **Partial operations:** Item creation is rolled back if source-message recording fails; history creation remains non-blocking.
-- **Actor-sheet variants:** header controls and embedded Traits may render differently across Actor types.
+- **Actor-sheet variants:** header structures and embedded Traits may render differently across Actor types.
 - **Foundry API changes:** support one major Foundry version at a time.
 - **Documentation sprawl:** keep only the approved project and user documents.
 
 ## 8. Current status
 
 - Repository is public and pre-alpha.
-- Module 0.5.0 targets Foundry 13.351 and Dune 13.0.1.
+- Module 0.5.1 targets Foundry 13.351 and Dune 13.0.1.
 - Guided test, language selection, launcher placement, GM pool transactions and complication Traits have passed initial manual testing.
-- Game-master test requests, private cards, online opening and prefilled dialogs are implemented.
+- The initial request dialog opened, but 0.5.0 produced a native header-control error and did not open on the player client.
+- Version 0.5.1 removes the header-control collision and makes ChatMessage creation the primary player-delivery path.
 - GitHub Actions are disabled.
-- Two-client Foundry validation of test requests remains pending.
+- Two-client validation of the corrected request path remains pending.
 
-Next step: update to 0.5.0, connect one GM and one owning player, send a request from the Actor sheet and verify automatic opening, prefilled values and the private fallback card.
+Next step: update and fully reload both clients to 0.5.1, send one request to an online owning player, then verify the private message, notification, exactly one prefilled dialog and both client consoles.
 
 ## 9. Decision log
 
@@ -505,54 +518,52 @@ Next step: update to 0.5.0, connect one GM and one owning player, send a request
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Each complication on a Guided-test result may resolve into exactly one embedded Actor Trait.
-- Rationale: This maps the result to visible game state without hiding the game master's choice of Trait name.
-- Consequence: Deleting the Trait later does not automatically reopen the original complication.
 
-### D-0030 — Use the upstream trait Item and temporary field
+### D-0030 — Use the upstream Trait Item and temporary field
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Create upstream Items with `type: "trait"` and set `system.temporary` from the creation dialog, defaulting to true.
-- Rationale: Reusing the system data model keeps Traits visible on normal Dune sheets and avoids custom persistent documents.
-- Consequence: Compatibility depends on the upstream Trait schema and must be retested per release.
 
 ### D-0031 — Record complication resolution on the source message
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Store created Trait records under `flags.dune-qol.guidedTest.complicationResolution` and upgrade the message schema to at least version 3 when first used.
-- Rationale: The source result must track remaining complications and prevent normal over-creation.
-- Consequence: Failure to record the source state triggers rollback of the newly created Item.
 
 ### D-0032 — Execute player Trait requests through the active GM
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: A player may open the dialog for an owned Actor, but the active GM performs Item creation and source-message updates.
-- Rationale: This gives one authoritative writer and consistent permissions for embedded Items and chat messages.
-- Consequence: Player creation requires an active GM; GM creation remains local.
 
 ### D-0033 — Inject complication controls at chat render time
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Add the complication-resolution section through `renderChatMessage` instead of permanently rewriting the original HTML content.
-- Rationale: Dynamic rendering supports compatible existing Guided-test messages and reflects current flag state and language.
-- Consequence: The source message must contain complications and a valid Actor UUID; unsupported old messages remain unchanged.
 
 ### D-0034 — Start test requests from the Actor sheet
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Add a game-master-only **Request test** action to supported Actor-sheet title bars and use the sheet Actor as the request target.
-- Rationale: The Actor sheet identifies the intended character without requiring a Scene or ambiguous token selection.
-- Consequence: The first request workflow is single-Actor and single-recipient; group requests are deferred.
 
 ### D-0035 — Persist requests in private chat and optionally open them live
 - Date: 2026-08-06
-- Status: Accepted
-- Decision: Store each request as a private ChatMessage for the game master and recipient, while also sending an online socket notification that opens the prefilled dialog for an active recipient.
-- Rationale: Chat persistence provides a recoverable workflow for offline users or missed popups, while live opening reduces friction during play.
-- Consequence: The request card remains reusable and is not yet automatically marked completed.
+- Status: Amended by D-0037
+- Decision: Store each request as a private ChatMessage for the game master and recipient, while also sending an online socket notification.
 
 ### D-0036 — Keep game-master test suggestions editable
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Difficulty, complication range and context are prefilled from the request; suggested Skill, Drive and Focus remain editable by the player before rolling.
-- Rationale: Dune tests often depend on the player's proposed approach, so the request should guide rather than silently lock the mechanical choice.
-- Consequence: The first MVP does not enforce a requested Skill, Drive or Focus.
+
+### D-0037 — Make the private ChatMessage the primary request delivery
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Process an incoming request primarily from the receiving client's `createChatMessage` hook; retain the socket only as an accelerator referencing the persisted message id.
+- Rationale: Document synchronization is durable and independently delivers the request card, whereas a socket notification can be missed, delayed or received before the document exists.
+- Consequence: Both delivery paths validate the persisted message and share per-request duplicate protection before opening the Guided-test dialog.
+
+### D-0038 — Keep injected sheet links outside Foundry native controls
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Custom links inserted directly into a sheet title bar must not use Foundry's native `control` class and must stop delegated native click processing.
+- Rationale: Foundry treats native header controls as configured actions and attempts to read their registered `onclick` handler.
+- Consequence: Dune QoL title-bar links retain visual header styling but own their click lifecycle explicitly.
