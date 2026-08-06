@@ -238,7 +238,10 @@ export async function applyCombatCommand(action, { combatantIds = [], cost = 0, 
         break;
       }
       case "reset-round":
-        next = resetCombatRoundState(next, { round: next.round });
+        next = resetCombatRoundState(next, {
+          round: next.round,
+          activeSide: next.activeSide
+        });
         label = localize("DUNEQOL.Combat.HistoryReset");
         break;
       case "new-round":
