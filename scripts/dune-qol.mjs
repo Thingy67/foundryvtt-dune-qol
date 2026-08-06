@@ -1,10 +1,6 @@
 const MODULE_ID = "dune-qol";
 const MODULE_TITLE = "Dune: Adventures in the Imperium QoL";
 
-/**
- * Initial public surface for integrations and future macro shortcuts.
- * No stable API contract exists before the first public release.
- */
 Hooks.once("init", () => {
   const module = game.modules.get(MODULE_ID);
   if (!module) {
@@ -13,12 +9,6 @@ Hooks.once("init", () => {
   }
 
   const version = module.version ?? module.manifest?.version ?? "unknown";
-
-  module.api = Object.freeze({
-    id: MODULE_ID,
-    version
-  });
-
   console.info(`${MODULE_TITLE} | Initializing version ${version}.`);
 });
 
