@@ -8,7 +8,7 @@ Last updated: 2026-08-06
 
 - Foundry VTT 13, build 351;
 - Dune system id `dune`, version 13.0.1;
-- module id `dune-qol`, version 0.8.0;
+- module id `dune-qol`, version 0.9.0;
 - public pre-alpha repository;
 - English and French interfaces;
 - manual validation only, without GitHub Actions;
@@ -69,18 +69,11 @@ Status: **individual and group workflows manually validated through 0.7.0**.
 - request completes only after a matching result exists;
 - completed or cancelled requests no longer display **Open test**.
 
-### Group tools
-
-Status: **manually validated in 0.7.0**.
-
-- group request dialog with player checkboxes and explicit Actor selection;
-- global read-only Trait overview with filters and sheet navigation.
-
 ### Party Sheet
 
-Status: **implemented in 0.8.0; Foundry validation required**.
+Status: **implemented in 0.8.0 and extended in 0.9.0; Foundry validation required**.
 
-Accessible to GM and players from Token controls. It is a persistent ApplicationV2 window with four tabs.
+Accessible to GM and players from Token controls as a persistent ApplicationV2 window.
 
 **Overview**:
 
@@ -92,10 +85,10 @@ Accessible to GM and players from Token controls. It is a persistent Application
 
 **Characters**:
 
-- all compatible Actors owned by non-GM users;
+- compatible Actors owned by non-GM users;
 - automatic primary/supporting classification from assigned characters, overridable by the GM;
-- owner list, portrait, group role and individual resources;
-- direct sheet opening, Guided test launch and token selection.
+- owner list, portrait, group role and detected individual resources;
+- direct sheet, Guided test, Traits-tab and token-selection actions.
 
 **Traits**:
 
@@ -108,35 +101,60 @@ Accessible to GM and players from Token controls. It is a persistent Application
 
 **Requests**:
 
-- history and current table of visible test requests;
+- visible test-request history and pending table;
 - pending/completed/cancelled filters;
 - navigation to request and result messages;
-- GM cancellation of pending requests with inbox cleanup.
+- GM cancellation with User-inbox cleanup.
 
-The Party Sheet is now the central UI for future combat, supporting-character and campaign workflows.
+**Combat**:
+
+- embeds the same combat panel as the native Combat Tracker;
+- refreshes when the active Combat or Dune combat state changes.
+
+### Combat manager
+
+Status: **implemented in 0.9.0; Foundry validation required**.
+
+The module layers Dune side-based activation over a normal active Foundry Combat without replacing its Combatants or round counter.
+
+- player or opposition active side;
+- acted and available combatants;
+- side inferred from player ownership or positive token disposition;
+- manual side assignment;
+- mark selected combatants acted or available;
+- pass initiative;
+- retain initiative with a GM-entered cost from 0 to 6;
+- player-side retention spends Momentum; opposition retention spends Threat;
+- pool preflight validation through the existing adapter;
+- activation reset and native `nextRound()` integration;
+- synchronization when the Foundry round changes manually;
+- persistent combat history;
+- token selection and camera pan;
+- interface in the Combat Tracker, Token controls and Party Sheet.
+
+The module deliberately does not hardcode a retention cost or replace Foundry initiative data.
 
 ## 4. MVP scope and planned work
 
-The MVP now explicitly includes:
+The MVP now includes:
 
-1. Party Sheet validation and visual fixes;
+1. Party Sheet and combat-manager runtime validation and visual fixes;
 2. request history and pending-request tracking;
 3. cross-Actor Trait actions;
-4. combat and initiative management integrated with Foundry Combat Tracker;
+4. side-based combat and initiative management;
 5. final multiplayer, roll-mode, Dice So Nice and theme validation;
-6. versioned GitHub release and installation manifest cleanup.
+6. versioned GitHub release and stable release manifest.
 
-### Next functional block — combat manager
+### Remaining MVP work
 
-- active side;
-- Actors that already acted;
-- pass or retain initiative;
-- side change;
-- round reset;
-- optional Momentum or Threat cost;
-- action history;
-- token and Combat Tracker integration;
-- Party Sheet combat tab.
+- test Party Sheet as GM and player, including persistence and live updates;
+- test Combat Tracker injection and Party Sheet Combat tab;
+- verify allied, neutral and hostile combatant side classification;
+- verify native round transitions and manual round changes;
+- verify Momentum/Threat retention costs and insufficient-pool errors;
+- correct visual issues in narrow Combat Tracker and both themes;
+- complete regression and multiplayer checks;
+- create a versioned release artifact.
 
 ### After MVP
 
@@ -170,7 +188,10 @@ scripts/
     ├── test-requests.mjs
     ├── test-request-completion.mjs
     ├── group-tools.mjs
-    └── party-sheet.mjs
+    ├── party-sheet.mjs
+    ├── party-sheet-shortcuts.mjs
+    ├── party-sheet-combat.mjs
+    └── combat-manager.mjs
 ```
 
 - `domain/`: pure calculations;
@@ -190,6 +211,7 @@ flags.dune-qol.testRequest
 flags.dune-qol.testRequestInbox
 flags.dune-qol.testRequestResult
 game.settings: dune-qol.partyData
+game.settings: dune-qol.combatState
 ```
 
 ## 6. Documentation policy
@@ -211,56 +233,62 @@ Run from a complete checkout:
 npm run check
 ```
 
-### Foundry checklist — 0.8.0
+### Foundry checklist — 0.9.0
 
 Loading:
 
-- [ ] Foundry displays 0.8.0 after full reload.
+- [ ] Foundry displays 0.9.0 after full reload.
 - [ ] No initialization error appears.
-- [ ] Party Sheet translations and stylesheet load.
-- [ ] Party Sheet control appears for GM and players.
+- [ ] Party Sheet and combat translations/styles load.
+- [ ] Party Sheet and combat controls appear with an active Scene.
 
-Overview and persistence:
+Party Sheet:
 
-- [ ] GM can edit House, status, objectives and notes.
-- [ ] Save persists after reload and players see the same values read-only.
-- [ ] Momentum and Threat display when available.
+- [ ] GM edits persist after reload; players see read-only shared information.
+- [ ] assigned Actors default to primary and other owned Actors to supporting;
+- [ ] roles and classification overrides persist;
+- [ ] Test, Traits, sheet and token actions work;
+- [ ] multi-Actor Trait promotion and confirmed deletion work with history;
+- [ ] request filters, links and cancellation work;
+- [ ] cancelled requests disappear from inboxes and cannot complete later.
 
-Characters:
+Combat setup:
 
-- [ ] Assigned Actors default to primary and other owned Actors to supporting.
-- [ ] GM overrides and roles persist.
-- [ ] Resources, owners and portraits display correctly.
-- [ ] Open sheet, Test and Select token actions target the correct Actor.
+- [ ] no active Combat shows a clear empty state;
+- [ ] an active native Combat populates both panels;
+- [ ] player-owned/allied tokens classify as players and hostile tokens as opposition;
+- [ ] the GM can override the active side independently of Combat turns.
 
-Traits:
+Combat actions:
 
-- [ ] Traits are grouped by Actor.
-- [ ] Promotion works across several Actors.
-- [ ] Delete requires confirmation and works across several Actors.
-- [ ] History lists affected Actors and Traits.
-- [ ] Complication provenance is updated without reopening complications.
-
-Requests:
-
-- [ ] Pending, completed and cancelled requests appear with correct filters.
-- [ ] Request/result navigation scrolls to the correct chat message.
-- [ ] Cancelling removes **Open test** and cleans an offline recipient inbox.
-- [ ] A cancelled request cannot later be completed by a result.
+- [ ] selected combatants can be marked acted or available;
+- [ ] pass changes the active side;
+- [ ] retain keeps the side and deducts the entered Momentum or Threat cost;
+- [ ] insufficient reserves reject the action without changing state;
+- [ ] reset clears activations;
+- [ ] next round advances Foundry Combat, clears activations and gives players initiative;
+- [ ] manual Foundry round changes synchronize the state;
+- [ ] token selection centers the correct token;
+- [ ] history persists and appears in both interfaces.
 
 Regression:
 
-- [ ] Guided tests, pools, complications and existing group tools still work.
+- [ ] Guided tests, pools, complications, requests and earlier group tools still work.
+- [ ] player-to-GM pool and Trait requests work with two clients.
+- [ ] public, private, blind and self roll modes behave acceptably.
+- [ ] Dice So Nice and light/dark themes remain usable.
 
 ## 8. Known risks
 
 - Every multiplayer client must load the same module version.
-- Party data is a hidden world setting and only GMs may write it.
+- Party and combat data are hidden world settings and only GMs may write them.
 - Shared-state operations are not fully atomic across clients.
-- Group Trait history and source provenance updates are best effort after Item changes.
-- Persistent Trait deletion is intentionally available only to the GM and requires confirmation.
-- Chat-message history depends on the messages remaining in the world collection.
-- Foundry or upstream schema changes require explicit compatibility testing.
+- Group Trait history and provenance updates are best effort after Item changes.
+- Persistent Trait deletion is GM-only and requires confirmation.
+- Request history depends on request ChatMessages remaining in the world.
+- Combat side inference may require manual correction for neutral or allied NPCs.
+- The Combat Tracker DOM and upstream pool APIs may change in later Foundry or Dune versions.
+- Native Combat round behavior must be validated against the supported Foundry build.
 
 ## 9. Decision log
 
@@ -315,7 +343,11 @@ All decisions are dated 2026-08-06 unless stated otherwise. Superseded decisions
 - **D-0047 — Implemented in 0.7.0:** provide a GM global Trait overview.
 - **D-0048 — Implemented initially in 0.8.0:** use a PF2e-inspired Party Sheet as central group UI.
 - **D-0049 — Accepted:** group delivery may partially succeed and reports failures.
-- **D-0050 — Accepted:** expand MVP scope to include request tracking, cross-Actor Trait actions, the extended Party Sheet and combat management.
-- **D-0051 — Accepted:** store editable House, status, notes, objectives and Actor classification/roles in hidden world setting `dune-qol.partyData`.
+- **D-0050 — Accepted:** expand MVP scope to request tracking, cross-Actor Trait actions, the extended Party Sheet and combat management.
+- **D-0051 — Accepted:** store House, status, notes, objectives and Actor metadata in hidden world setting `dune-qol.partyData`.
 - **D-0052 — Accepted:** allow GM-confirmed deletion of persistent Traits from the Party Sheet; preserve provenance and never reopen complications.
 - **D-0053 — Accepted:** derive request history from persistent request ChatMessages and let the GM cancel pending requests with User-inbox cleanup.
+- **D-0054 — Accepted:** layer Dune combat state over the active native Foundry Combat rather than replacing Combat, Combatants or rounds.
+- **D-0055 — Accepted:** store active side, acted Combatants and combat history in hidden world setting `dune-qol.combatState`, scoped to the active Combat id.
+- **D-0056 — Accepted:** make retention cost an explicit GM-entered value from zero to six, spending Momentum for players or Threat for opposition after pool preflight.
+- **D-0057 — Accepted:** expose one shared combat panel in the Combat Tracker and Party Sheet through separate services, with side inference based on ownership and token disposition.
