@@ -125,5 +125,6 @@
   "DUNEQOL.TestRequests.Errors.GmOnly": "Seul un maître de jeu peut envoyer une demande de test.",
   "DUNEQOL.TestRequests.Errors.InvalidRecipient": "Le destinataire ne possède plus ce personnage.",
   "DUNEQOL.TestRequests.Errors.ActorUnavailable": "Le personnage demandé n’est plus disponible ou vous ne le possédez pas.",
+  "DUNEQOL.TestRequests.Errors.InvalidRequest": "La demande de test reçue n’a pas pu être validée.",
   "DUNEQOL.TestRequests.Errors.SendFailed": "La demande de test n’a pas pu être envoyée : {message}"
 }
