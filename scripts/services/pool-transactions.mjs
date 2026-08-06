@@ -171,18 +171,19 @@ async function applyGuidedTestPoolPlanUnlocked(message, requestedBy) {
   }
 
   const writtenPools = [];
+  let actual;
   try {
     for (const pool of targets.changedPools) {
       await writeDunePool(pool, targets.after[pool]);
       writtenPools.push(pool);
     }
+    actual = await readDunePools();
   } catch (error) {
     await rollbackPools(writtenPools, targets.before);
     console.error("Dune QoL | Pool write failed and rollback was attempted.", error);
     throw error;
   }
 
-  const actual = await readDunePools();
   const application = {
     version: 1,
     status: "applied",
@@ -202,14 +203,30 @@ async function applyGuidedTestPoolPlanUnlocked(message, requestedBy) {
 
   const updatedGuidedTest = foundry.utils.deepClone(guidedTest);
   updatedGuidedTest.poolApplication = application;
-  await message.setFlag(MODULE_ID, "guidedTest", updatedGuidedTest);
 
-  await createTransactionMessage({
-    sourceMessage: message,
-    guidedTest,
-    application,
-    requester
-  });
+  try {
+    await message.setFlag(MODULE_ID, "guidedTest", updatedGuidedTest);
+  } catch (error) {
+    await rollbackPools(writtenPools, targets.before);
+    console.error("Dune QoL | Could not mark the pool transaction as applied; rollback was attempted.", error);
+    throw error;
+  }
+
+  try {
+    await createTransactionMessage({
+      sourceMessage: message,
+      guidedTest,
+      application,
+      requester
+    });
+  } catch (error) {
+    console.error("Dune QoL | Pool transaction was applied but its history message failed.", error);
+    ui.notifications.warn(
+      format("DUNEQOL.Pools.Errors.HistoryFailed", {
+        message: error instanceof Error ? error.message : String(error)
+      })
+    );
+  }
 
   ui.notifications.info(localize("DUNEQOL.Pools.Applied"));
 }
