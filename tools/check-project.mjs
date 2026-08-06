@@ -77,6 +77,10 @@ if (manifest) {
     fail("module.json must currently target Foundry major version 13 only.");
   }
 
+  if (manifest.socket !== true) {
+    fail("module.json must enable the module socket for authoritative pool transactions.");
+  }
+
   const duneSystem = manifest.relationships?.systems?.find(
     (relationship) => relationship.id === "dune" && relationship.type === "system"
   );
