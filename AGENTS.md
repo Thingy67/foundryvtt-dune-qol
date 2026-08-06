@@ -9,7 +9,8 @@ Before changing the project, read only:
 1. `README.md` for the stable project overview;
 2. this `AGENTS.md` file for working rules;
 3. the relevant sections of `docs/PROJECT.md` for current scope, architecture, status and decisions;
-4. the source files directly related to the task.
+4. `docs/USER-GUIDE.md` only when the change affects installation, settings or user-visible behavior;
+5. the source files directly related to the task.
 
 Do not scan the whole repository by default. Expand the reading scope only when the task genuinely requires it.
 
@@ -19,11 +20,12 @@ The project must be documented thoroughly, but not through a proliferation of Ma
 
 The expected documentation set is deliberately small:
 
-- `README.md`: stable public overview and setup instructions;
+- `README.md`: stable public overview and installation entry point;
 - `AGENTS.md`: contributor and agent operating rules;
-- `docs/PROJECT.md`: the single living source of truth for scope, architecture, roadmap, current status, risks and decisions.
+- `docs/PROJECT.md`: the single living source of truth for scope, architecture, roadmap, current status, risks and decisions;
+- `docs/USER-GUIDE.md`: the single user-facing manual for all module features and troubleshooting.
 
-Do **not** create separate `TODO.md`, `ROADMAP.md`, `ARCHITECTURE.md`, `DECISIONS.md`, ADR folders, feature notes or meeting-note files unless the maintainer explicitly approves the split and the reason is recorded in `docs/PROJECT.md`.
+Do **not** create separate `TODO.md`, `ROADMAP.md`, `ARCHITECTURE.md`, `DECISIONS.md`, ADR folders, per-feature manuals, release-note trees or meeting-note files unless the maintainer explicitly approves the split and the reason is recorded in `docs/PROJECT.md`.
 
 When new information fits an existing section, update that section instead of creating another document.
 
@@ -61,6 +63,8 @@ Minor implementation details that are obvious from the code do not require a dec
 ## 4. Keep project status current
 
 When a change affects implementation progress, update the relevant roadmap or current-status section of `docs/PROJECT.md`.
+
+When user-visible behavior changes, update `docs/USER-GUIDE.md` in the same change.
 
 Do not leave completed work listed as pending. Do not introduce undocumented future work hidden only in source-code comments.
 
@@ -126,7 +130,7 @@ For each substantial change:
 3. update or add the decision entry when the direction is chosen;
 4. implement the change;
 5. validate it;
-6. update project status and architecture notes where applicable;
+6. update project status, user guide and architecture notes where applicable;
 7. keep commits focused and messages descriptive.
 
 A pull request should explain:
@@ -139,7 +143,7 @@ A pull request should explain:
 
 ## 10. When documentation may be split
 
-A new document is justified only when `docs/PROJECT.md` has become materially difficult to use, or when a tool requires a dedicated file. Before splitting:
+A new document is justified only when an existing authoritative document has become materially difficult to use, or when a tool requires a dedicated file. Before splitting:
 
 1. record the decision in `docs/PROJECT.md`;
 2. define which document remains authoritative for the moved subject;
