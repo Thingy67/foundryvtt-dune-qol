@@ -84,10 +84,13 @@ export function lockInitiativeRetention(state) {
   return { ok: true, state: next };
 }
 
-export function resetCombatRoundState(state, { round = state?.round ?? 0 } = {}) {
+export function resetCombatRoundState(
+  state,
+  { round = state?.round ?? 0, activeSide = COMBAT_SIDES.players } = {}
+) {
   const next = cloneState(state);
   next.round = integerOr(round, 0);
-  next.activeSide = COMBAT_SIDES.players;
+  next.activeSide = isCombatSide(activeSide) ? activeSide : COMBAT_SIDES.players;
   next.actedCombatantIds = [];
   next.retainLockedSide = null;
   return next;
