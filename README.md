@@ -3,7 +3,7 @@
 A companion module for Foundry Virtual Tabletop that improves comfort of play for the community **Dune: Adventures in the Imperium** game system.
 
 > [!IMPORTANT]
-> This project is public and pre-alpha. Version `0.4.0` requires manual validation in Foundry 13, especially for the new complication-Trait workflow.
+> This project is public and pre-alpha. Version `0.5.0` requires manual validation in Foundry 13, especially for game-master test requests.
 
 ## Installation through Foundry
 
@@ -25,7 +25,7 @@ This pre-alpha installation downloads the latest state of the `main` branch. Res
 
 ## User guide
 
-The single user-facing manual is [`docs/USER-GUIDE.md`](docs/USER-GUIDE.md). It explains the Guided test, settings, shared-resource transactions, complication Traits, troubleshooting and update steps.
+The single user-facing manual is [`docs/USER-GUIDE.md`](docs/USER-GUIDE.md). It explains Guided tests, settings, shared-resource transactions, complication Traits, game-master test requests, troubleshooting and update steps.
 
 ## Current features
 
@@ -62,18 +62,31 @@ The game-master path has been manually validated against Foundry `13.351` and Du
 
 ### Complication Traits
 
-Version `0.4.0` adds the first complication workflow:
+A Guided-test result with complications provides a **Create a complication Trait** workflow:
 
-- a Guided-test result with complications gains a **Create a complication Trait** section;
-- one Trait can be created for each complication rolled;
-- the Trait is embedded directly in the associated Actor using the upstream `trait` Item type;
+- one embedded upstream `trait` Item can be created for each complication rolled;
 - Traits are temporary by default but can be made persistent;
 - players request creation through the active game master;
-- the source result tracks created Traits and the number still unresolved;
+- the source result tracks created Traits and unresolved complications;
 - a separate chat message records each creation;
 - failure to record the source state rolls back the newly created Item.
 
 This workflow also applies to older Guided-test messages that already contain complications and a valid Actor reference.
+
+### Game-master test requests
+
+Version `0.5.0` adds requests prepared from an Actor sheet:
+
+- a game master uses **Request test** in the Actor-sheet title bar;
+- the receiving player is selected among users who own that Actor;
+- difficulty, complication range and context are supplied by the game master;
+- Skill, Drive and Focus may be suggested without being locked;
+- a private chat card preserves the request and provides **Open test**;
+- an active recipient also receives a notification and an automatically opened Guided-test dialog;
+- the dialog is prefilled and clearly identifies the requesting game master;
+- offline recipients can open the persisted private request after connecting.
+
+The first version does not mark a request as completed or link it automatically to the resulting roll. The player may reopen the request card when needed.
 
 ## Settings
 
@@ -123,11 +136,11 @@ This checks JavaScript syntax, repository structure, JSON files, Guided-test cal
 
 ## Planned priorities
 
-1. Validate and refine complication Traits.
+1. Validate game-master test requests in a two-client session.
 2. Add quick management of temporary Traits.
-3. Add game-master test requests.
-4. Add an activation tracker adapted to Dune conflicts.
-5. Add supporting-character, HUD and campaign conveniences.
+3. Add an activation tracker adapted to Dune conflicts.
+4. Add supporting-character control conveniences.
+5. Add HUD and campaign conveniences.
 
 ## AI-assisted development disclosure
 
