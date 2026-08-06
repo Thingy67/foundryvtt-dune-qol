@@ -3,7 +3,7 @@
 A companion module for Foundry Virtual Tabletop that improves comfort of play for the community **Dune: Adventures in the Imperium** game system.
 
 > [!IMPORTANT]
-> This project is public and pre-alpha. Version `0.5.3` requires manual validation in Foundry 13, especially for game-master test requests between two clients.
+> This project is public and pre-alpha. Version `0.5.4` requires manual validation in Foundry 13, especially for game-master test requests between two clients.
 
 ## Installation through Foundry
 
@@ -42,6 +42,7 @@ Dune QoL treats **Guided test** as its preferred dice interface:
 - Determination spending;
 - calculation of successes, failure or success, complications and generated Momentum;
 - localized enriched chat card and structured ChatMessage flags;
+- one-line-per-parameter result layout designed for the narrow chat column;
 - visible notification and console error when opening or rolling fails.
 
 The upstream Dune roller remains part of the game system. Dune QoL does not modify its files or methods.
@@ -71,8 +72,6 @@ A Guided-test result with complications provides a **Create a complication Trait
 - a separate chat message records each creation;
 - failure to record the source state rolls back the newly created Item.
 
-This workflow also applies to older Guided-test messages that already contain complications and a valid Actor reference.
-
 ### Game-master test requests
 
 A game master can prepare requests from an Actor sheet:
@@ -87,7 +86,7 @@ A game master can prepare requests from an Actor sheet:
 - prefill the receiving player's Guided-test dialog;
 - allow an offline recipient to receive the request after connecting.
 
-In version `0.5.3`, a Skill or Drive selected by the game master is visibly locked in the player's Guided-test dialog. A hidden form value preserves the imposed selection when the disabled field is submitted. Fields left on **Player chooses** remain editable.
+A Skill or Drive selected by the game master is visibly locked in the player's dialog. Fields left on **Player chooses** remain editable.
 
 Requests use three complementary delivery paths:
 
@@ -95,9 +94,7 @@ Requests use three complementary delivery paths:
 - a persistent queue in the recipient User flags under `flags.dune-qol.testRequestInbox`;
 - a module socket used only to ask an online client to inspect its queue immediately.
 
-The player client also checks its inbox on connection and whenever its User document changes. After successful opening, it sends an acknowledgement so an active game master can remove the queued entry.
-
-The first version does not mark a request as completed or link it automatically to the resulting roll. The player may reopen the request card when needed.
+Version `0.5.4` links the actual Guided-test result back to the originating request. Merely opening or cancelling the dialog leaves **Open test** available. After the result message is created and validated by the active game master, the request becomes completed and the button is removed.
 
 ## Settings
 
@@ -147,11 +144,12 @@ This checks JavaScript syntax, repository structure, JSON files, Guided-test cal
 
 ## Planned priorities
 
-1. Validate game-master test requests in a two-client session.
+1. Finish two-client validation of game-master test requests.
 2. Add quick management of temporary Traits.
-3. Add an activation tracker adapted to Dune conflicts.
-4. Add supporting-character control conveniences.
-5. Add HUD and campaign conveniences.
+3. Add supporting-character control conveniences.
+4. Add HUD and campaign conveniences.
+5. Low priority, near the end: combat and initiative management.
+6. Low priority, last: guided character creation.
 
 ## AI-assisted development disclosure
 
