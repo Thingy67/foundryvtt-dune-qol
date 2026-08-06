@@ -3,7 +3,43 @@
 A companion module for Foundry Virtual Tabletop that improves comfort of play for the community **Dune: Adventures in the Imperium** game system.
 
 > [!IMPORTANT]
-> This project is private, pre-alpha and not ready for normal campaign use. Version `0.1.0` requires manual validation in Foundry 13.
+> This project is public, pre-alpha and not ready for normal campaign use. Version `0.1.0` still requires manual validation in Foundry 13.
+
+## Installation through Foundry
+
+In the Foundry setup screen:
+
+1. open **Add-on Modules**;
+2. click **Install Module**;
+3. paste the following address into **Manifest URL**;
+4. click **Install**.
+
+```text
+https://raw.githubusercontent.com/Thingy67/foundryvtt-dune-qol/main/module.json
+```
+
+> [!WARNING]
+> Use the raw address above. Do not paste the GitHub page address containing `/blob/main/module.json`: that page returns HTML instead of the JSON manifest expected by Foundry.
+
+This pre-alpha installation currently downloads the latest state of the `main` branch. Versioned release archives will replace this development setup when the module is ready for normal distribution.
+
+## Manual installation for development
+
+Alternatively, clone the repository into the Foundry user-data module directory:
+
+```bash
+cd /path/to/foundry-data/Data/modules
+git clone https://github.com/Thingy67/foundryvtt-dune-qol.git dune-qol
+```
+
+To update it later:
+
+```bash
+cd /path/to/foundry-data/Data/modules/dune-qol
+git pull
+```
+
+Restart Foundry after installing or updating, then enable **Dune: Adventures in the Imperium QoL** in a world using system `dune`.
 
 ## Current feature — guided test
 
@@ -42,38 +78,6 @@ The current development target is:
 
 Compatibility is not claimed until the relevant manual tests have been completed and recorded.
 
-## Installation for development
-
-There is no packaged release yet.
-
-> [!WARNING]
-> Do not paste a GitHub `blob` URL such as `https://github.com/.../blob/main/module.json` into Foundry. That URL returns an HTML page, not a JSON manifest. Because this repository is private, Foundry also cannot fetch the raw manifest without GitHub authentication. Install the module by cloning or copying the repository into the Foundry data directory.
-
-1. Clone the repository into the Foundry user-data module directory as `Data/modules/dune-qol`.
-2. Install the upstream Dune system.
-3. Restart Foundry.
-4. Start a world using system `dune`.
-5. Enable **Dune: Adventures in the Imperium QoL** in the world module settings.
-6. Select a character token and use the d20 button added to the Token scene controls.
-
-Example with SSH authentication configured for GitHub:
-
-```bash
-cd /path/to/foundry-data/Data/modules
-git clone git@github.com:Thingy67/foundryvtt-dune-qol.git dune-qol
-```
-
-To update an existing installation:
-
-```bash
-cd /path/to/foundry-data/Data/modules/dune-qol
-git pull
-```
-
-Restart Foundry after cloning or updating so the manifest, JavaScript, localization and stylesheet changes are applied.
-
-For a future public repository, the manifest URL would use the raw file endpoint rather than the GitHub page endpoint. A proper packaged release and install URL will be added before public distribution.
-
 ## Manual validation
 
 From the repository root, with Node.js 20 or newer:
@@ -82,7 +86,7 @@ From the repository root, with Node.js 20 or newer:
 npm run check
 ```
 
-This runs structural checks and the dependency-free guided-test calculation checks. No GitHub Actions workflow is used; Foundry runtime and visual validation are performed manually.
+This runs structural checks and dependency-free guided-test calculation checks. No GitHub Actions workflow is used; Foundry runtime and visual validation are performed manually.
 
 The detailed Foundry checklist is kept in [`docs/PROJECT.md`](docs/PROJECT.md).
 
@@ -136,7 +140,7 @@ Before making a significant change:
 
 ## Licensing and status
 
-No open-source license has been selected yet. The repository is currently private. Do not redistribute the project or third-party material without the maintainer's explicit permission.
+The source repository is public, but no open-source license has been selected yet. Public visibility does not grant permission to redistribute or reuse the project beyond rights provided by applicable law.
 
 ## Disclaimer
 
