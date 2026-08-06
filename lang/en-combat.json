@@ -30,6 +30,7 @@
   "DUNEQOL.Combat.HistoryNewRound": "Round {round} begins; activations are reset and players start.",
   "DUNEQOL.Combat.Errors.GmOnly": "Only a game master can change combat tracking.",
   "DUNEQOL.Combat.Errors.NoSelection": "Select at least one combatant.",
+  "DUNEQOL.Combat.Errors.InvalidCost": "The cost must be an integer from 0 to 6.",
   "DUNEQOL.Combat.Errors.InsufficientPool": "Insufficient pool: {available} available, {cost} required.",
   "DUNEQOL.Combat.Errors.UnknownAction": "The requested combat action is not recognized.",
   "DUNEQOL.Combat.Errors.TokenUnavailable": "This combatant token is unavailable on the active Scene.",
