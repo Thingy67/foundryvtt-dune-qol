@@ -10,7 +10,8 @@ const COMBAT_TAB = "combat";
 
 export function registerPartySheetCombatHooks() {
   Hooks.on("renderApplicationV2", (_application, element) => {
-    const root = getHtmlRoot(element)?.querySelector(PARTY_ROOT);
+    const host = getHtmlRoot(element);
+    const root = host?.matches?.(PARTY_ROOT) ? host : host?.querySelector(PARTY_ROOT);
     if (root) void injectCombatTab(root);
   });
 
