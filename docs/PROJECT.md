@@ -14,10 +14,8 @@ Current baseline:
 - upstream system id: `dune`;
 - supported upstream version: **13.0.1**, currently published in the Foundry catalog;
 - module id: `dune-qol`;
-- module version: **0.1.1**;
+- module version: **0.2.0**;
 - repository: public, pre-alpha.
-
-The upstream development branch currently identifies itself as 13.0.2, but that version is not yet the catalog release. The module must target the version users can actually install unless a newer version is genuinely required.
 
 ## 2. Principles
 
@@ -36,51 +34,52 @@ The upstream development branch currently identifies itself as 13.0.2, but that 
 
 ### Phase 0 — Repository and loading scaffold
 
-Status: **implemented; manual validation pending**.
+Status: **implemented; manual validation in progress**.
 
 Implemented:
 
-- Foundry module manifest;
-- public manifest installation URL and development ZIP download;
-- ES-module entry point and stylesheet;
-- English and French localization;
+- Foundry module manifest and public installation URL;
+- ES-module entry point, settings, localization and stylesheet;
+- English and French resources;
 - dependency-free local validation;
-- centralized documentation and decision log.
+- concentrated project and user documentation.
 
 Remaining:
 
 - run `npm run check` from a real checkout;
-- confirm installation and activation on Foundry 13.351 with Dune 13.0.1;
+- confirm clean installation and activation on Foundry 13.351 with Dune 13.0.1;
 - confirm no console errors or unintended world-data changes.
 
 ### Phase 1 — Guided test workflow
 
-Status: **implemented in 0.1.1; manual Foundry validation pending**.
+Status: **implemented in 0.2.0; manual Foundry validation required**.
 
 Implemented:
 
-- launch from Token scene controls;
-- use one selected token, or the user's assigned character as fallback;
-- validate Actor ownership and supported data;
-- select Skill and Drive;
-- enter an optional Focus with Actor-derived suggestions;
-- set difficulty from 0 to 5;
-- roll 2 to 5 dice;
-- set complication range from 15 to 20;
-- show progressive extra-die costs of 0, 1, 3 and 6;
-- record the declared extra-die source;
-- spend Determination and add its automatic result of 1;
-- calculate successes, complications, success or failure and generated Momentum;
-- post an enriched localized chat result;
-- store versioned metadata under `flags.dune-qol.guidedTest`;
-- leave shared Momentum and Threat pools unchanged.
+- Guided test treated as the preferred dice interface;
+- launcher in supported Actor-sheet title bars by default;
+- optional launcher in Token scene controls;
+- optional detection and hiding of native Dune roller controls, enabled by default;
+- user setting for module language: English or French;
+- user setting for launcher location: Actor sheet, Token controls or both;
+- selected-token or assigned-character fallback for Token-control launch;
+- Actor ownership and supported-data validation;
+- Skill, Drive, optional Focus, difficulty, total dice and complication range;
+- progressive extra-die cost and declared source;
+- Determination spending and automatic result of 1;
+- successes, complications, success or failure and generated Momentum;
+- enriched localized chat result;
+- versioned metadata under `flags.dune-qol.guidedTest`;
+- visible notification and console error when opening or rolling fails;
+- no automatic shared Momentum or Threat mutation.
 
 Remaining:
 
-- validate the real 13.0.1 Actor data structure, particularly Focus storage;
-- validate public, private, blind and self rolls;
-- validate Dice So Nice compatibility and visual presentation;
-- fix runtime issues found during the first manual session.
+- validate Actor-sheet injection against all Dune Actor-sheet variants;
+- validate native-roller detection against Dune 13.0.1 controls;
+- validate Focus storage on real characters;
+- validate roll modes, Dice So Nice and both languages;
+- fix issues found during manual testing.
 
 ### Phase 2 — Momentum and Threat transactions
 
@@ -123,13 +122,19 @@ Current source organization:
 ```text
 scripts/
 ├── dune-qol.mjs
+├── settings.mjs
+├── localization.mjs
 ├── domain/
 │   └── dune-test.mjs
 └── features/
     └── guided-test.mjs
 ```
 
-The guided test reads the upstream Actor data model but uses Foundry core `Roll` and `Roll.toMessage` APIs. Calculation logic is isolated in a pure domain module because the upstream roller does not accept difficulty or retain all context needed by the QoL card.
+The guided test reads upstream Actor data but uses Foundry core `Roll` and `Roll.toMessage`. Calculation logic is isolated in a pure domain module because the upstream roller does not accept difficulty or retain all context needed by the QoL card.
+
+User-language selection is implemented by loading the chosen module dictionary directly. This changes Dune QoL strings only and does not change Foundry's global language.
+
+The module uses public hooks to add Actor-sheet and Scene-control launchers. Native roller buttons are hidden only by filtering exposed Scene-control configuration; upstream files and methods are not modified.
 
 No custom world-data model exists. Guided-test metadata is stored only on its ChatMessage. Future storage preference:
 
@@ -138,19 +143,18 @@ No custom world-data model exists. Guided-test metadata is stored only on its Ch
 3. world settings;
 4. custom documents only when necessary.
 
-Shared-state features must establish authority, permissions, validation and duplicate handling before sockets are introduced.
-
-No public module API exists yet.
+Shared-state features must establish authority, permissions, validation and duplicate handling before sockets are introduced. No public module API exists yet.
 
 ## 5. Documentation policy
 
 Primary Markdown documents:
 
-- `README.md`: public overview, installation and current feature;
+- `README.md`: public overview and installation entry point;
 - `AGENTS.md`: working rules for humans and AI agents;
-- `docs/PROJECT.md`: this source of truth.
+- `docs/PROJECT.md`: technical and product source of truth;
+- `docs/USER-GUIDE.md`: single bilingual user manual and troubleshooting guide.
 
-Do not create separate roadmap, architecture, ADR, decision or TODO files without an explicit recorded decision.
+The user guide is the only approved documentation split. Do not create separate roadmap, architecture, ADR, decision, TODO, release-note or per-feature manual files without a new recorded decision.
 
 ## 6. Testing
 
@@ -160,24 +164,31 @@ Run manually from a repository checkout:
 npm run check
 ```
 
-This verifies required files, JSON validity, manifest relationships and references, matching package versions, documentation policy and pure guided-test calculations.
-
-No GitHub Actions workflow is used.
+This verifies required files, JSON validity, manifest relationships and references, matching package versions, documentation policy and pure guided-test calculations. No GitHub Actions workflow is used.
 
 ### Foundry checklist
 
-Loading:
+Loading and settings:
 
-- [ ] Foundry 13.351 installs module 0.1.1 from the raw manifest URL.
+- [ ] Foundry 13.351 installs module 0.2.0 from the raw manifest URL.
 - [ ] Dune 13.0.1 satisfies the module relationship.
 - [ ] The module activates without console errors.
 - [ ] Activation does not alter existing world data.
+- [ ] Configure Settings shows language, launcher location and native-roller visibility.
+- [ ] Setting changes request or require a reload as expected.
+
+Launchers:
+
+- [ ] A supported Actor sheet shows the Guided test button in its title bar.
+- [ ] The Actor-sheet button works without an active Scene.
+- [ ] Token controls appear only when selected in settings and a Scene is active.
+- [ ] Token and assigned-character Actor resolution work.
+- [ ] Native Dune roller controls are hidden when the setting is enabled.
+- [ ] Native controls return when the setting is disabled.
+- [ ] Any opening failure produces a notification and console error.
 
 Guided test:
 
-- [ ] The d20 button appears in Token controls.
-- [ ] Token and assigned-character Actor selection work.
-- [ ] Error cases produce clear warnings.
 - [ ] Skills, Drives, Focuses and Determination are read correctly.
 - [ ] Focus and non-Focus critical successes are correct.
 - [ ] Difficulty and generated Momentum are correct.
@@ -185,30 +196,35 @@ Guided test:
 - [ ] Extra-die costs are 0, 1, 3 and 6.
 - [ ] Shared pools remain unchanged.
 - [ ] Determination spends exactly one point.
-- [ ] All roll modes work.
+- [ ] Public, private, blind and self rolls work.
 - [ ] Dice So Nice remains compatible.
-- [ ] English and French display correctly.
+- [ ] Switching the module language changes Guided test between English and French.
 
 ## 7. Risks
 
+- **Actor-sheet hook variance:** validate every upstream sheet variant and retain a Token-control fallback.
+- **Native-control detection:** upstream names or callbacks may change; hiding must fail safely and remain optional.
 - **Upstream data changes:** isolate access and retest each supported version.
 - **Foundry API changes:** support one major Foundry version at a time.
 - **Duplicated result logic:** keep it small, pure and tested.
 - **Multiplayer consistency:** design authority before shared-state automation.
 - **Excessive automation:** expose changes and preserve game-master control.
-- **Documentation sprawl:** keep this file authoritative.
+- **Documentation sprawl:** keep only the approved project and user documents.
 
 ## 8. Current status
 
 - Repository is public and pre-alpha.
-- Module 0.1.1 declares compatibility with Foundry 13 and Dune 13.0.1.
+- Module 0.2.0 declares compatibility with Foundry 13 and Dune 13.0.1.
 - Manifest installation is available from the raw `module.json` URL.
-- Guided-test code and pure calculation checks are present.
+- Guided test has Actor-sheet and optional Scene launchers.
+- Module-specific English/French selection is implemented.
+- Native roller hiding is configurable and enabled by default.
+- A single bilingual user guide is present.
 - GitHub Actions are disabled.
-- Full local and Foundry runtime validation remains pending.
+- Full local and Foundry runtime validation remains pending for 0.2.0.
 - Shared Momentum and Threat automation is not implemented.
 
-Next step: reinstall or refresh the module in Foundry 13.351, test it with Dune 13.0.1, and fix the first runtime issues before Phase 2.
+Next step: update the module in Foundry, reload the world, validate the 0.2.0 settings and Actor-sheet button, then report any console error or control that remains duplicated.
 
 ## 9. Decision log
 
@@ -217,7 +233,6 @@ Next step: reinstall or refresh the module in Foundry 13.351, test it with Dune 
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Build `dune-qol` as a separate module rather than modifying or forking the Dune system.
-- Consequence: Integration must tolerate upstream changes.
 
 ### D-0002 — Project identifiers
 
@@ -229,14 +244,13 @@ Next step: reinstall or refresh the module in Foundry 13.351, test it with Dune 
 
 - Date: 2026-08-06
 - Status: Superseded by D-0017
-- Decision: Initially use Dune 13.0.2 because that version appears in the upstream development manifest.
-- Consequence: This incorrectly required an unreleased version and was corrected.
+- Decision: Initially use Dune 13.0.2 because that version appears in upstream development.
 
 ### D-0004 — One central project document
 
 - Date: 2026-08-06
-- Status: Accepted
-- Decision: Keep scope, architecture, roadmap, status, risks, testing and decisions together in `docs/PROJECT.md`.
+- Status: Amended by D-0018
+- Decision: Keep scope, architecture, roadmap, status, risks, testing and decisions in `docs/PROJECT.md`.
 
 ### D-0005 — Record meaningful decisions with changes
 
@@ -279,13 +293,12 @@ Next step: reinstall or refresh the module in Foundry 13.351, test it with Dune 
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Use core `Roll` and `Roll.toMessage` with a local result calculator instead of upstream `DuneRoll.performTest`.
-- Rationale: The upstream method lacks difficulty and the complete QoL context.
 
 ### D-0012 — Defer shared-pool mutations
 
 - Date: 2026-08-06
 - Status: Accepted
-- Decision: Phase 1 records extra-die source and cost but does not change Momentum or Threat. Determination may update the owned Actor.
+- Decision: Record extra-die source and cost without changing Momentum or Threat. Determination may update the owned Actor.
 
 ### D-0013 — Complications independent of success
 
@@ -302,20 +315,56 @@ Next step: reinstall or refresh the module in Foundry 13.351, test it with Dune 
 ### D-0015 — Token controls entry point
 
 - Date: 2026-08-06
-- Status: Accepted
-- Decision: Open guided tests from Token scene controls using one selected token or the assigned character.
+- Status: Superseded by D-0019
+- Decision: Initially open guided tests from Token scene controls.
 
 ### D-0016 — Public development installation
 
 - Date: 2026-08-06
 - Status: Accepted
-- Decision: Make the repository public and support installation through a raw manifest URL with a development ZIP from `main`.
-- Consequence: This is convenient for pre-alpha testing but is not a stable release channel.
+- Decision: Support installation through a raw manifest URL with a development ZIP from `main`.
 
 ### D-0017 — Target the published Dune version
 
 - Date: 2026-08-06
 - Status: Accepted
-- Decision: Set the minimum and verified Dune system version to 13.0.1 and release the correction as module 0.1.1.
-- Rationale: 13.0.1 is the current Foundry catalog release; 13.0.2 exists only in upstream development, and the module uses no 13.0.2-specific API.
-- Consequence: Foundry 13.351 with Dune 13.0.1 can install and enable the module for manual testing.
+- Decision: Support Dune 13.0.1, the current Foundry catalog release, rather than unreleased 13.0.2.
+
+### D-0018 — Add one dedicated user guide
+
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Add `docs/USER-GUIDE.md` as the only user-facing manual, while keeping all development decisions and architecture in `docs/PROJECT.md`.
+- Rationale: Users need operational documentation that is not mixed with implementation history, but documentation must still remain concentrated.
+- Consequence: No per-feature guide files are allowed by default.
+
+### D-0019 — Make the Actor sheet the default launcher
+
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Add the Guided test button to supported Actor-sheet title bars by default and make Token controls optional through a user setting.
+- Rationale: Actor sheets work without an active Scene and identify the intended Actor unambiguously.
+- Consequence: Token controls remain available as an optional fallback.
+
+### D-0020 — Provide module-specific language selection
+
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Let each user choose English or French for Dune QoL independently of Foundry's global language.
+- Rationale: Tables may use a Foundry interface language different from the preferred terminology for Dune.
+- Consequence: The selected dictionary is loaded directly and a reload is required after changes.
+
+### D-0021 — Prefer Guided test over the native roller
+
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Add an enabled-by-default setting that hides detected native Dune roller controls while leaving upstream code untouched.
+- Rationale: The native generic, native Actor-aware and QoL dialogs solve overlapping problems and create avoidable confusion.
+- Consequence: Detection must fail safely, remain optional and be retested when upstream controls change.
+
+### D-0022 — Never fail silently when opening Guided test
+
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Wrap launcher actions so an opening failure always creates a visible notification and a detailed console error.
+- Rationale: A non-responsive button is difficult to diagnose during manual testing.
