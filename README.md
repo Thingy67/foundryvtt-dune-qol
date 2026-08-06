@@ -3,7 +3,7 @@
 A companion module for Foundry Virtual Tabletop that adds optional quality-of-life workflows to the community **Dune: Adventures in the Imperium** system.
 
 > [!IMPORTANT]
-> This project is public and pre-alpha. Version `0.9.0` targets Foundry `13.351` and Dune `13.0.1`; runtime validation remains manual.
+> This project is public and pre-alpha. Version `0.9.1` targets Foundry `13.351` and Dune `13.0.1`; runtime validation remains manual.
 
 ## Installation through Foundry
 
@@ -60,9 +60,7 @@ Deleting a generated Trait never reopens the original complication.
 
 ### Party Sheet
 
-Version `0.8.0` introduced a persistent Party Sheet accessible to GMs and players from Token controls.
-
-It includes:
+The persistent Party Sheet is accessible to GMs and players from Token controls. It includes:
 
 - House information, overall party status, shared notes and objectives;
 - Momentum and Threat display;
@@ -71,23 +69,25 @@ It includes:
 - quick Test, Traits, sheet-opening and token-selection actions;
 - all Traits grouped by Actor;
 - test-request tracking;
-- GM-only world-persistent editing and group Trait actions.
+- GM-only world-persistent editing and group Trait actions;
+- an integrated combat tab.
 
 ### Combat management
 
-Version `0.9.0` adds a Dune-oriented layer over Foundry's native Combat Tracker:
+Version `0.9.1` adds a Dune-oriented layer over Foundry's native Combat Tracker:
 
 - active side: player characters or opposition;
 - acted and available combatants;
 - pass or retain initiative;
-- optional Momentum or Threat cost when retaining initiative;
-- side changes and round reset;
-- next-round synchronization with the native Combat document;
-- combat history;
-- token selection;
-- controls in both the Combat Tracker and the Party Sheet Combat tab.
+- default retention cost of 2, editable by the GM from 0 to 6;
+- player retention paid by spending Momentum or adding Threat;
+- opposition retention paid by spending Threat;
+- prevention of a second consecutive retention by the same side until an opponent acts;
+- side changes, activation reset and native round synchronization;
+- combat history and token selection;
+- controls in the Combat Tracker and Party Sheet Combat tab.
 
-The module does not replace Foundry Combat or impose a fixed retention cost. The GM enters the cost explicitly when needed.
+The module does not replace Foundry Combat, Combatants or rounds. It validates and records the chosen payment but leaves the GM in control of exceptional costs.
 
 ## Settings
 
