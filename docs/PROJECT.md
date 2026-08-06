@@ -14,7 +14,7 @@ Current baseline:
 - upstream system id: `dune`;
 - supported upstream version: **13.0.1**;
 - module id: `dune-qol`;
-- module version: **0.3.0**;
+- module version: **0.4.0**;
 - repository: public, pre-alpha.
 
 ## 2. Principles
@@ -34,37 +34,31 @@ Current baseline:
 
 ### Phase 0 — Repository and loading scaffold
 
-Status: **implemented; manual validation in progress**.
+Status: **implemented and manually validated on the current baseline**.
 
 Implemented:
 
 - Foundry module manifest and public installation URL;
-- ES-module entry point, settings, localization and stylesheet;
+- ES-module entry points, settings, localization and stylesheet;
 - English and French resources;
-- dependency-free local validation;
-- concentrated project and user documentation.
-
-Remaining:
-
-- run `npm run check` from a real checkout;
-- confirm clean installation and activation on Foundry 13.351 with Dune 13.0.1;
-- confirm no console errors or unintended world-data changes.
+- dependency-free local validation command;
+- concentrated project and user documentation;
+- no GitHub Actions workflow.
 
 ### Phase 1 — Guided test workflow
 
-Status: **implemented in 0.2.0; manual Foundry validation in progress**.
+Status: **implemented; core workflow manually validated**.
 
 Implemented:
 
-- Guided test treated as the preferred dice interface;
-- launcher in supported Actor-sheet title bars by default;
+- Guided test as the preferred dice interface;
+- launcher in supported Actor-sheet title bars;
 - optional launcher in Token scene controls;
 - optional hiding of native Dune roller controls;
 - module-specific English or French selection;
-- translated labels, hints and setting choices;
 - selected-token or assigned-character fallback;
 - Skill, Drive, optional Focus, difficulty, dice and complication range;
-- progressive extra-die cost and declared source;
+- dynamic extra-die source and progressive cost;
 - Determination spending;
 - successes, complications, outcome and generated Momentum;
 - enriched localized chat result;
@@ -72,54 +66,74 @@ Implemented:
 
 Remaining:
 
-- validate Focus storage on real characters;
-- validate all Actor-sheet variants and native-control detection;
-- validate roll modes and Dice So Nice;
-- fix issues found during manual testing.
+- validate all Actor and sheet variants;
+- validate every roll-visibility mode and Dice So Nice in multiplayer;
+- refine Focus selection after more real-character testing.
 
 ### Phase 2 — Momentum and Threat transactions
 
-Status: **initial MVP implemented in 0.3.0; upstream adapter and multiplayer validation required**.
+Status: **MVP implemented; game-master path manually validated**.
 
 Implemented:
 
 - pure calculation of the resource plan produced by a Guided test;
-- explicit result-card button instead of automatic mutation;
-- Momentum purchase, Momentum generation and Threat purchase combined into one net plan;
-- Momentum purchase validated against the pool available before the test;
+- explicit result-card confirmation instead of automatic mutation;
+- Momentum purchase, generation and Threat purchase in one plan;
+- pre-funded Momentum validation;
 - Momentum cap of 6 and discarded-excess reporting;
 - active-GM authority for player requests through the module socket;
-- permission checks for the message author and game master;
-- feature-detected adapter around the upstream shared pools;
-- preflight validation before writes;
-- best-effort rollback if a multi-pool write partially fails;
-- in-memory duplicate-processing lock;
-- source-message state marking after successful application;
-- separate chat-visible transaction history with before and after values;
-- structured transaction metadata in module flags;
-- diagnostic output when no supported upstream pool interface is detected.
+- permission checks;
+- feature-detected adapter around upstream shared pools;
+- preflight validation, duplicate protection and best-effort rollback;
+- source-message state marking;
+- public transaction history with before and after values;
+- diagnostic output when no supported upstream interface is detected.
 
 Remaining:
 
-- identify and confirm the exact Dune 13.0.1 pool interface during runtime testing;
-- validate a GM applying their own result;
-- validate a player request with one and several connected GMs;
-- validate Momentum-only, Threat-only and combined changes;
-- validate insufficient Momentum and Momentum-cap behavior;
-- confirm the pool tracker refreshes immediately on every client;
-- decide whether manual standalone pool controls and transaction reversal belong in the next increment.
+- validate the player-request path with one and several active GMs;
+- validate insufficient Momentum and cap behavior through the UI;
+- validate pool refresh on every connected client;
+- decide later whether standalone pool controls and transaction reversal are useful.
 
 ### Phase 3 — Traits and Complications
 
+Status: **initial MVP implemented in 0.4.0; Foundry validation required**.
+
+Implemented:
+
+- dynamic complication-resolution section on Guided-test messages;
+- support for existing Guided-test messages with complications;
+- one Actor Trait creation for each complication;
+- Trait name dialog;
+- upstream `trait` Item type with `system.temporary` enabled by default;
+- active-GM authority for player requests;
+- requester and Actor permission checks;
+- in-memory duplicate-processing protection;
+- source-message record of created Traits and remaining complications;
+- Item provenance under module flags;
+- rollback of the new Item if source-message recording fails;
+- separate public history message for each created Trait;
+- pure resolution calculations and regression checks.
+
+Remaining:
+
+- validate Trait creation on every supported Actor type;
+- validate the player-request path;
+- confirm the upstream sheets refresh immediately and display the Trait correctly;
+- add quick management of temporary Traits;
+- decide later whether complications can also be converted to Threat or other table-defined outcomes.
+
+### Phase 4 — Game-master test requests
+
 Status: **planned**.
 
-- create Actor Traits directly from test results;
-- manage temporary Traits;
-- game-master complication workflow;
-- preserve links between a roll and created state where useful;
-- design scene- or zone-level storage before implementing it.
+- game master prepares context and difficulty;
+- one player or several players receive the request;
+- the player selects the applicable Skill, Drive and Focus;
+- the result remains linked to the request.
 
-### Phase 4 — Activation tracker
+### Phase 5 — Activation tracker
 
 Status: **planned**.
 
@@ -145,41 +159,71 @@ scripts/
 │   └── dune-pools.mjs
 ├── domain/
 │   ├── dune-test.mjs
-│   └── pool-plan.mjs
+│   ├── pool-plan.mjs
+│   └── complication-resolution.mjs
 ├── features/
-│   └── guided-test.mjs
+│   ├── guided-test.mjs
+│   └── guided-test-ui.mjs
 └── services/
-    └── pool-transactions.mjs
+    ├── pool-transactions.mjs
+    └── complication-traits.mjs
 ```
 
 ### Guided tests
 
-The guided test reads upstream Actor data but uses Foundry core `Roll` and `Roll.toMessage`. Calculation logic remains pure and independent from Foundry.
+The Guided test reads upstream Actor data but uses Foundry core `Roll` and `Roll.toMessage`. Calculation logic is isolated from Foundry.
 
-Guided-test flag schema version 2 stores the test context, the proposed pool plan and an application status under:
+Guided-test data is stored under:
 
 ```text
 flags.dune-qol.guidedTest
 ```
 
+Existing schema version 2 messages remain readable. A message is upgraded to at least version 3 when a complication Trait is recorded.
+
 ### Localization and settings
 
-The selected module dictionary is loaded directly, independently of Foundry's global language. The settings configuration is amended at render time so its labels, hints and choices use that selected dictionary.
+The selected module dictionary is loaded independently of Foundry's global language. The settings configuration is amended at render time so its labels, hints and choices use that dictionary.
 
 ### Shared pools
 
-`domain/pool-plan.mjs` calculates and validates desired changes without accessing Foundry.
+`domain/pool-plan.mjs` calculates desired changes without accessing Foundry.
 
-`adapters/dune-pools.mjs` is the only boundary that probes upstream pool storage and mutation methods. It tries known registered Dune settings and feature-detects likely `game.dune.pools` accessors. Unsupported interfaces must fail clearly with diagnostics rather than mutate guessed properties directly.
+`adapters/dune-pools.mjs` is the only boundary that probes upstream pool storage and mutation methods.
 
 `services/pool-transactions.mjs` owns authority, permissions, socket requests, duplicate protection, writes, rollback and chat history. A non-GM client never writes shared pools directly.
 
-The first active GM ordered by user id acts as the authoritative receiver when several GMs are connected. The lock preventing simultaneous application is local to that GM client; persistent source-message state provides the durable duplicate check after a completed transaction.
-
-Successful history messages store structured metadata under:
+Successful history messages use:
 
 ```text
 flags.dune-qol.poolTransaction
+```
+
+### Complication Traits
+
+`domain/complication-resolution.mjs` calculates total, resolved and remaining complications and prevents recording more Traits than the roll produced.
+
+`services/complication-traits.mjs` injects the result-card UI at render time. This avoids rewriting old chat content and lets compatible older Guided-test messages receive the new action.
+
+A player request is sent through the module socket and executed by the first active GM ordered by user id. The service creates an upstream embedded Item:
+
+```js
+{
+  type: "trait",
+  system: { temporary: true }
+}
+```
+
+Created Items store provenance under:
+
+```text
+flags.dune-qol.complicationTrait
+```
+
+The source Guided-test message stores created Trait records under:
+
+```text
+flags.dune-qol.guidedTest.complicationResolution
 ```
 
 ### Persistent data
@@ -202,7 +246,7 @@ Primary Markdown documents:
 - `docs/PROJECT.md`: technical and product source of truth;
 - `docs/USER-GUIDE.md`: single bilingual user manual and troubleshooting guide.
 
-The user guide is the only approved documentation split. Do not create separate roadmap, architecture, ADR, decision, TODO, release-note or per-feature manual files without a new recorded decision.
+Do not create separate roadmap, architecture, ADR, decision, TODO, release-note or per-feature manual files without a new recorded decision.
 
 ## 6. Testing
 
@@ -212,251 +256,238 @@ Run manually from a repository checkout:
 npm run check
 ```
 
-This performs JavaScript syntax checks, required-file and JSON checks, manifest validation, documentation-policy checks, guided-test calculations and pool-plan calculations. No GitHub Actions workflow is used.
+The command performs JavaScript syntax checks, required-file and JSON checks, manifest validation, documentation-policy checks and pure regression checks for tests, pools and complication resolution. No GitHub Actions workflow is used.
 
-### Foundry checklist
+### Foundry checklist — 0.4.0
 
-Loading and settings:
+Loading:
 
-- [ ] Foundry 13.351 installs module 0.3.0 from the raw manifest URL.
-- [ ] Dune 13.0.1 satisfies the module relationship.
+- [ ] Foundry 13.351 installs and displays module 0.4.0.
+- [ ] Dune 13.0.1 satisfies the system relationship.
 - [ ] The module activates without console errors.
-- [ ] Activation alone does not alter world data.
-- [ ] Configure Settings is fully translated in English and French.
 
-Guided test:
+Guided test and pools:
 
-- [ ] Actor-sheet and optional Token-control launchers work.
-- [ ] Skills, Drives, Focuses and Determination are read correctly.
-- [ ] Difficulty, successes, complications and generated Momentum are correct.
-- [ ] Extra-die costs are 0, 1, 3 and 6.
-- [ ] Public, private, blind and self rolls work.
-- [ ] Dice So Nice remains compatible.
+- [x] Actor-sheet Guided-test launcher works.
+- [x] Module language and launcher settings work.
+- [x] Extra-die source activates from 3 dice onward.
+- [x] A GM can apply generated Momentum and receive history.
+- [ ] A player can request a pool transaction from an active GM.
 
-Pool transactions — GM:
+Complication Traits — GM:
 
-- [ ] A result with no resource change contains no application button.
-- [ ] Generated Momentum produces the correct proposed delta.
-- [ ] Momentum and Threat purchases produce the correct proposed deltas.
-- [ ] Applying changes updates the upstream tracker and creates history.
-- [ ] The source result becomes disabled or marked applied.
-- [ ] A second application is rejected.
-- [ ] Insufficient Momentum makes no change.
-- [ ] Momentum cannot be paid with Momentum generated by the same test.
-- [ ] Momentum caps at 6 and excess is reported.
-- [ ] A failed adapter probe changes no state and logs diagnostics.
+- [ ] A result with zero complications has no complication section.
+- [ ] A result with one complication offers one Trait creation.
+- [ ] A temporary Trait appears on the correct Actor.
+- [ ] Clearing the checkbox creates a persistent Trait.
+- [ ] The result shows the created Trait and zero remaining.
+- [ ] A second Trait cannot be created for the same single complication.
+- [ ] Two complications allow exactly two Trait creations.
+- [ ] A separate history message is created for each Trait.
+- [ ] An older compatible Guided-test message also receives the action.
 
-Pool transactions — multiplayer:
+Complication Traits — multiplayer:
 
-- [ ] A player sees the application button only on their own result.
-- [ ] A player without an active GM receives a clear error.
-- [ ] A player request is applied by the active GM.
-- [ ] With several active GMs, only the selected authoritative GM writes.
-- [ ] The player receives success or failure feedback.
-- [ ] Every client sees the updated pools, source message and history.
+- [ ] A player owning the Actor can open the creation dialog.
+- [ ] Without an active GM, the player receives a clear error.
+- [ ] With an active GM, the Trait is created once.
+- [ ] The source message updates on every client.
+- [ ] Unauthorized users do not receive an actionable button.
 
 ## 7. Risks
 
-- **Upstream pool API uncertainty:** the 13.0.1 runtime interface must be confirmed; the adapter must fail without mutation when unsupported.
-- **Concurrent requests:** the local GM lock and message state reduce duplicate application, but true distributed atomic transactions are unavailable.
-- **Partial writes:** rollback is best effort and must be tested when both pools change.
-- **Actor-sheet hook variance:** validate every upstream sheet variant and retain a Token-control fallback.
-- **Native-control detection:** upstream names or callbacks may change; hiding remains optional.
+- **Upstream Item schema changes:** the current system defines `trait` with a `temporary` boolean; retest each supported release.
+- **Concurrent requests:** local locks and source-message state reduce duplicates, but Foundry does not provide distributed atomic transactions.
+- **Deleted Traits:** deleting a created Trait does not automatically reopen the original complication.
+- **Partial operations:** Item creation is rolled back if source-message recording fails; history creation remains non-blocking.
+- **Actor-sheet variants:** embedded Traits may render differently across Actor types.
 - **Foundry API changes:** support one major Foundry version at a time.
-- **Duplicated result logic:** keep it small, pure and tested.
 - **Documentation sprawl:** keep only the approved project and user documents.
 
 ## 8. Current status
 
 - Repository is public and pre-alpha.
-- Module 0.3.0 targets Foundry 13.351 and Dune 13.0.1.
-- Guided test and module-specific language selection are operational in initial manual testing.
-- Settings labels are now translated using the module language.
-- Explicit Momentum and Threat transaction code is implemented.
-- Pure pool-plan tests and JavaScript syntax checks are included in `npm run check`.
+- Module 0.4.0 targets Foundry 13.351 and Dune 13.0.1.
+- Guided test, language selection, launcher placement and GM pool transactions have passed initial manual testing.
+- Complication-Trait code, localization, styles and pure calculations are implemented.
 - GitHub Actions are disabled.
-- The exact upstream pool adapter and multiplayer workflow remain unverified in Foundry.
+- Foundry runtime validation of complication Traits remains pending.
 
-Next step: update to 0.3.0, first test a simple generated-Momentum application as GM, then test a Threat-funded extra die. Capture the complete `Dune QoL` console diagnostic if the upstream adapter cannot find the pools.
+Next step: update to 0.4.0, produce a Guided test with a complication, create a temporary Trait and confirm that the Actor sheet, source result and history message all update.
 
 ## 9. Decision log
 
 ### D-0001 — Separate companion module
-
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Build `dune-qol` as a separate module rather than modifying or forking the Dune system.
 
 ### D-0002 — Project identifiers
-
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Use `foundryvtt-dune-qol` for the repository and `dune-qol` for the module id.
 
 ### D-0003 — Initial 13.0.2 baseline
-
 - Date: 2026-08-06
 - Status: Superseded by D-0017
 - Decision: Initially use Dune 13.0.2 because that version appears in upstream development.
 
 ### D-0004 — One central project document
-
 - Date: 2026-08-06
 - Status: Amended by D-0018
 - Decision: Keep scope, architecture, roadmap, status, risks, testing and decisions in `docs/PROJECT.md`.
 
 ### D-0005 — Record meaningful decisions with changes
-
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Lasting product and technical choices must be recorded when implemented.
 
 ### D-0006 — Disclose AI assistance
-
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Prominently disclose substantial AI assistance while retaining human review responsibility.
 
 ### D-0007 — No initial runtime dependencies
-
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Depend only on Foundry and the Dune system initially.
 
 ### D-0008 — Workflow-value priority order
-
 - Date: 2026-08-06
 - Status: Accepted
-- Decision: Implement guided tests, then pool transactions, Traits and Complications, then activation tracking.
+- Decision: Implement Guided tests, pool transactions, Traits and Complications, then request and activation workflows.
 
 ### D-0009 — Dependency-free validation with CI
-
 - Date: 2026-08-06
 - Status: Superseded by D-0010
 - Decision: Use a small standard-library Node script locally and in GitHub Actions.
 
 ### D-0010 — Manual validation only
-
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Keep `npm run check`, but remove GitHub Actions to avoid recurring credit consumption.
 
 ### D-0011 — Use Foundry core Roll
-
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Use core `Roll` and `Roll.toMessage` with a local result calculator instead of upstream `DuneRoll.performTest`.
 
 ### D-0012 — Defer shared-pool mutations
-
 - Date: 2026-08-06
 - Status: Superseded by D-0023
 - Decision: Initially record extra-die source and cost without changing Momentum or Threat.
 
 ### D-0013 — Complications independent of success
-
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: One die may produce both success and complication.
 
 ### D-0014 — Versioned ChatMessage metadata
-
 - Date: 2026-08-06
-- Status: Amended by D-0026
-- Decision: Store guided-test metadata under `flags.dune-qol.guidedTest`.
+- Status: Amended by D-0026 and D-0031
+- Decision: Store Guided-test metadata under `flags.dune-qol.guidedTest`.
 
 ### D-0015 — Token controls entry point
-
 - Date: 2026-08-06
 - Status: Superseded by D-0019
-- Decision: Initially open guided tests from Token scene controls.
+- Decision: Initially open Guided tests from Token scene controls.
 
 ### D-0016 — Public development installation
-
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Support installation through a raw manifest URL with a development ZIP from `main`.
 
 ### D-0017 — Target the published Dune version
-
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Support Dune 13.0.1 rather than unreleased 13.0.2.
 
 ### D-0018 — Add one dedicated user guide
-
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Add `docs/USER-GUIDE.md` as the only user-facing manual.
 
 ### D-0019 — Make the Actor sheet the default launcher
-
 - Date: 2026-08-06
 - Status: Accepted
-- Decision: Add the Guided test button to supported Actor-sheet title bars by default and make Token controls optional.
+- Decision: Add the Guided-test button to supported Actor-sheet title bars by default and make Token controls optional.
 
 ### D-0020 — Provide module-specific language selection
-
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Let each user choose English or French for Dune QoL independently of Foundry's global language.
 
 ### D-0021 — Prefer Guided test over the native roller
-
 - Date: 2026-08-06
 - Status: Accepted
-- Decision: Add an enabled-by-default setting that hides detected native Dune roller controls while leaving upstream code untouched.
+- Decision: Hide detected native Dune roller controls by default while leaving upstream code untouched.
 
 ### D-0022 — Never fail silently when opening Guided test
-
 - Date: 2026-08-06
 - Status: Accepted
-- Decision: An opening failure always creates a visible notification and a detailed console error.
+- Decision: An opening failure always creates a visible notification and detailed console error.
 
 ### D-0023 — Require explicit confirmation for shared-pool changes
-
 - Date: 2026-08-06
 - Status: Accepted
-- Decision: Guided tests may propose Momentum and Threat changes, but those changes are applied only after a user clicks the result-card action.
-- Rationale: Shared-resource automation must remain visible, understandable and reversible through normal table decisions.
-- Consequence: Rolling never silently changes a shared pool.
+- Decision: Guided tests propose Momentum and Threat changes, applied only after a result-card action.
 
 ### D-0024 — Use an active GM as transaction authority
-
 - Date: 2026-08-06
 - Status: Accepted
-- Decision: A player request is sent through the module socket and executed by the first active GM ordered by user id; a GM may execute their own request locally.
-- Rationale: Shared pools require a single authoritative writer and normal players may lack permission to update upstream storage.
-- Consequence: Player application requires an active GM. The socket payload is treated as a request and permissions are rechecked by the GM.
+- Decision: Player shared-state requests are executed by the first active GM ordered by user id.
 
 ### D-0025 — Isolate and feature-detect the upstream pool API
-
 - Date: 2026-08-06
 - Status: Accepted
-- Decision: Access Dune pools only through `adapters/dune-pools.mjs`, probing registered settings and known method shapes without directly assigning guessed properties.
-- Rationale: The upstream system does not expose a documented stable external pool API.
-- Consequence: Unsupported versions fail with diagnostics and no intended mutation; every supported version requires runtime validation.
+- Decision: Access Dune pools only through `adapters/dune-pools.mjs` and fail clearly when unsupported.
 
 ### D-0026 — Version pool plans and applications in ChatMessage flags
-
 - Date: 2026-08-06
 - Status: Accepted
-- Decision: Guided-test flag schema version 2 stores a versioned pool plan and application state; successful transaction history uses `flags.dune-qol.poolTransaction` version 1.
-- Rationale: The chat result is the durable source context for permission checks, duplicate detection and history.
-- Consequence: Incompatible schema changes require version increments and compatibility handling.
+- Decision: Guided-test schema version 2 stores pool plans and application state; transaction history uses `flags.dune-qol.poolTransaction` version 1.
 
 ### D-0027 — Enforce pre-funded purchases and a Momentum cap of six
-
 - Date: 2026-08-06
 - Status: Accepted
-- Decision: Momentum used for extra dice must be present before the test, generated Momentum cannot fund that purchase retroactively, and the final shared Momentum pool is capped at 6.
-- Rationale: Cost and generation occur at different stages of the test, and excess Momentum must not silently exceed the shared-pool limit.
-- Consequence: An otherwise non-negative net delta can still fail when the initial pool cannot pay the declared cost; discarded excess is recorded in chat history.
+- Decision: Momentum purchases require pre-existing Momentum, and final Momentum is capped at 6.
 
 ### D-0028 — Record every successful pool transaction in chat
-
 - Date: 2026-08-06
 - Status: Accepted
-- Decision: After a successful application, create a separate public chat card containing requester, Actor, before and after values, and discarded Momentum.
-- Rationale: Shared state should be auditable without inspecting hidden flags or the browser console.
-- Consequence: Pool applications add one additional chat message and do not currently provide an automatic reversal action.
+- Decision: Create a separate public chat card with requester, Actor, before and after values and discarded Momentum.
+
+### D-0029 — Create one Actor Trait per complication
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Each complication on a Guided-test result may resolve into exactly one embedded Actor Trait.
+- Rationale: This maps the result to visible game state without hiding the game master's choice of Trait name.
+- Consequence: Deleting the Trait later does not automatically reopen the original complication.
+
+### D-0030 — Use the upstream trait Item and temporary field
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Create upstream Items with `type: "trait"` and set `system.temporary` from the creation dialog, defaulting to true.
+- Rationale: Reusing the system data model keeps Traits visible on normal Dune sheets and avoids custom persistent documents.
+- Consequence: Compatibility depends on the upstream Trait schema and must be retested per release.
+
+### D-0031 — Record complication resolution on the source message
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Store created Trait records under `flags.dune-qol.guidedTest.complicationResolution` and upgrade the message schema to at least version 3 when first used.
+- Rationale: The source result must track remaining complications and prevent normal over-creation.
+- Consequence: Failure to record the source state triggers rollback of the newly created Item.
+
+### D-0032 — Execute player Trait requests through the active GM
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: A player may open the dialog for an owned Actor, but the active GM performs Item creation and source-message updates.
+- Rationale: This gives one authoritative writer and consistent permissions for embedded Items and chat messages.
+- Consequence: Player creation requires an active GM; GM creation remains local.
+
+### D-0033 — Inject complication controls at chat render time
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Add the complication-resolution section through `renderChatMessage` instead of permanently rewriting the original HTML content.
+- Rationale: Dynamic rendering supports compatible existing Guided-test messages and reflects current flag state and language.
+- Consequence: The source message must contain complications and a valid Actor UUID; unsupported old messages remain unchanged.
