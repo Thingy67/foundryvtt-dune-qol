@@ -32,13 +32,9 @@ Une demande reste ouverte tant qu’aucun résultat correspondant n’existe. Ap
 
 ### Feuille de groupe
 
-À partir de `0.8.0`, le bouton **Feuille de groupe** est disponible dans les contrôles de token pour le MJ et les joueurs.
-
-La fenêtre reste ouverte comme une application Foundry normale et contient plusieurs onglets.
+Le bouton **Feuille de groupe** est disponible dans les contrôles de token pour le MJ et les joueurs.
 
 #### Vue d’ensemble
-
-Affiche les réserves collectives lorsqu’elles sont disponibles.
 
 Le MJ peut enregistrer pour tout le monde :
 
@@ -47,7 +43,7 @@ Le MJ peut enregistrer pour tout le monde :
 - les objectifs communs ;
 - les notes du groupe.
 
-Les joueurs voient ces informations en lecture seule.
+Les réserves collectives sont affichées lorsqu’elles sont disponibles. Les joueurs voient les informations partagées en lecture seule.
 
 #### Personnages
 
@@ -59,18 +55,11 @@ Les personnages possédés par les joueurs sont regroupés automatiquement :
 
 Chaque carte affiche portrait, propriétaires, ressources individuelles détectées et quelques Traits.
 
-Actions rapides :
-
-- **Ouvrir la fiche** ;
-- **Test** ;
-- **Traits** ;
-- **Sélectionner le token** sur la scène active.
+Actions rapides : **Ouvrir la fiche**, **Test**, **Traits** et **Sélectionner le token**.
 
 #### Traits
 
-Tous les Traits sont regroupés par personnage.
-
-Le MJ peut sélectionner des Traits sur plusieurs personnages puis :
+Tous les Traits sont regroupés par personnage. Le MJ peut sélectionner des Traits sur plusieurs personnages puis :
 
 - rendre persistants les Traits temporaires sélectionnés ;
 - supprimer les Traits sélectionnés.
@@ -79,32 +68,17 @@ La suppression de Traits persistants demande une confirmation. Un message d’hi
 
 #### Demandes de test
 
-Le tableau affiche les demandes visibles avec leur date, joueur, personnage, contexte et état :
+Le tableau affiche les demandes avec leur date, joueur, personnage, contexte et état : en attente, terminée ou annulée.
 
-- en attente ;
-- terminée ;
-- annulée.
-
-Les filtres limitent l’affichage à un état. Les boutons permettent d’afficher dans le chat la demande ou son résultat. Le MJ peut annuler une demande en attente ; elle est alors retirée de la file de livraison et ne peut plus être validée par un résultat ultérieur.
+Les boutons permettent d’afficher dans le chat la demande ou son résultat. Le MJ peut annuler une demande en attente ; elle est retirée de la file de livraison et ne peut plus être validée par un résultat ultérieur.
 
 ### Gestion du combat
 
-À partir de `0.9.0`, Dune QoL ajoute un suivi adapté à Dune au-dessus du Combat Tracker natif.
+À partir de `0.9.1`, Dune QoL ajoute un suivi adapté à Dune au-dessus du Combat Tracker natif.
 
-Il faut d’abord créer ou activer un Combat Foundry et y ajouter les tokens concernés.
+Créez ou activez d’abord un Combat Foundry et ajoutez-y les tokens concernés. Le panneau apparaît dans le Combat Tracker et dans l’onglet **Combat** de la Feuille de groupe.
 
-Le panneau apparaît :
-
-- dans le Combat Tracker ;
-- dans l’onglet **Combat** de la Feuille de groupe.
-
-Le suivi indique :
-
-- le round ;
-- le camp actif ;
-- les combattants disponibles ou ayant déjà agi ;
-- Momentum et Menace lorsqu’ils sont accessibles ;
-- l’historique des actions.
+Le suivi indique le round, le camp actif, les combattants disponibles ou ayant déjà agi, les réserves accessibles et l’historique.
 
 Le MJ peut :
 
@@ -112,18 +86,24 @@ Le MJ peut :
 2. sélectionner plusieurs combattants et les marquer comme ayant agi ;
 3. rendre des combattants de nouveau disponibles ;
 4. passer l’initiative à l’autre camp ;
-5. conserver l’initiative avec un coût facultatif ;
+5. conserver l’initiative ;
 6. réinitialiser les activations ;
 7. passer au round suivant.
 
-Pour **Conserver l’initiative**, le MJ saisit explicitement un coût entre 0 et 6 :
+#### Conserver l’initiative
 
-- le camp des joueurs dépense du Momentum ;
-- l’opposition dépense de la Menace.
+Le coût proposé est **2**, mais le MJ peut saisir un nombre entier de 0 à 6 pour gérer les exceptions.
 
-Le module vérifie la réserve avant de la modifier. Il n’impose pas automatiquement un coût de règle.
+Pour le camp des joueurs, le MJ choisit le paiement :
 
-**Round suivant** utilise le Combat natif de Foundry, vide la liste des combattants ayant agi et redonne par défaut l’initiative aux joueurs. Une modification manuelle du round dans Foundry synchronise également le suivi.
+- dépenser du Momentum ;
+- ajouter autant de Menace.
+
+Pour l’opposition, le coût est dépensé depuis la réserve de Menace. Le module vérifie la réserve lorsqu’une dépense est nécessaire et enregistre le paiement dans l’historique.
+
+Un même camp ne peut pas conserver l’initiative deux fois de suite. Après une conservation, le bouton reste verrouillé pour ce camp jusqu’à ce qu’un combattant du camp adverse soit marqué comme ayant agi. Le verrou est également supprimé lors d’une réinitialisation ou d’un nouveau round.
+
+**Round suivant** utilise le Combat natif de Foundry, vide la liste des combattants ayant agi et redonne par défaut l’initiative aux joueurs. Une modification manuelle du round synchronise également le suivi.
 
 Le bouton en forme de viseur sélectionne et centre le token du combattant.
 
@@ -137,7 +117,7 @@ Depuis le Setup Foundry, utilisez **Update**, puis rechargez complètement les c
 
 #### La Feuille de groupe ou les outils de groupe ne sont pas visibles
 
-Une scène active et les contrôles de token sont nécessaires. Vérifiez que le module affiche au minimum `0.9.0`, puis rechargez complètement.
+Une scène active et les contrôles de token sont nécessaires. Vérifiez que le module affiche au minimum `0.9.1`, puis rechargez complètement.
 
 #### Un personnage n’apparaît pas
 
@@ -151,9 +131,13 @@ Le token du personnage doit exister sur la scène active.
 
 Créez un Combat depuis le Combat Tracker, ajoutez les tokens, puis vérifiez que ce Combat est actif.
 
-#### Un coût de conservation est refusé
+#### Le paiement de conservation est refusé
 
-La réserve de Momentum ou de Menace doit contenir au moins le montant saisi.
+Le coût doit être un entier de 0 à 6. Une dépense de Momentum ou de Menace nécessite une réserve suffisante. L’option **Ajouter de la Menace** n’exige pas de réserve préalable.
+
+#### Conserver l’initiative reste désactivé
+
+Le même camp a déjà conservé l’initiative. Marquez au moins un combattant adverse comme ayant agi, ou réinitialisez les activations.
 
 #### Une demande reste ouverte après un résultat
 
@@ -179,37 +163,19 @@ A GM may send one request from an Actor sheet or independent requests to several
 
 ### Party Sheet
 
-Starting with `0.8.0`, **Party Sheet** is available in Token controls to GMs and players.
-
-It provides:
-
-- shared House information, status, objectives and notes;
-- Momentum and Threat display;
-- primary and supporting characters;
-- owners, roles, portraits and detected individual resources;
-- quick Test, Traits, sheet and token actions;
-- cross-Actor Trait management for the GM;
-- pending, completed and cancelled request tracking;
-- request/result chat navigation and request cancellation.
+**Party Sheet** is available in Token controls to GMs and players. It provides shared House information, status, objectives and notes; Momentum and Threat; primary and supporting characters; quick actions; cross-Actor Trait management; request tracking; and a Combat tab.
 
 Only the GM can edit world-persistent information or perform group Trait changes.
 
 ### Combat management
 
-Starting with `0.9.0`, a Dune combat panel appears in the native Combat Tracker and the Party Sheet Combat tab.
+Starting with `0.9.1`, a Dune combat panel appears in the native Combat Tracker and the Party Sheet Combat tab.
 
-Create or activate a normal Foundry Combat first. The GM can then:
+Create or activate a normal Foundry Combat first. The GM can choose the active side, mark combatants acted or available, pass or retain initiative, reset activations, advance the native round, inspect history, and select tokens.
 
-- choose the active side;
-- mark selected combatants as acted or available;
-- pass or retain initiative;
-- enter an optional Momentum or Threat retention cost;
-- reset activations;
-- advance the native round;
-- inspect combat history;
-- select and pan to combatant tokens.
+The suggested retention cost is **2**, editable from 0 to 6. Player retention may spend Momentum or add Threat. Opposition retention spends Threat.
 
-Players spend Momentum when their side retains initiative; the opposition spends Threat. The module validates the pool but does not impose a fixed rules cost.
+After a side retains initiative, that same side cannot retain again until an opposing combatant is marked as acted. Resetting activations or advancing the round clears the lock.
 
 ### Language and troubleshooting
 
