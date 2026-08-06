@@ -74,6 +74,7 @@
   "DUNEQOL.Pools.Errors.Unknown": "Erreur inconnue",
   "DUNEQOL.Pools.Errors.NoChanges": "Ce test guidé ne comporte aucun changement de réserve à appliquer.",
   "DUNEQOL.Pools.Errors.AlreadyApplied": "Les changements de réserves de ce test ont déjà été appliqués.",
+  "DUNEQOL.Pools.Errors.AlreadyProcessing": "Les changements de réserves de ce test sont déjà en cours de traitement.",
   "DUNEQOL.Pools.Errors.NotAllowed": "Vous n’êtes pas autorisé à appliquer les changements de réserves de ce test.",
   "DUNEQOL.Pools.Errors.AdapterUnavailable": "Dune QoL ne parvient pas à accéder aux réserves du système Dune : {message}",
   "DUNEQOL.Pools.Errors.InsufficientMomentum": "Momentum insuffisant : {available} disponible, {required} requis.",
