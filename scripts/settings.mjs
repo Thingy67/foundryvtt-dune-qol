@@ -12,6 +12,33 @@ export const LAUNCHER_LOCATIONS = Object.freeze({
   both: "both"
 });
 
+const SETTINGS_UI = Object.freeze([
+  {
+    key: SETTING_KEYS.language,
+    name: "DUNEQOL.Settings.Language.Name",
+    hint: "DUNEQOL.Settings.Language.Hint",
+    choices: {
+      en: "DUNEQOL.Settings.Language.English",
+      fr: "DUNEQOL.Settings.Language.French"
+    }
+  },
+  {
+    key: SETTING_KEYS.launcherLocation,
+    name: "DUNEQOL.Settings.Launcher.Name",
+    hint: "DUNEQOL.Settings.Launcher.Hint",
+    choices: {
+      [LAUNCHER_LOCATIONS.actorSheet]: "DUNEQOL.Settings.Launcher.ActorSheet",
+      [LAUNCHER_LOCATIONS.tokenControls]: "DUNEQOL.Settings.Launcher.TokenControls",
+      [LAUNCHER_LOCATIONS.both]: "DUNEQOL.Settings.Launcher.Both"
+    }
+  },
+  {
+    key: SETTING_KEYS.hideNativeRoller,
+    name: "DUNEQOL.Settings.HideNativeRoller.Name",
+    hint: "DUNEQOL.Settings.HideNativeRoller.Hint"
+  }
+]);
+
 export function registerSettings() {
   const foundryLanguage = game.i18n?.lang;
   const defaultLanguage = foundryLanguage === "fr" ? "fr" : "en";
@@ -54,6 +81,10 @@ export function registerSettings() {
     default: true,
     requiresReload: true
   });
+
+  Hooks.on("renderSettingsConfig", async (_application, html) => {
+    await localizeSettingsConfig(html);
+  });
 }
 
 export function getModuleLanguage() {
@@ -66,4 +97,36 @@ export function getLauncherLocation() {
 
 export function shouldHideNativeRoller() {
   return game.settings.get(MODULE_ID, SETTING_KEYS.hideNativeRoller);
+}
+
+async function localizeSettingsConfig(html) {
+  const root = getHtmlRoot(html);
+  if (!root) return;
+
+  const { localize } = await import("./localization.mjs");
+
+  for (const setting of SETTINGS_UI) {
+    const input = root.querySelector(`[name="${MODULE_ID}.${setting.key}"]`);
+    const group = input?.closest(".form-group");
+    if (!input || !group) continue;
+
+    const label = group.querySelector("label");
+    if (label) label.textContent = localize(setting.name);
+
+    const hint = group.querySelector(".hint, p.notes");
+    if (hint) hint.textContent = localize(setting.hint);
+
+    if (input instanceof HTMLSelectElement && setting.choices) {
+      for (const option of input.options) {
+        const key = setting.choices[option.value];
+        if (key) option.textContent = localize(key);
+      }
+    }
+  }
+}
+
+function getHtmlRoot(html) {
+  if (html instanceof HTMLElement) return html;
+  if (html?.[0] instanceof HTMLElement) return html[0];
+  return null;
 }
