@@ -65,7 +65,7 @@ Le Momentum utilisé pour acheter les dés doit être disponible avant le jet. L
 
 ### Créer un Trait depuis une complication
 
-À partir de la version `0.4.0`, un résultat comportant au moins une complication affiche une section **Résolution des complications**.
+Un résultat comportant au moins une complication affiche une section **Résolution des complications**.
 
 Pour chaque complication :
 
@@ -83,6 +83,23 @@ Le module :
 - ajoute un message d’historique dans le chat.
 
 Un joueur possédant le personnage peut demander la création, mais un MJ actif effectue l’écriture autoritaire. Chaque complication permet la création d’un seul Trait. La suppression ultérieure du Trait sur la fiche ne rouvre pas automatiquement la complication d’origine.
+
+### Demander un test en tant que MJ
+
+À partir de la version `0.5.0`, le MJ peut préparer une demande directement depuis la fiche du personnage concerné.
+
+1. Ouvrez la fiche du personnage.
+2. Cliquez sur **Demander un test** dans la barre de titre.
+3. Choisissez le joueur destinataire parmi les utilisateurs possédant ce personnage.
+4. Indiquez la difficulté, la plage de complication et le contexte.
+5. Vous pouvez suggérer une Compétence, une Motivation et une Spécialisation.
+6. Cliquez sur **Envoyer la demande**.
+
+Les suggestions ne sont pas verrouillées : le joueur peut les modifier avant le jet.
+
+Le module crée un message privé visible par le MJ et le joueur. Si le joueur est connecté, il reçoit aussi une notification et la fenêtre du Test guidé s’ouvre automatiquement avec les valeurs préremplies. Si le joueur est hors ligne, le message reste disponible et son bouton **Ouvrir le test** fonctionnera après sa connexion.
+
+La version initiale ne marque pas encore automatiquement la demande comme terminée après le jet. Le bouton du message peut donc être réutilisé pour rouvrir le même test.
 
 ### Choisir la langue
 
@@ -109,6 +126,14 @@ Ouvrez **F12 → Console**, reproduisez le problème et copiez l’erreur compl�
 #### « Un maître de jeu actif est nécessaire »
 
 Connectez au moins un compte MJ actif. Les réserves partagées et la création de Traits demandée par un joueur sont exécutées par le MJ.
+
+#### Aucun destinataire n’est proposé pour une demande de test
+
+Le personnage doit appartenir au moins à un utilisateur non-MJ. Vérifiez ses permissions dans Foundry. Les joueurs hors ligne sont proposés, mais marqués comme tels.
+
+#### Le joueur ne reçoit pas automatiquement la fenêtre demandée
+
+Vérifiez qu’il est connecté, qu’il possède toujours le personnage et que le module `0.5.0` est chargé chez les deux utilisateurs. Le message privé permet toujours d’ouvrir manuellement le test.
 
 #### Le Trait n’apparaît pas
 
@@ -148,7 +173,7 @@ Momentum spent on extra dice must already exist before the test. Generated Momen
 
 ### Creating a Trait from a complication
 
-Starting with version `0.4.0`, a result with complications displays **Complication resolution**.
+A result with complications displays **Complication resolution**.
 
 For each complication:
 
@@ -161,6 +186,16 @@ The module creates an embedded upstream `trait` Item on the Actor, records it on
 
 Deleting the Trait later does not automatically reopen the original complication.
 
+### Requesting a test as game master
+
+Starting with version `0.5.0`, open the relevant Actor sheet and click **Request test** in its title bar.
+
+Choose a receiving player who owns the Actor, set difficulty, complication range and context, and optionally suggest Skill, Drive and Focus. Suggestions prefill the player’s dialog but remain editable.
+
+A private chat card is created for the game master and recipient. An active recipient also receives a notification and an automatically opened prefilled Guided-test dialog. An offline recipient can use **Open test** from the persisted private message after connecting.
+
+The initial version does not automatically mark the request as completed after a roll, so the card may be reused.
+
 ### Language
 
 Open **Game Settings → Configure Settings → Dune: Adventures in the Imperium QoL → Module language**, choose **English** or **Français**, then reload.
@@ -168,5 +203,7 @@ Open **Game Settings → Configure Settings → Dune: Adventures in the Imperium
 ### Troubleshooting
 
 Token controls require an active Scene. The extra-die source requires module `0.3.1` or newer and at least 3 dice. Player pool and Trait requests require an active game master.
+
+A test request requires at least one non-GM user with Owner permission on the Actor. Offline owners remain selectable and can use the private chat card later.
 
 For runtime errors, press **F12**, reproduce the issue and copy the complete console entry prefixed with `Dune QoL`.
