@@ -9,6 +9,7 @@ import { format, localize } from "../localization.mjs";
 const MODULE_ID = "dune-qol";
 const SOCKET_NAME = `module.${MODULE_ID}`;
 const APPLY_ACTION = "apply-pools";
+const activeApplications = new Set();
 
 export function registerPoolTransactionHooks() {
   Hooks.once("ready", () => {
@@ -28,7 +29,16 @@ export async function requestGuidedTestPoolApplication(messageId) {
   }
 
   if (game.user.isGM) {
-    await applyGuidedTestPoolPlan(message, game.user.id);
+    try {
+      await applyGuidedTestPoolPlan(message, game.user.id);
+    } catch (error) {
+      console.error("Dune QoL | Pool transaction failed.", error);
+      ui.notifications.error(
+        format("DUNEQOL.Pools.Errors.ApplicationFailed", {
+          message: error instanceof Error ? error.message : String(error)
+        })
+      );
+    }
     return;
   }
 
@@ -97,6 +107,19 @@ async function handleSocketMessage(payload) {
 }
 
 async function applyGuidedTestPoolPlan(message, requestedBy) {
+  if (activeApplications.has(message.id)) {
+    throw new Error(localize("DUNEQOL.Pools.Errors.AlreadyProcessing"));
+  }
+
+  activeApplications.add(message.id);
+  try {
+    await applyGuidedTestPoolPlanUnlocked(message, requestedBy);
+  } finally {
+    activeApplications.delete(message.id);
+  }
+}
+
+async function applyGuidedTestPoolPlanUnlocked(message, requestedBy) {
   const guidedTest = message.getFlag(MODULE_ID, "guidedTest");
   const plan = guidedTest?.poolPlan;
   if (!plan?.hasChanges) {
@@ -296,9 +319,7 @@ function configurePoolAction(message, html) {
     return;
   }
 
-  const allowed = game.user.isGM
-    || message.author?.id === game.user.id
-    || Boolean(guidedTest.actorUuid && game.actors.getName?.(guidedTest.actorName)?.isOwner);
+  const allowed = game.user.isGM || message.author?.id === game.user.id;
   if (!allowed) {
     button.hidden = true;
     return;
