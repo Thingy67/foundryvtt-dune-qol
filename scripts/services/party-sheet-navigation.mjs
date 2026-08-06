@@ -41,12 +41,16 @@ function configureCancellationConfirmation(root) {
       event.preventDefault();
       event.stopImmediatePropagation();
 
+      const actor = String(
+        button.closest("tr")?.children?.[2]?.textContent
+        ?? localize("DUNEQOL.PartySheet.Requests.UnknownActor")
+      ).trim();
       const confirmed = await foundry.applications.api.DialogV2.confirm({
         window: {
           title: localize("DUNEQOL.PartySheet.Requests.CancelTitle")
         },
         content: `<p>${escapeHtml(format("DUNEQOL.PartySheet.Requests.CancelConfirm", {
-          actor: button.dataset.actorName ?? localize("DUNEQOL.PartySheet.Requests.UnknownActor")
+          actor
         }))}</p>`,
         yes: {
           label: localize("DUNEQOL.PartySheet.Requests.Cancel"),
