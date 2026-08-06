@@ -24,6 +24,7 @@
   "DUNEQOL.PartySheet.Characters.Empty": "Aucun personnage de joueur compatible n’a été trouvé.",
   "DUNEQOL.PartySheet.Actions.OpenSheet": "Ouvrir la fiche",
   "DUNEQOL.PartySheet.Actions.Test": "Test",
+  "DUNEQOL.PartySheet.Actions.Traits": "Traits",
   "DUNEQOL.PartySheet.Actions.SelectToken": "Sélectionner le token",
   "DUNEQOL.PartySheet.Traits.Promote": "Rendre persistants les Traits temporaires sélectionnés",
   "DUNEQOL.PartySheet.Traits.Delete": "Supprimer les Traits sélectionnés",
