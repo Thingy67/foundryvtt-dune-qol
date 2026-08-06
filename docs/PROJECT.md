@@ -12,7 +12,7 @@ Current baseline:
 
 - Foundry VTT 13, build 351;
 - Dune system id `dune`, version 13.0.1;
-- module id `dune-qol`, version 0.5.3;
+- module id `dune-qol`, version 0.5.4;
 - public pre-alpha repository;
 - English and French interfaces;
 - substantial AI-assisted development with human review responsibility;
@@ -53,7 +53,9 @@ Status: **implemented and manually validated for the core GM workflow**.
 - progressive extra-die cost and declared source;
 - Determination spending;
 - successes, complications, outcome and generated Momentum;
-- enriched localized chat result and versioned flags.
+- enriched localized chat result and versioned flags;
+- narrow-chat layout with one parameter per row;
+- outcome color used as an accent rather than for all result text.
 
 Remaining: broader Actor-sheet, roll-mode, Dice So Nice and multiplayer validation.
 
@@ -83,7 +85,7 @@ Remaining: multiplayer player path and quick management of temporary Traits.
 
 ### Game-master test requests
 
-Status: **delivery and constraint semantics revised through 0.5.3; two-client validation required**.
+Status: **delivery, constraints and completion tracking implemented through 0.5.4; two-client validation required**.
 
 - GM-only **Request test** action on supported Actor sheets;
 - one non-GM Actor owner selected as recipient;
@@ -99,17 +101,26 @@ Status: **delivery and constraint semantics revised through 0.5.3; two-client va
 - one-shot prefilled Guided-test dialog with requesting-GM banner;
 - disabled imposed selects are paired with hidden form values so submission preserves them;
 - per-request duplicate protection;
-- player acknowledgement followed by GM cleanup of the inbox entry.
+- player acknowledgement followed by GM cleanup of the inbox entry;
+- pressing **Open test**, opening the dialog or cancelling does not complete the request;
+- the roll action arms a short-lived request/result link;
+- creation of the matching Guided-test ChatMessage notifies the active GM;
+- the GM validates request author, recipient, Actor and result author before marking the request completed;
+- a completed request stores its result message id and no longer renders **Open test**.
 
-Not yet implemented: completed/cancelled/expired request states, automatic link from the result to the request, group requests.
+Not yet implemented: cancelled/expired states, group requests, a visible result backlink from the completed request.
 
-### Activation tracker
+### Medium-priority backlog
 
-Status: **planned next major workflow**.
+- quick management of temporary Traits;
+- supporting-character handoff and control conveniences;
+- HUD and campaign conveniences;
+- conflict zones, Asset movement, House projects and campaign clocks as separately approved workflows.
 
-Expected scope: active side, activated Actors, pass/retain initiative, resource cost integration, round reset and history.
+### Low-priority end-of-roadmap backlog
 
-Later candidates: supporting-character handoff, conflict zones, Asset movement, House projects, campaign clocks, token HUD and macro compendium.
+1. **Combat and initiative management:** active side, activated Actors, pass/retain initiative, round reset, history and resource-cost integration.
+2. **Guided character creation:** assist a user through creating a valid Dune character without replacing the upstream character sheet or reproducing protected rules text. This is intended as the final major convenience workflow.
 
 ## 4. Architecture
 
@@ -130,7 +141,8 @@ scripts/
 └── services/
     ├── pool-transactions.mjs
     ├── complication-traits.mjs
-    └── test-requests.mjs
+    ├── test-requests.mjs
+    └── test-request-completion.mjs
 ```
 
 ### Boundaries
@@ -139,6 +151,8 @@ scripts/
 - `adapters/` isolates unstable upstream integration points.
 - `services/` owns permissions, sockets, persistence and coordinated workflows.
 - `features/` owns user-facing test behavior and render-time UI.
+
+`features/guided-test-ui.mjs` arms a request only when the roll action is actually used. `services/test-request-completion.mjs` consumes the resulting Guided-test message, sends the completion claim to the active GM, validates both messages and updates the request state.
 
 ### Persistent data
 
@@ -157,9 +171,10 @@ flags.dune-qol.poolTransaction
 flags.dune-qol.complicationTrait
 flags.dune-qol.testRequest
 flags.dune-qol.testRequestInbox
+flags.dune-qol.testRequestResult
 ```
 
-The test-request inbox is stored on the receiving `User` document as a request-id keyed object. The active GM removes an entry after the player acknowledges successful opening.
+A completed request stores `status`, `completedAt`, `completedBy` and `resultMessageId`. The result stores a backlink to the request under `flags.dune-qol.testRequestResult`.
 
 No public module API exists yet.
 
@@ -184,40 +199,37 @@ npm run check
 
 This checks JavaScript syntax, JSON, manifest consistency, required files, documentation policy and pure domain regressions. Foundry runtime tests remain manual.
 
-### Foundry checklist — 0.5.3
+### Foundry checklist — 0.5.4
 
 Loading:
 
-- [ ] Both clients display 0.5.3 and fully reload.
+- [ ] Both clients display 0.5.4 and fully reload.
 - [ ] No console error appears during module initialization.
 
-Request preparation:
+Request preparation and delivery:
 
-- [ ] Clicking **Request test** opens one dialog without the native `onclick` error.
-- [ ] Only non-GM Actor owners are listed.
-- [ ] Context may be left empty without closing silently or blocking delivery.
-- [ ] Sending displays `Test request queued for user delivery` in the GM console.
-- [ ] The private request card is visible to the GM.
-- [ ] The selected User contains `flags.dune-qol.testRequestInbox` until acknowledgement.
+- [ ] Context may be left empty.
+- [ ] An imposed Skill or Drive is locked and survives form submission.
+- [ ] A field left to **Player chooses** remains editable.
+- [ ] The online player receives one prefilled dialog.
+- [ ] The private request card is visible to the player and GM.
 
-Online player:
+Request completion:
 
-- [ ] The User-document update reaches the player.
-- [ ] The player receives a notification and one prefilled dialog.
-- [ ] The player console displays `Test request received from user inbox`.
-- [ ] A Skill selected by the GM is displayed and cannot be changed.
-- [ ] A Drive selected by the GM is displayed and cannot be changed.
-- [ ] A Skill or Drive left on **Player chooses** remains editable.
-- [ ] The locked Skill and Drive are still present in submitted FormData and the roll succeeds.
-- [ ] Proposed Focus remains editable.
-- [ ] The private card is visible and **Open test** works.
-- [ ] The active GM clears the acknowledged inbox entry.
+- [ ] Opening and cancelling leave **Open test** visible.
+- [ ] Reopening without rolling leaves **Open test** visible.
+- [ ] Rolling creates the result before the request is marked completed.
+- [ ] The GM console displays `Dune QoL | Test request marked as completed.`.
+- [ ] The request flag becomes `status: completed` and stores the result message id.
+- [ ] **Open test** disappears for both player and GM after synchronization.
+- [ ] An unrelated Guided test for another Actor does not complete the request.
 
-Offline player:
+Chat-card presentation:
 
-- [ ] The request may be sent while the owner is offline.
-- [ ] The inbox is processed when the player later connects.
-- [ ] The private card remains a manual fallback.
+- [ ] Difficulty, Focus, complication range and total dice each occupy one row.
+- [ ] Long French labels do not overlap their values.
+- [ ] Success and failure cards remain legible in both light and dark themes.
+- [ ] Dice, pool actions and complication actions still fit the normal chat width.
 
 Existing workflows:
 
@@ -228,12 +240,11 @@ Existing workflows:
 
 ## 7. Known risks
 
-- A player client that has not actually loaded the updated module cannot process the inbox hook or field locking.
+- A player client that has not loaded the updated module cannot process inbox or completion hooks.
 - User-flag delivery depends on a GM being allowed to update the recipient User document.
-- Acknowledgement uses the module socket; if missed, the entry may reopen after a later reload, although session duplicate protection prevents immediate repetition.
-- Requests do not yet track completion and their private cards remain reusable.
-- The Guided-test preset is client-local and consumed once.
-- Imposed selections depend on the requested Skill or Drive still existing on the Actor when opened; an invalid value is ignored and leaves the field editable.
+- Request completion depends on the module socket reaching an active GM; the result remains valid even if the request card is not updated.
+- The short-lived completion arm expires after 60 seconds if no matching result message is created.
+- Imposed selections are ignored if the requested Skill or Drive no longer exists when the dialog opens.
 - Foundry and upstream schema changes require explicit compatibility testing.
 - Shared-state operations cannot be fully atomic across distributed clients.
 - Deleting a generated Trait does not reopen the original complication.
@@ -243,11 +254,13 @@ Existing workflows:
 - Guided tests, language selection, launcher placement, GM pool transactions and complication Traits passed initial manual testing.
 - Version 0.5.0 opened the GM dialog but produced a native header-control error and no player opening.
 - Version 0.5.1 removed the header collision but ChatMessage/socket delivery still did not reach the tested player client.
-- Version 0.5.2 added a persistent User-document inbox as the authoritative delivery path.
-- Version 0.5.3 makes context optional and locks any Skill or Drive selected by the GM while leaving explicit player-choice fields free.
+- Version 0.5.2 added a persistent User-document inbox.
+- Version 0.5.3 made context optional and enforced GM-selected Skill and Drive values.
+- Version 0.5.4 adds result-based request completion and redesigns the narrow chat result layout.
+- Combat/initiative management and guided character creation are explicitly low-priority end-of-roadmap items.
 - GitHub Actions remain disabled.
 
-Next step: update and reload both clients to 0.5.3, send a request with one imposed field and one free field, then verify delivery, locking and successful submission.
+Next step: reload both clients on 0.5.4, open then cancel one request, then reopen and roll it. Confirm that the button remains after cancellation and disappears only after the result appears.
 
 ## 9. Decision log
 
@@ -260,7 +273,7 @@ All decisions are dated 2026-08-06 unless stated otherwise. Superseded decisions
 - **D-0005 — Accepted:** record lasting product and technical decisions with the implementing change.
 - **D-0006 — Accepted:** disclose substantial AI assistance and retain human responsibility.
 - **D-0007 — Accepted:** start without third-party runtime dependencies.
-- **D-0008 — Accepted:** prioritize Guided test, pools, complications, requests, then activation tracking.
+- **D-0008 — Amended by D-0043:** prioritize Guided test, pools, complications and requests; combat tracking is no longer the immediate next major workflow.
 - **D-0009 — Superseded by D-0010:** use dependency-free validation locally and in GitHub Actions.
 - **D-0010 — Accepted:** keep local validation but disable GitHub Actions.
 - **D-0011 — Accepted:** use Foundry core `Roll` plus isolated local result calculations.
@@ -294,3 +307,5 @@ All decisions are dated 2026-08-06 unless stated otherwise. Superseded decisions
 - **D-0039 — Accepted:** use a persistent request inbox on the recipient `User` document as the authoritative delivery path; keep private chat as the visible fallback and sockets only as refresh/acknowledgement signals.
 - **D-0040 — Accepted:** a Skill or Drive selected by the GM is imposed and locked; choosing **Player chooses** leaves that characteristic editable, while Focus remains an advisory proposal.
 - **D-0041 — Accepted:** request context is optional and an empty context must not block or silently close the send dialog.
+- **D-0042 — Accepted:** a test request becomes completed only after a matching Guided-test result ChatMessage exists and the active GM validates it; opening or cancelling never completes the request.
+- **D-0043 — Accepted:** place combat/initiative management near the end of the roadmap and guided character creation last, both as low-priority convenience workflows.
