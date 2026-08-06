@@ -39,6 +39,7 @@
   "DUNEQOL.Combat.Errors.GmOnly": "Only a game master can change combat tracking.",
   "DUNEQOL.Combat.Errors.NoSelection": "Select at least one combatant.",
   "DUNEQOL.Combat.Errors.InvalidCost": "The cost must be an integer from 0 to 6.",
+  "DUNEQOL.Combat.Errors.InvalidPayment": "The initiative-retention payment method is invalid.",
   "DUNEQOL.Combat.Errors.RetainLocked": "This side cannot retain initiative again before an opposing character acts.",
   "DUNEQOL.Combat.Errors.InsufficientPool": "Insufficient pool: {available} available, {cost} required.",
   "DUNEQOL.Combat.Errors.UnknownAction": "The requested combat action is not recognized.",
