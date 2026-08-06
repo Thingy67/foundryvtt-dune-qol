@@ -1,0 +1,34 @@
+const MODULE_ID = "dune-qol";
+const MODULE_TITLE = "Dune: Adventures in the Imperium QoL";
+
+/**
+ * Initial public surface for integrations and future macro shortcuts.
+ * No stable API contract exists before the first public release.
+ */
+Hooks.once("init", () => {
+  const module = game.modules.get(MODULE_ID);
+  if (!module) {
+    console.error(`${MODULE_TITLE} | Module registration was not found.`);
+    return;
+  }
+
+  const version = module.version ?? module.manifest?.version ?? "unknown";
+
+  module.api = Object.freeze({
+    id: MODULE_ID,
+    version
+  });
+
+  console.info(`${MODULE_TITLE} | Initializing version ${version}.`);
+});
+
+Hooks.once("ready", () => {
+  if (game.system.id !== "dune") {
+    console.error(
+      `${MODULE_TITLE} | Unsupported system '${game.system.id}'. Expected 'dune'.`
+    );
+    return;
+  }
+
+  console.info(`${MODULE_TITLE} | Ready.`);
+});
