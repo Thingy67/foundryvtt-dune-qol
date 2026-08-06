@@ -1,3 +1,5 @@
+import { registerGuidedTestHooks } from "./features/guided-test.mjs";
+
 const MODULE_ID = "dune-qol";
 const MODULE_TITLE = "Dune: Adventures in the Imperium QoL";
 
@@ -10,6 +12,8 @@ Hooks.once("init", () => {
 
   const version = module.version ?? module.manifest?.version ?? "unknown";
   console.info(`${MODULE_TITLE} | Initializing version ${version}.`);
+
+  registerGuidedTestHooks();
 });
 
 Hooks.once("ready", () => {
