@@ -1,0 +1,15 @@
+.dune-qol-chat-message-highlight {
+  outline: 2px solid var(--color-border-highlight, currentColor);
+  outline-offset: 2px;
+  animation: dune-qol-chat-message-highlight 1.8s ease-out;
+}
+
+@keyframes dune-qol-chat-message-highlight {
+  0%, 35% {
+    box-shadow: 0 0 0.75rem var(--color-shadow-highlight, currentColor);
+  }
+
+  100% {
+    box-shadow: none;
+  }
+}
