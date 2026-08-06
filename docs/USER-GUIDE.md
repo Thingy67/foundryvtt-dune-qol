@@ -1,94 +1,129 @@
-# Dune QoL — User Guide
+# Dune QoL — Guide utilisateur / User guide
 
-This is the single user-facing guide for the module. It will be expanded as features are added.
+Ce fichier est l’unique manuel utilisateur du module. Il sera complété au fur et à mesure des fonctionnalités, sans créer un document séparé pour chaque bouton.
 
-## Guided test
+## Français
 
-The guided test is the module's alternative to the Dune system's built-in dice roller. The two windows are intentionally different:
+### Pourquoi plusieurs lanceurs de dés ?
 
-- **Dune Dice Roller** belongs to the upstream Dune system;
-- **Guided test** belongs to Dune QoL and adds difficulty, generated Momentum, extra-die source, Determination handling and an enriched chat result.
+Le système Dune fournit son propre **Dune Dice Roller**. Son apparence change selon qu’un personnage est disponible ou non :
 
-The upstream roller can also look different depending on whether a token or Actor is selected. Dune QoL does not replace or modify those upstream windows.
+- sans personnage exploitable, il affiche un formulaire générique avec seuil manuel ;
+- avec un token ou un personnage attribué, il affiche les Compétences et Motivations ;
+- **Dune QoL** ajoute une troisième fenêtre intitulée **Test guidé — …**.
 
-## Opening the guided test
+Le Test guidé couvre le même besoin principal, mais ajoute la difficulté, le Momentum généré, la source et le coût des dés supplémentaires, une meilleure gestion de la Détermination et une carte de résultat plus lisible. Il est donc considéré comme l’interface principale du module.
 
-By default, open a supported character sheet and click the **Guided test** d20 button in its title bar.
+Dans **Game Settings → Configure Settings → Dune: Adventures in the Imperium QoL**, l’option **Masquer le lanceur de dés natif de Dune** est activée par défaut. Elle masque les boutons natifs détectés, sans modifier le code du système Dune. Désactivez-la pour retrouver les deux interfaces.
 
-The launch location can be changed under:
+### Ouvrir le Test guidé
 
-**Game Settings → Configure Settings → Dune: Adventures in the Imperium QoL → Guided test launcher**
+Par défaut :
 
-Available choices:
+1. ouvrez une fiche de personnage Dune ;
+2. cliquez sur le bouton **Test guidé** avec l’icône d20 dans la barre de titre.
 
-- **Actor sheet** — default; works without an active Scene;
-- **Token controls** — adds the launcher to the left Scene toolbar and therefore requires an active Scene;
-- **Actor sheet and Token controls** — enables both entry points.
+Cette méthode fonctionne même sans scène active.
 
-## Selecting the Actor
+Le réglage **Emplacement du test guidé** propose :
 
-When launched from an Actor sheet, that Actor is always used.
+- **Fiche de personnage** — valeur par défaut ;
+- **Contrôles de token** — bouton dans la barre d’outils de scène, nécessitant une scène active ;
+- **Fiche de personnage et contrôles de token** — active les deux accès.
 
-When launched from Token controls:
+Lors d’un lancement depuis les contrôles de token :
 
-1. one selected token is used;
-2. with no selected token, the current user's assigned character is used;
-3. multiple selected tokens produce a warning;
-4. an Actor the user does not own cannot be used.
+1. le token sélectionné est utilisé ;
+2. sans token sélectionné, le personnage attribué à l’utilisateur est utilisé ;
+3. plusieurs tokens sélectionnés déclenchent un avertissement ;
+4. il faut posséder les droits sur le personnage.
 
-## Test fields
+### Champs du test
 
-- **Skill** and **Drive** are read from the Actor.
-- **Focus** is optional. Enter a Focus only when it applies to the test.
-- **Difficulty** determines how many successes are required.
-- **Total dice** accepts 2 to 5 d20.
-- **Complication range** accepts 15 to 20.
-- **Extra-die source** records how additional dice were obtained.
-- **Determination** spends one point from the Actor and adds an automatic result of 1.
-- **Test context** is optional text displayed with the chat result.
+- **Compétence** et **Motivation** sont lues sur le personnage.
+- **Spécialisation** est facultative ; renseignez-la seulement si elle s’applique.
+- **Difficulté** indique le nombre de succès nécessaires.
+- **Nombre total de dés** accepte de 2 à 5 d20.
+- **Plage de complication** accepte une valeur de 15 à 20.
+- **Source des dés supplémentaires** indique comment ils ont été obtenus.
+- **Détermination** dépense un point du personnage et ajoute un résultat automatique de 1.
+- **Contexte du test** ajoute une courte description au résultat.
 
-Extra-die costs are displayed as guidance, but version 0.1.x does not modify Momentum or Threat pools automatically.
+Le coût progressif des dés supplémentaires est indiqué : 0, 1, 3 ou 6 Momentum/Menace pour un total de 2, 3, 4 ou 5 dés. En version 0.2.0, le module n’altère pas encore automatiquement les réserves partagées.
 
-## Result card
+### Résultat dans le chat
 
-The chat card displays:
+La carte affiche :
 
-- Skill, Drive and target number;
-- Focus, difficulty and complication range;
-- individual die results;
-- successes;
-- success or failure;
-- generated Momentum;
-- complications;
-- Determination use and extra-die source when applicable.
+- la Compétence, la Motivation et le seuil ;
+- la Spécialisation, la difficulté et la plage de complication ;
+- chaque résultat de dé ;
+- les succès ;
+- la réussite ou l’échec ;
+- le Momentum généré ;
+- les complications ;
+- la Détermination et la source des dés supplémentaires lorsqu’elles sont utilisées.
 
-## Module language
+### Choisir la langue
 
-Choose the module language under:
+Dans :
 
-**Game Settings → Configure Settings → Dune: Adventures in the Imperium QoL → Module language**
+**Game Settings → Configure Settings → Dune: Adventures in the Imperium QoL → Langue du module**
 
-The available values are **English** and **Français**. The setting affects Dune QoL only, not the rest of Foundry or the upstream Dune system. A reload is required after changing it.
+choisissez **English** ou **Français**. Ce réglage ne change que Dune QoL, pas Foundry ni le système Dune. Rechargez la page après la modification.
 
-## Troubleshooting
+### Dépannage
 
-### Clicking the Token-controls button does nothing
+#### Le bouton des contrôles de token ne fait rien
 
-Token controls only exist with an active Scene. Use the Actor-sheet launcher, or create and activate a Scene.
+Les contrôles de token n’existent qu’avec une scène active. Utilisez le bouton de la fiche de personnage ou activez une scène.
 
-### The guided-test button is visible but no window opens
+#### Le bouton est visible, mais aucune fenêtre ne s’ouvre
 
-A launch failure now produces a Foundry notification and a `Dune QoL` error in the browser console. Open the console with **F12**, reproduce the issue and copy the complete error.
+Le module affiche désormais une notification et écrit une erreur préfixée `Dune QoL` dans la console. Ouvrez la console avec **F12**, reproduisez le problème et copiez l’erreur complète.
 
-### I see several different dice windows
+#### Les boutons natifs sont encore visibles
 
-This is expected while the upstream Dune roller remains installed:
+Vérifiez que **Masquer le lanceur de dés natif de Dune** est activé, puis rechargez Foundry. La détection dépend des contrôles exposés par la version du système ; signalez tout bouton restant avec une capture d’écran.
 
-- the upstream system owns the windows titled **Dune Dice Roller**;
-- this module owns the window titled **Guided test — …**.
+#### Mettre à jour le module
 
-Use the Guided test window for the QoL workflow.
+Depuis l’écran Setup de Foundry, utilisez **Update** sur le module, puis rechargez Foundry. Pendant la pré-alpha, le manifeste télécharge l’état courant de la branche `main`.
 
-### Updating the module
+---
 
-From Foundry Setup, use **Update** on the module. During pre-alpha development the manifest downloads the current `main` branch, so restart or reload Foundry after an update.
+## English
+
+### Why are there several dice windows?
+
+The upstream Dune system owns **Dune Dice Roller**. It uses a generic layout when no usable Actor is available and an Actor-aware layout when a token or assigned character is available. Dune QoL owns **Guided test — …**.
+
+Guided test serves the same main purpose but adds difficulty, generated Momentum, extra-die cost and source, Determination handling and a clearer result card. It is the module’s preferred interface.
+
+The **Hide the native Dune dice roller** setting is enabled by default. It hides detected native launcher buttons without modifying upstream files.
+
+### Opening Guided test
+
+By default, open a supported Actor sheet and click the **Guided test** d20 button in its title bar. This works without an active Scene.
+
+The **Guided test launcher** setting offers:
+
+- **Actor sheet** — default;
+- **Token controls** — requires an active Scene;
+- **Actor sheet and Token controls** — enables both.
+
+From Token controls, one selected token is used; otherwise the user’s assigned character is used. Multiple selected tokens or insufficient ownership produce warnings.
+
+### Fields and result
+
+Choose Skill, Drive, optional Focus, difficulty, total dice, complication range, extra-die source, optional Determination and optional context. The chat card displays the complete test context, individual dice, successes, success or failure, generated Momentum and complications.
+
+Version 0.2.0 reports extra-die costs but does not yet change shared Momentum or Threat pools.
+
+### Language
+
+Open **Game Settings → Configure Settings → Dune: Adventures in the Imperium QoL → Module language**, choose **English** or **Français**, then reload. This changes Dune QoL only.
+
+### Troubleshooting
+
+Token controls require an active Scene. Actor-sheet launch does not. If a visible button does not open a window, press **F12**, reproduce the issue and copy the complete console error prefixed with `Dune QoL`.
