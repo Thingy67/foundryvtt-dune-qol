@@ -27,6 +27,7 @@
       }
     ]
   },
+  "socket": true,
   "esmodules": [
     "scripts/dune-qol.mjs"
   ],
