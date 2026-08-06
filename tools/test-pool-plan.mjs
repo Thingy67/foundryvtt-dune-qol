@@ -30,7 +30,11 @@ import {
 {
   const targets = calculatePoolTargets({
     current: { momentum: 5, threat: 1 },
-    plan: { deltas: { momentum: 3, threat: 2 } }
+    plan: {
+      source: "other",
+      cost: 0,
+      deltas: { momentum: 3, threat: 2 }
+    }
   });
 
   assert.deepEqual(targets.after, { momentum: 6, threat: 3 });
@@ -41,7 +45,26 @@ import {
 assert.throws(
   () => calculatePoolTargets({
     current: { momentum: 1, threat: 0 },
-    plan: { deltas: { momentum: -3, threat: 0 } }
+    plan: {
+      source: "momentum",
+      cost: 3,
+      generated: 3,
+      deltas: { momentum: 0, threat: 0 }
+    }
+  }),
+  (error) => error.code === "INSUFFICIENT_MOMENTUM"
+    && error.available === 1
+    && error.required === 3
+);
+
+assert.throws(
+  () => calculatePoolTargets({
+    current: { momentum: 1, threat: 0 },
+    plan: {
+      source: "other",
+      cost: 0,
+      deltas: { momentum: -3, threat: 0 }
+    }
   }),
   (error) => error.code === "INSUFFICIENT_MOMENTUM"
 );
