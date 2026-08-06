@@ -3,7 +3,7 @@
 A companion module for Foundry Virtual Tabletop that improves comfort of play for the community **Dune: Adventures in the Imperium** game system.
 
 > [!IMPORTANT]
-> This project is public and pre-alpha. Version `0.5.4` requires manual validation in Foundry 13, especially for game-master test requests between two clients.
+> This project is public and pre-alpha. Version `0.6.0` requires manual validation in Foundry 13, especially for multiplayer workflows and the new temporary-Trait manager.
 
 ## Installation through Foundry
 
@@ -25,7 +25,7 @@ This pre-alpha installation downloads the latest state of the `main` branch. Res
 
 ## User guide
 
-The single user-facing manual is [`docs/USER-GUIDE.md`](docs/USER-GUIDE.md). It explains Guided tests, settings, shared-resource transactions, complication Traits, game-master test requests, troubleshooting and update steps.
+The single user-facing manual is [`docs/USER-GUIDE.md`](docs/USER-GUIDE.md). It explains Guided tests, shared resources, Traits, game-master test requests, settings, troubleshooting and update steps.
 
 ## Current features
 
@@ -33,68 +33,65 @@ The single user-facing manual is [`docs/USER-GUIDE.md`](docs/USER-GUIDE.md). It 
 
 Dune QoL treats **Guided test** as its preferred dice interface:
 
-- launcher on supported Actor sheets by default, without requiring an active Scene;
+- launcher on supported Actor sheets, without requiring an active Scene;
 - optional launcher in Token scene controls;
-- optional hiding of the native Dune roller buttons;
-- user-selectable English or French interface;
-- Skill, Drive, Focus, difficulty, dice and complication-range selection;
+- optional hiding of the native Dune roller;
+- English or French interface;
+- Skill, Drive, Focus, difficulty, dice and complication range;
 - progressive extra-die cost and declared source;
 - Determination spending;
-- calculation of successes, failure or success, complications and generated Momentum;
-- localized enriched chat card and structured ChatMessage flags;
-- one-line-per-parameter result layout designed for the narrow chat column;
-- visible notification and console error when opening or rolling fails.
-
-The upstream Dune roller remains part of the game system. Dune QoL does not modify its files or methods.
+- calculation of successes, outcome, Momentum and complications;
+- localized enriched chat card and structured flags;
+- one-line-per-parameter layout for the narrow chat column.
 
 ### Momentum and Threat transactions
 
-The result card proposes the net changes to Momentum and Threat:
+The result card proposes shared-pool changes:
 
-- no shared pool change until **Apply resource changes** is clicked;
-- a player request is executed by one active game master;
-- the original result is marked as applied to prevent normal duplicate use;
-- a separate chat message records the before and after values;
-- insufficient Momentum is rejected;
-- generated Momentum cannot retroactively pay for dice bought before the roll;
-- generated Momentum is capped at 6 and discarded excess is recorded.
+- no mutation until **Apply resource changes** is clicked;
+- player requests are executed by one active game master;
+- duplicate application is blocked;
+- a separate message records before and after values;
+- generated Momentum cannot retroactively fund extra dice;
+- final Momentum is capped at six.
 
-The game-master path has been manually validated against Foundry `13.351` and Dune `13.0.1`. The multiplayer player-request path still requires broader validation.
+The GM path has been manually validated against Foundry `13.351` and Dune `13.0.1`. The player path still needs broader validation.
 
 ### Complication Traits
 
-A Guided-test result with complications provides a **Create a complication Trait** workflow:
+A result with complications can create one upstream `trait` Item per complication:
 
-- one embedded upstream `trait` Item can be created for each complication rolled;
-- Traits are temporary by default but can be made persistent;
-- players request creation through the active game master;
-- the source result tracks created Traits and unresolved complications;
-- a separate chat message records each creation;
-- failure to record the source state rolls back the newly created Item.
+- temporary by default;
+- persistent when explicitly selected;
+- player requests executed by the active GM;
+- provenance stored on the Item and result;
+- separate history message;
+- rollback if source-result recording fails.
+
+### Temporary Trait manager
+
+Version `0.6.0` adds **Temporary Traits** to Actor-sheet title bars for the GM and Actor owner:
+
+- lists all temporary upstream Traits;
+- selects one or several Traits with checkboxes;
+- makes the selection persistent in one action;
+- deletes the selection in one action;
+- sends player actions through the active GM;
+- records the action in chat;
+- identifies Traits generated from complications;
+- preserves historical complication resolution when a generated Trait is deleted.
 
 ### Game-master test requests
 
-A game master can prepare requests from an Actor sheet:
+From an Actor sheet, a GM can request one test from one owner of that Actor:
 
-- use **Request test** in the Actor-sheet title bar;
-- select a receiving player among users who own that Actor;
-- provide difficulty and complication range;
-- optionally provide context;
-- select a required Skill and/or Drive, or leave either field to **Player chooses**;
-- optionally propose a Focus, which remains editable;
-- preserve the request as a private chat card with **Open test**;
-- prefill the receiving player's Guided-test dialog;
-- allow an offline recipient to receive the request after connecting.
-
-A Skill or Drive selected by the game master is visibly locked in the player's dialog. Fields left on **Player chooses** remain editable.
-
-Requests use three complementary delivery paths:
-
-- a private ChatMessage for a visible and durable request card;
-- a persistent queue in the recipient User flags under `flags.dune-qol.testRequestInbox`;
-- a module socket used only to ask an online client to inspect its queue immediately.
-
-Version `0.5.4` links the actual Guided-test result back to the originating request. Merely opening or cancelling the dialog leaves **Open test** available. After the result message is created and validated by the active game master, the request becomes completed and the button is removed.
+- optional context;
+- Skill and Drive either imposed or left to the player;
+- editable Focus proposal;
+- private ChatMessage plus persistent User inbox;
+- support for offline recipients;
+- completion only after a matching result is created and validated;
+- **Open test** removed after completion.
 
 ## Settings
 
@@ -108,7 +105,7 @@ Available settings:
 - **Guided test launcher**: Actor sheet, Token controls, or both;
 - **Hide the native Dune dice roller**: enabled by default.
 
-The settings screen is translated using the module language. A reload is required after changing these settings.
+A reload is required after changing these settings.
 
 ## Manual installation for development
 
@@ -130,8 +127,6 @@ git pull
 - Dune system id `dune`;
 - published Dune system version **13.0.1**.
 
-Compatibility is not claimed until the relevant manual tests have been completed and recorded.
-
 ## Manual validation
 
 From the repository root, with Node.js 20 or newer:
@@ -140,16 +135,16 @@ From the repository root, with Node.js 20 or newer:
 npm run check
 ```
 
-This checks JavaScript syntax, repository structure, JSON files, Guided-test calculations, pool calculations and complication-resolution calculations. No GitHub Actions workflow is used. Foundry runtime and visual validation are performed manually. The detailed checklist and development decisions are maintained in [`docs/PROJECT.md`](docs/PROJECT.md).
+This checks JavaScript syntax, repository structure, JSON files and pure domain calculations. No GitHub Actions workflow is used. Foundry runtime and visual validation are manual. The detailed checklist and decisions are maintained in [`docs/PROJECT.md`](docs/PROJECT.md).
 
 ## Planned priorities
 
-1. Finish two-client validation of game-master test requests.
-2. Add quick management of temporary Traits.
+1. Validate version `0.6.0` with GM and player clients.
+2. Add group test requests from Token controls with player checkboxes.
 3. Add supporting-character control conveniences.
 4. Add HUD and campaign conveniences.
-5. Low priority, near the end: combat and initiative management.
-6. Low priority, last: guided character creation.
+5. Low priority near the end: combat and initiative management.
+6. Low priority last: guided character creation.
 
 ## AI-assisted development disclosure
 
@@ -165,9 +160,9 @@ See [`AGENTS.md`](AGENTS.md) for the rules that apply to both human contributors
 - Prefer Foundry public APIs and hooks over fragile monkey patches.
 - Keep automation optional, visible and understandable.
 - Do not reproduce copyrighted rules text or commercial sourcebook content.
-- Keep documentation complete but concentrated in as few files as practical.
-- Record meaningful decisions in the same change that implements them.
-- Report tests accurately; never present unperformed validation as successful.
+- Keep documentation complete but concentrated.
+- Record meaningful decisions with the implementing change.
+- Report tests accurately.
 
 ## Repository structure
 
@@ -191,8 +186,6 @@ See [`AGENTS.md`](AGENTS.md) for the rules that apply to both human contributors
 ├── styles/
 └── tools/
 ```
-
-The project deliberately avoids separate roadmap, architecture, ADR, TODO and per-feature documentation trees.
 
 ## Licensing and status
 
