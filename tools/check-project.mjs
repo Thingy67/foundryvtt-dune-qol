@@ -76,6 +76,11 @@ if (manifest) {
 
   if (!duneSystem) {
     fail("module.json must declare a system relationship with system id 'dune'.");
+  } else if (
+    duneSystem.compatibility?.minimum !== "13.0.1"
+    || duneSystem.compatibility?.verified !== "13.0.1"
+  ) {
+    fail("module.json must currently target the published Dune system version 13.0.1.");
   }
 
   for (const entryPoint of manifest.esmodules ?? []) {
@@ -119,7 +124,7 @@ if (await exists("AGENTS.md")) {
 
 if (await exists("docs/PROJECT.md")) {
   const project = await readText("docs/PROJECT.md");
-  if (!project.includes("## 10. Decision log")) {
+  if (!/^## \d+\. Decision log$/m.test(project)) {
     fail("docs/PROJECT.md must contain the central decision log.");
   }
 
