@@ -41,10 +41,14 @@ const requiredFiles = [
   "scripts/dune-qol.mjs",
   "scripts/settings.mjs",
   "scripts/localization.mjs",
+  "scripts/adapters/dune-pools.mjs",
   "scripts/domain/dune-test.mjs",
+  "scripts/domain/pool-plan.mjs",
   "scripts/features/guided-test.mjs",
+  "scripts/services/pool-transactions.mjs",
   "styles/dune-qol.css",
   "tools/test-dune-test.mjs",
+  "tools/test-pool-plan.mjs",
   "lang/en.json",
   "lang/fr.json"
 ];
