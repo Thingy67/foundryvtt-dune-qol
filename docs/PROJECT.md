@@ -8,7 +8,7 @@ Last updated: 2026-08-06
 
 - Foundry VTT 13, build 351;
 - Dune system id `dune`, version 13.0.1;
-- module id `dune-qol`, version 0.9.0;
+- module id `dune-qol`, version 0.9.1;
 - public pre-alpha repository;
 - English and French interfaces;
 - manual validation only, without GitHub Actions;
@@ -61,7 +61,7 @@ Status: **manually validated through 0.7.0**.
 
 ### Party Sheet
 
-Status: **implemented in 0.8.0 and extended in 0.9.0; Foundry validation required**.
+Status: **implemented in 0.8.0 and extended through 0.9.1; Foundry validation required**.
 
 Persistent ApplicationV2 accessible from Token controls to GMs and players.
 
@@ -74,7 +74,7 @@ Persistent ApplicationV2 accessible from Token controls to GMs and players.
 
 ### Combat manager
 
-Status: **implemented in 0.9.0; Foundry validation required**.
+Status: **implemented through 0.9.1; Foundry validation required**.
 
 Dune side-based activation layered over the active native Foundry Combat.
 
@@ -84,8 +84,11 @@ Dune side-based activation layered over the active native Foundry Combat.
 - manual side changes;
 - multi-selection mark acted/available;
 - pass or retain initiative;
-- explicit retention cost from 0 to 6;
-- players spend Momentum, opposition spends Threat;
+- default retention cost 2, editable from 0 to 6;
+- player retention may spend Momentum or add Threat;
+- opposition retention spends Threat;
+- a side cannot retain twice before an opposing combatant acts;
+- retention lock clears when an opposing combatant is marked acted, on reset, or on a new round;
 - pool preflight through the existing adapter;
 - activation reset and native `nextRound()` integration;
 - manual Foundry round synchronization;
@@ -93,7 +96,7 @@ Dune side-based activation layered over the active native Foundry Combat.
 - interface in Token controls, Combat Tracker and Party Sheet;
 - V13 sidebar navigation uses `changeTab`, with a legacy fallback.
 
-The module does not replace native Combat, Combatants, round data or impose a fixed retention cost.
+The module does not replace native Combat, Combatants or round data. Exceptional retention costs remain under GM control.
 
 ## 4. MVP scope and remaining work
 
@@ -104,7 +107,7 @@ Remaining work:
 1. validate Party Sheet as GM and player, including persistence and cross-client refresh;
 2. validate Combat Tracker injection, Party Sheet Combat tab and token actions;
 3. verify neutral/allied/hostile classification and manual correction needs;
-4. verify native/manual round transitions and Momentum/Threat costs;
+4. verify native/manual round transitions, both player payment options, opposition payment and the retention lock;
 5. correct narrow-layout and light/dark-theme issues;
 6. complete player-to-GM, roll-mode and Dice So Nice regressions;
 7. run `npm run check` from a complete checkout;
@@ -182,11 +185,11 @@ Run from a complete checkout:
 npm run check
 ```
 
-### Foundry checklist — 0.9.0
+### Foundry checklist — 0.9.1
 
 Loading and Party Sheet:
 
-- [ ] 0.9.0 loads without initialization errors.
+- [ ] 0.9.1 loads without initialization errors.
 - [ ] Party and combat controls appear with an active Scene.
 - [ ] GM edits persist; connected players refresh and see read-only data.
 - [ ] primary/supporting classification and roles persist.
@@ -201,9 +204,13 @@ Combat:
 - [ ] clicking the combat control opens the Combat sidebar tab.
 - [ ] side inference is sensible for player, allied and hostile tokens.
 - [ ] selected combatants can be marked acted or available.
-- [ ] pass changes side; retain preserves it and deducts the entered pool cost.
-- [ ] insufficient pools leave state unchanged.
-- [ ] reset and next-round behavior are correct.
+- [ ] pass changes the active side.
+- [ ] player retention defaults to cost 2 and can spend Momentum.
+- [ ] player retention can instead add the entered amount of Threat.
+- [ ] opposition retention spends the entered amount of Threat.
+- [ ] invalid or insufficient payments leave state unchanged.
+- [ ] the same side cannot retain again until an opposing combatant is marked acted.
+- [ ] reset and next round clear activations and the retention lock.
 - [ ] manual Foundry round changes synchronize state.
 - [ ] token selection and persistent history work.
 - [ ] player clients refresh after world combat-state updates.
@@ -223,6 +230,7 @@ Regression:
 - Group Trait history/provenance updates are best effort after Item changes.
 - Request history depends on request ChatMessages remaining in the world.
 - Side inference may require manual correction for neutral or allied NPCs.
+- Retention unlocking depends on the GM marking an opposing combatant as acted.
 - Combat Tracker DOM and upstream pool APIs may change in later versions.
 - Native Combat round behavior remains to be tested on the supported build.
 
@@ -285,6 +293,7 @@ All decisions are dated 2026-08-06 unless stated otherwise. Superseded decisions
 - **D-0053 — Accepted:** derive request history from ChatMessages and allow GM cancellation with inbox cleanup.
 - **D-0054 — Accepted:** layer Dune combat state over native active Combat.
 - **D-0055 — Accepted:** store side, acted Combatants and history in `dune-qol.combatState`, scoped to Combat id.
-- **D-0056 — Accepted:** use explicit GM-entered retention cost 0–6, spending Momentum or Threat after preflight.
+- **D-0056 — Amended by D-0059:** initially use an explicit GM-entered retention cost paid from Momentum or Threat.
 - **D-0057 — Accepted:** share one combat model between Combat Tracker and Party Sheet, with ownership/disposition inference.
 - **D-0058 — Accepted:** synchronize open Party/combat views through world-setting update hooks and use V13 `Sidebar.changeTab` with legacy fallback.
+- **D-0059 — Accepted:** default initiative retention to cost 2; player characters may spend Momentum or add Threat, opposition spends Threat, and the same side cannot retain again until an opposing combatant acts.
