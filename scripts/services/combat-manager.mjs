@@ -1,4 +1,13 @@
 import { readDunePools, writeDunePool } from "../adapters/dune-pools.mjs";
+import {
+  buildRetentionPlan,
+  lockInitiativeRetention,
+  markCombatantsActed,
+  markCombatantsAvailable,
+  normalizeCombatState,
+  oppositeCombatSide,
+  resetCombatRoundState
+} from "../domain/combat-state.mjs";
 import { format, localize } from "../localization.mjs";
 
 const MODULE_ID = "dune-qol";
@@ -40,10 +49,12 @@ export function registerCombatManagerHooks() {
 
 export async function getCombatModel() {
   const combat = game.combat ?? null;
-  const state = normalizeCombatState(
-    game.settings.get(MODULE_ID, COMBAT_STATE_SETTING),
-    combat
-  );
+  const state = normalizeCombatState({
+    state: game.settings.get(MODULE_ID, COMBAT_STATE_SETTING),
+    combatId: combat?.id ?? null,
+    round: combat?.round ?? 0,
+    combatantIds: combat ? [...combat.combatants].map((combatant) => combatant.id) : []
+  });
   const combatants = combat
     ? [...combat.combatants].map((combatant) => buildCombatantModel(combatant, state))
       .sort((left, right) => {
@@ -171,8 +182,13 @@ export async function applyCombatCommand(action, { combatantIds = [], cost = 0, 
   activeCommands.add(commandKey);
 
   try {
-    const current = normalizeCombatState(game.settings.get(MODULE_ID, COMBAT_STATE_SETTING), combat);
-    const next = foundry.utils.deepClone(current);
+    const current = normalizeCombatState({
+      state: game.settings.get(MODULE_ID, COMBAT_STATE_SETTING),
+      combatId: combat.id,
+      round: combat.round ?? 0,
+      combatantIds: [...combat.combatants].map((combatant) => combatant.id)
+    });
+    let next = foundry.utils.deepClone(current);
     const validIds = new Set([...combat.combatants].map((combatant) => combatant.id));
     const selectedIds = [...new Set(combatantIds)].filter((id) => validIds.has(id));
     let label = "";
@@ -188,33 +204,33 @@ export async function applyCombatCommand(action, { combatantIds = [], cost = 0, 
         break;
       case "mark-acted":
         if (selectedIds.length === 0) throw new Error(localize("DUNEQOL.Combat.Errors.NoSelection"));
-        next.actedCombatantIds = [...new Set([...next.actedCombatantIds, ...selectedIds])];
-        if (next.retainLockedSide && selectedIds.some((id) => combatantSide(combat.combatants.get(id)) !== next.retainLockedSide)) {
-          next.retainLockedSide = null;
-        }
+        next = markCombatantsActed({
+          state: next,
+          combatantIds: selectedIds,
+          sideByCombatantId: Object.fromEntries(
+            [...combat.combatants].map((combatant) => [combatant.id, combatantSide(combatant)])
+          )
+        });
         label = format("DUNEQOL.Combat.HistoryMarked", { names: combatantNames(combat, selectedIds) });
         break;
       case "mark-unacted":
         if (selectedIds.length === 0) throw new Error(localize("DUNEQOL.Combat.Errors.NoSelection"));
-        next.actedCombatantIds = next.actedCombatantIds.filter((id) => !selectedIds.includes(id));
+        next = markCombatantsAvailable({ state: next, combatantIds: selectedIds });
         label = format("DUNEQOL.Combat.HistoryUnmarked", { names: combatantNames(combat, selectedIds) });
         break;
       case "pass":
-        next.activeSide = oppositeSide(next.activeSide);
+        next.activeSide = oppositeCombatSide(next.activeSide);
         label = format("DUNEQOL.Combat.HistoryPassed", { side: sideLabel(next.activeSide) });
         break;
       case "retain": {
-        if (next.retainLockedSide === next.activeSide) {
-          throw new Error(localize("DUNEQOL.Combat.Errors.RetainLocked"));
-        }
-        const normalizedCost = boundedInteger(cost, 0, 6);
-        if (normalizedCost === null) throw new Error(localize("DUNEQOL.Combat.Errors.InvalidCost"));
+        const locked = lockInitiativeRetention(next);
+        if (!locked.ok) throw new Error(localize("DUNEQOL.Combat.Errors.RetainLocked"));
         const paymentResult = await applyRetentionPayment({
           side: next.activeSide,
           payment,
-          cost: normalizedCost
+          cost
         });
-        next.retainLockedSide = next.activeSide;
+        next = locked.state;
         label = format("DUNEQOL.Combat.HistoryRetained", {
           side: sideLabel(next.activeSide),
           payment: paymentResult
@@ -222,8 +238,7 @@ export async function applyCombatCommand(action, { combatantIds = [], cost = 0, 
         break;
       }
       case "reset-round":
-        next.actedCombatantIds = [];
-        next.retainLockedSide = null;
+        next = resetCombatRoundState(next, { round: next.round });
         label = localize("DUNEQOL.Combat.HistoryReset");
         break;
       case "new-round":
@@ -233,10 +248,9 @@ export async function applyCombatCommand(action, { combatantIds = [], cost = 0, 
         } finally {
           suppressRoundSynchronization = false;
         }
-        next.round = combat.round ?? ((current.round ?? 0) + 1);
-        next.actedCombatantIds = [];
-        next.retainLockedSide = null;
-        next.activeSide = "players";
+        next = resetCombatRoundState(next, {
+          round: combat.round ?? ((current.round ?? 0) + 1)
+        });
         label = format("DUNEQOL.Combat.HistoryNewRound", { round: next.round });
         break;
       default:
@@ -262,25 +276,45 @@ export async function applyCombatCommand(action, { combatantIds = [], cost = 0, 
 }
 
 async function applyRetentionPayment({ side, payment, cost }) {
-  if (cost === 0) return localize("DUNEQOL.Combat.Payment.None");
-
   const pools = await readDunePools();
-  if (side === "players" && payment === "threat") {
-    await writeDunePool("threat", pools.threat + cost);
-    return format("DUNEQOL.Combat.Payment.ThreatAdded", { cost });
+  const plan = buildRetentionPlan({
+    side,
+    payment,
+    cost,
+    momentum: pools.momentum,
+    threat: pools.threat
+  });
+
+  if (!plan.ok) {
+    if (plan.reason === "invalid-cost") {
+      throw new Error(localize("DUNEQOL.Combat.Errors.InvalidCost"));
+    }
+    if (plan.reason === "invalid-payment") {
+      throw new Error(localize("DUNEQOL.Combat.Errors.InvalidPayment"));
+    }
+    if (plan.reason === "insufficient-pool") {
+      throw new Error(format("DUNEQOL.Combat.Errors.InsufficientPool", {
+        available: plan.available,
+        cost: plan.required
+      }));
+    }
+    throw new Error(localize("DUNEQOL.Combat.Errors.UnknownAction"));
   }
 
-  const pool = side === "opposition" ? "threat" : "momentum";
-  if (pools[pool] < cost) {
-    throw new Error(format("DUNEQOL.Combat.Errors.InsufficientPool", {
-      available: pools[pool],
-      cost
-    }));
+  if (plan.momentumAfter !== plan.momentumBefore) {
+    await writeDunePool("momentum", plan.momentumAfter);
   }
-  await writeDunePool(pool, pools[pool] - cost);
-  return pool === "momentum"
-    ? format("DUNEQOL.Combat.Payment.MomentumSpent", { cost })
-    : format("DUNEQOL.Combat.Payment.ThreatSpent", { cost });
+  if (plan.threatAfter !== plan.threatBefore) {
+    await writeDunePool("threat", plan.threatAfter);
+  }
+
+  const key = {
+    "none": "DUNEQOL.Combat.Payment.None",
+    "momentum-spent": "DUNEQOL.Combat.Payment.MomentumSpent",
+    "threat-added": "DUNEQOL.Combat.Payment.ThreatAdded",
+    "threat-spent": "DUNEQOL.Combat.Payment.ThreatSpent"
+  }[plan.paymentKind];
+  return format(key, { cost: plan.cost });
 }
 
 async function renderCombatTrackerPanel(html) {
@@ -302,56 +336,28 @@ async function renderCombatTrackerPanel(html) {
 }
 
 async function synchronizeRound(combat) {
-  const current = normalizeCombatState(game.settings.get(MODULE_ID, COMBAT_STATE_SETTING), combat);
+  const current = normalizeCombatState({
+    state: game.settings.get(MODULE_ID, COMBAT_STATE_SETTING),
+    combatId: combat.id,
+    round: combat.round ?? 0,
+    combatantIds: [...combat.combatants].map((combatant) => combatant.id)
+  });
   const round = Number(combat.round ?? 0);
   if (current.round === round) return;
 
-  current.round = round;
-  current.actedCombatantIds = [];
-  current.retainLockedSide = null;
-  current.activeSide = "players";
-  current.history = appendHistory(current.history, {
+  const next = resetCombatRoundState(current, { round });
+  next.history = appendHistory(next.history, {
     at: new Date().toISOString(),
     userId: game.user.id,
     action: "round-sync",
     label: format("DUNEQOL.Combat.HistoryNewRound", { round })
   });
-  await saveCombatState(current);
+  await saveCombatState(next);
 }
 
 async function saveCombatState(state) {
   await game.settings.set(MODULE_ID, COMBAT_STATE_SETTING, state);
   notifyCombatStateChanged();
-}
-
-function normalizeCombatState(value, combat) {
-  const source = value && typeof value === "object" ? value : {};
-  if (!combat || source.combatId !== combat.id) {
-    return {
-      version: 2,
-      combatId: combat?.id ?? null,
-      round: Number(combat?.round ?? 0),
-      activeSide: "players",
-      actedCombatantIds: [],
-      retainLockedSide: null,
-      history: []
-    };
-  }
-
-  const validIds = new Set([...combat.combatants].map((combatant) => combatant.id));
-  return {
-    version: 2,
-    combatId: combat.id,
-    round: Number(source.round ?? combat.round ?? 0),
-    activeSide: source.activeSide === "opposition" ? "opposition" : "players",
-    actedCombatantIds: Array.isArray(source.actedCombatantIds)
-      ? [...new Set(source.actedCombatantIds.map(String).filter((id) => validIds.has(id)))]
-      : [],
-    retainLockedSide: source.retainLockedSide === "players" || source.retainLockedSide === "opposition"
-      ? source.retainLockedSide
-      : null,
-    history: Array.isArray(source.history) ? source.history.slice(-100) : []
-  };
 }
 
 function buildCombatantModel(combatant, state) {
@@ -377,10 +383,6 @@ function sideLabel(side) {
   return side === "opposition"
     ? localize("DUNEQOL.Combat.Side.Opposition")
     : localize("DUNEQOL.Combat.Side.Players");
-}
-
-function oppositeSide(side) {
-  return side === "players" ? "opposition" : "players";
 }
 
 function appendHistory(history, entry) {
@@ -419,12 +421,6 @@ function renderCombatTrackerApplication() {
 function notifyCombatStateChanged() {
   Hooks.callAll("duneQolCombatStateChanged");
   renderCombatTrackerApplication();
-}
-
-function boundedInteger(value, minimum, maximum) {
-  const parsed = Number(value);
-  if (!Number.isInteger(parsed) || parsed < minimum || parsed > maximum) return null;
-  return parsed;
 }
 
 function getHtmlRoot(html) {
