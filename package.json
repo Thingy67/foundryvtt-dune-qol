@@ -1,12 +1,12 @@
 {
   "name": "foundryvtt-dune-qol",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "description": "Quality-of-life companion module for the Foundry VTT Dune system.",
   "scripts": {
-    "check:syntax": "node --check scripts/dune-qol.mjs && node --check scripts/settings.mjs && node --check scripts/localization.mjs && node --check scripts/adapters/dune-pools.mjs && node --check scripts/domain/dune-test.mjs && node --check scripts/domain/pool-plan.mjs && node --check scripts/features/guided-test.mjs && node --check scripts/features/guided-test-ui.mjs && node --check scripts/services/pool-transactions.mjs",
-    "check": "npm run check:syntax && node tools/check-project.mjs && node tools/test-dune-test.mjs && node tools/test-pool-plan.mjs"
+    "check:syntax": "node --check scripts/dune-qol.mjs && node --check scripts/settings.mjs && node --check scripts/localization.mjs && node --check scripts/adapters/dune-pools.mjs && node --check scripts/domain/dune-test.mjs && node --check scripts/domain/pool-plan.mjs && node --check scripts/domain/complication-resolution.mjs && node --check scripts/features/guided-test.mjs && node --check scripts/features/guided-test-ui.mjs && node --check scripts/services/pool-transactions.mjs && node --check scripts/services/complication-traits.mjs",
+    "check": "npm run check:syntax && node tools/check-project.mjs && node tools/test-dune-test.mjs && node tools/test-pool-plan.mjs && node tools/test-complication-resolution.mjs"
   },
   "engines": {
     "node": ">=20"
