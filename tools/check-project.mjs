@@ -54,10 +54,13 @@ const requiredFiles = [
   "scripts/services/test-request-completion.mjs",
   "scripts/services/group-tools.mjs",
   "scripts/services/party-sheet.mjs",
+  "scripts/services/combat-manager.mjs",
+  "scripts/services/party-sheet-combat.mjs",
   "styles/dune-qol.css",
   "styles/temporary-traits.css",
   "styles/group-tools.css",
   "styles/party-sheet.css",
+  "styles/combat-manager.css",
   "tools/test-dune-test.mjs",
   "tools/test-pool-plan.mjs",
   "tools/test-complication-resolution.mjs",
@@ -68,7 +71,9 @@ const requiredFiles = [
   "lang/en-group-tools.json",
   "lang/fr-group-tools.json",
   "lang/en-party-sheet.json",
-  "lang/fr-party-sheet.json"
+  "lang/fr-party-sheet.json",
+  "lang/en-combat.json",
+  "lang/fr-combat.json"
 ];
 
 for (const relativePath of requiredFiles) {
@@ -87,7 +92,9 @@ for (const languageFile of [
   "lang/en-group-tools.json",
   "lang/fr-group-tools.json",
   "lang/en-party-sheet.json",
-  "lang/fr-party-sheet.json"
+  "lang/fr-party-sheet.json",
+  "lang/en-combat.json",
+  "lang/fr-combat.json"
 ]) {
   await readJson(languageFile);
 }
