@@ -108,10 +108,19 @@ Status: **delivery, constraints and completion tracking implemented through 0.5.
 - the GM validates request author, recipient, Actor, result author and the stored request-message id;
 - a completed request stores its result message id and no longer renders **Open test**.
 
-Not yet implemented: cancelled/expired states, group requests, a visible result backlink from the completed request.
+Planned group-request extension:
+
+- keep the Actor-sheet action as the single-player workflow for that Actor;
+- add a separate GM-only action to the Token scene controls for group requests;
+- show the non-GM players in a checklist so the GM can select one or several recipients;
+- create an independent request and completion state for each selected player, so one result never completes the requests of the other recipients;
+- define and display the Actor used by each selected player before sending, rather than silently assuming the wrong character.
+
+Not yet implemented: group requests, cancelled/expired states and a visible result backlink from the completed request.
 
 ### Medium-priority backlog
 
+- group Test requests from Token controls, with one-or-more player selection by checkboxes;
 - quick management of temporary Traits;
 - supporting-character handoff and control conveniences;
 - HUD and campaign conveniences;
@@ -246,6 +255,7 @@ Existing workflows:
 - Request completion depends on the module socket reaching an active GM; the result remains valid even if the request card is not updated.
 - Completion requires Foundry `Roll.toMessage` to return the created ChatMessage, as expected on the supported Foundry baseline.
 - Imposed selections are ignored if the requested Skill or Drive no longer exists when the dialog opens.
+- Group requests will require an explicit Actor resolution per recipient and separate request identifiers; a shared state would risk completing the wrong player's request.
 - Foundry and upstream schema changes require explicit compatibility testing.
 - Shared-state operations cannot be fully atomic across distributed clients.
 - Deleting a generated Trait does not reopen the original complication.
@@ -258,6 +268,7 @@ Existing workflows:
 - Version 0.5.2 added a persistent User-document inbox.
 - Version 0.5.3 made context optional and enforced GM-selected Skill and Drive values.
 - Version 0.5.4 adds direct result-based request completion and redesigns the narrow chat result layout.
+- Group requests from Token controls are now recorded as a medium-priority extension of the request workflow.
 - Combat/initiative management and guided character creation are explicitly low-priority end-of-roadmap items.
 - GitHub Actions remain disabled.
 
@@ -310,3 +321,4 @@ All decisions are dated 2026-08-06 unless stated otherwise. Superseded decisions
 - **D-0041 — Accepted:** request context is optional and an empty context must not block or silently close the send dialog.
 - **D-0042 — Accepted:** a test request becomes completed only after a matching Guided-test result ChatMessage exists and the active GM validates it; opening or cancelling never completes the request.
 - **D-0043 — Accepted:** place combat/initiative management near the end of the roadmap and guided character creation last, both as low-priority convenience workflows.
+- **D-0044 — Accepted:** keep Actor-sheet requests single-recipient and add a distinct GM Token-controls workflow for selecting one or several players with checkboxes; each recipient must receive an independent request linked to an explicitly resolved Actor.
