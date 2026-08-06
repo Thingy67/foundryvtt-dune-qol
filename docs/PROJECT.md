@@ -18,6 +18,7 @@ The project should improve comfort and traceability at the virtual table while p
 - Upstream system id: `dune`.
 - Upstream reference version: 13.0.2.
 - Module id: `dune-qol`.
+- Current module version: 0.1.0.
 - Repository status: private and pre-alpha.
 
 ## 2. Product principles
@@ -62,33 +63,47 @@ Status: **Implemented; manual Foundry validation pending**
 Implemented:
 
 - Foundry module manifest;
-- minimal ES-module entry point;
+- ES-module entry point;
 - dependency-free repository validation command;
-- English and French localization scaffold;
+- English and French localization;
 - centralized documentation and decision log;
 - editor and ignore rules.
 
 Remaining exit checks:
 
-- `npm run check` passes when run manually;
+- `npm run check` passes from a repository checkout;
 - Foundry 13 recognizes and loads the module in a world using system `dune`;
 - the module initializes without console errors;
-- enabling or disabling it does not modify world data.
+- enabling or disabling it does not alter existing world data.
 
 ### Phase 1 — Guided test workflow
 
-Status: **Planned**
+Status: **Implemented in 0.1.0; manual Foundry validation pending**
 
-- Select or confirm Skill and Drive.
-- Select applicable Focus.
-- Set difficulty and complication range.
-- Choose base dice and extra-die purchases.
-- Handle Determination input.
-- Roll through a clearly defined adapter around the upstream system.
-- Display Skill, Drive, Focus, difficulty, dice, successes, complications and generated Momentum in the chat result.
-- Avoid automatically spending or generating shared resources until the transaction model is established.
+Implemented:
 
-Exit condition: a normal player test can be completed from one guided dialog and produces an understandable chat record.
+- a button in the Token scene controls;
+- actor resolution from one selected token, with the user's assigned character as fallback;
+- ownership and supported-actor checks;
+- Skill and Drive selection from the actor data;
+- optional Focus entry with suggestions from the actor sheet data;
+- difficulty from 0 to 5;
+- total dice from 2 to 5;
+- complication range from 15 to 20;
+- progressive extra-die cost display and source recording;
+- Determination availability check, automatic result of 1 and Actor resource decrement;
+- calculation of target, successes, complications, success or failure and generated Momentum;
+- an enriched localized chat card;
+- versioned test metadata in ChatMessage flags;
+- no automatic Momentum or Threat pool mutation.
+
+Remaining exit checks:
+
+- complete the manual Foundry checklist in section 7;
+- confirm the current Dune Actor focus representation works with real existing characters;
+- confirm the custom card and core roll display behave correctly with each roll mode and Dice So Nice.
+
+Exit condition: a normal player test can be completed from one guided dialog and produces an understandable and correct chat record.
 
 ### Phase 2 — Momentum and Threat transactions
 
@@ -147,52 +162,57 @@ These are not committed scope and require separate decisions before implementati
 
 The project is a Foundry module, not a system. It declares compatibility with system `dune` and loads only as an extension of a Dune world.
 
-### Upstream integration
-
-The upstream system currently exposes runtime objects under `game.dune`, including a `DuneRoll` implementation and pool management. These are potentially useful integration points, but they are not assumed to be stable public APIs.
-
-Before using an upstream object:
-
-1. inspect the current upstream implementation;
-2. isolate access behind a local adapter;
-3. feature-detect before calling it;
-4. fail clearly when unsupported;
-5. record compatibility-sensitive decisions here.
-
-### Proposed source organization
-
-The source tree should grow by feature only when needed:
+### Current source organization
 
 ```text
 scripts/
 ├── dune-qol.mjs
-├── adapters/       # Boundaries around upstream or Foundry APIs
-├── applications/   # Dialogs and persistent UI applications
-├── features/       # Test, pool, trait and activation workflows
-├── services/       # Shared state mutation and domain services
-└── utils/          # Small generic helpers only
+├── domain/
+│   └── dune-test.mjs      # Pure calculation and validation logic
+└── features/
+    └── guided-test.mjs    # Foundry UI, actor access, rolling and chat output
 ```
 
-Do not create empty directories merely to match this plan.
+Create new directories only when an implemented feature requires them.
+
+### Upstream integration
+
+The upstream system currently exposes a `DuneRoll` implementation and pool management under `game.dune`, but these are internal integration points rather than assumed stable public APIs.
+
+The first guided-test implementation deliberately reads the upstream Actor data model but uses Foundry's core `Roll` and `Roll.toMessage` APIs. The module performs its own small, tested result calculation because the upstream roller does not accept difficulty or retain the full test context needed by the QoL card.
+
+Before using any other upstream object:
+
+1. inspect the current upstream implementation;
+2. isolate access behind a local boundary;
+3. feature-detect before calling it;
+4. fail clearly when unsupported;
+5. record compatibility-sensitive decisions here.
 
 ### Data storage
 
-No custom persistent data model has been accepted yet.
+No custom persistent world data model exists yet.
 
-Preferred order of consideration:
+The guided test stores versioned metadata only on its resulting ChatMessage under:
+
+```text
+flags.dune-qol.guidedTest
+```
+
+Preferred order for future persistent data:
 
 1. existing upstream Actor, Item or pool data;
 2. Foundry flags scoped to `dune-qol`;
-3. dedicated world settings for small shared configuration;
+3. world settings for small shared configuration;
 4. custom Documents or collections only if earlier options are insufficient.
 
 Any persistent schema requires a version, migration strategy and decision entry before release.
 
 ### Multiplayer and authority
 
-Shared state should be mutated by an authoritative game-master client unless Foundry already provides a safe permissioned document update path.
+Phase 1 changes only the rolling user's owned Actor when Determination is spent. Shared Momentum and Threat pools are not mutated.
 
-Socket use must not be introduced until a concrete workflow requires it. When introduced, message validation, permissions and duplicate handling must be documented.
+Future shared state should be mutated by an authoritative game-master client unless Foundry already provides a safe permissioned document update path. Socket use must not be introduced until a concrete workflow requires it; message validation, permissions and duplicate handling must then be documented.
 
 ### Public module API
 
@@ -212,67 +232,76 @@ The project has three primary Markdown documents:
 - `AGENTS.md` for working rules;
 - `docs/PROJECT.md` for all evolving project knowledge.
 
-This document is authoritative for:
-
-- current scope;
-- roadmap and status;
-- architecture;
-- risks;
-- manual test expectations;
-- project decisions.
-
-GitHub issues may hold actionable tasks and discussions, but accepted outcomes must be reflected here when they affect project direction.
+This document is authoritative for current scope, roadmap, status, architecture, risks, testing expectations and decisions. GitHub issues may hold actionable tasks and discussions, but accepted outcomes must be reflected here when they affect project direction.
 
 ## 7. Testing strategy
 
 ### Manual repository checks
 
-Run `npm run check` manually before accepting a change. It currently verifies:
+Run `npm run check` manually before accepting a change. It currently performs:
 
-- required files exist;
-- JSON files parse;
-- `module.json` has the expected id, package type and Foundry compatibility;
-- the manifest declares its relationship with system `dune`;
-- referenced ES modules and localization files exist;
-- package and manifest versions match;
-- the AI-assisted development disclosure remains present;
-- `docs/PROJECT.md` remains the central decision document;
-- additional Markdown files do not silently proliferate inside `docs/`.
+- required-file checks;
+- JSON parsing;
+- manifest id, package type and Foundry compatibility checks;
+- validation of the relationship with system `dune`;
+- referenced ES module, stylesheet and localization-file checks;
+- package and manifest version comparison;
+- AI-disclosure and documentation-policy checks;
+- pure domain checks for extra-die costs, Focus successes, Determination, failure, Momentum and overlapping success/complication results.
 
-No GitHub Actions workflow is used. Automated checks may be reconsidered later only if their cost and maintenance burden are justified.
-
-Later local checks may add linting, formatting and unit tests when the codebase justifies the tooling.
+No GitHub Actions workflow is used.
 
 ### Manual Foundry checklist
 
-For the initial scaffold:
+Initial loading:
 
-- [ ] `npm run check` passes locally.
-- [ ] Foundry 13 lists the module.
+- [ ] `npm run check` passes from a repository checkout.
+- [ ] Foundry 13 lists module version 0.1.0.
 - [ ] A world using system `dune` can enable the module.
 - [ ] The module initializes without console errors.
-- [ ] The initialization message identifies the module version.
-- [ ] Enabling or disabling the module does not modify world data.
+- [ ] Enabling or disabling it does not alter existing world data.
 
-Each user-facing feature must add concise manual checks here or replace them with automated coverage when explicitly approved.
+Guided test:
+
+- [ ] The guided-test button appears in the Token scene controls.
+- [ ] One selected token is used as the Actor.
+- [ ] With no selected token, the user's assigned character is used.
+- [ ] No Actor, multiple selected tokens and insufficient ownership produce clear warnings.
+- [ ] Skill and Drive values are read correctly from a real Player Character.
+- [ ] Focus suggestions appear and using a Focus sets the critical threshold to the Skill value.
+- [ ] Without a Focus, only a result of 1 produces two successes.
+- [ ] Difficulty correctly determines success, failure and generated Momentum.
+- [ ] A die inside the complication range can also count as a success.
+- [ ] Total dice 2, 3, 4 and 5 report extra-die costs 0, 1, 3 and 6.
+- [ ] Extra-die source is recorded but Momentum and Threat pools remain unchanged.
+- [ ] Determination is unavailable at 0, spends exactly 1 point when used and adds an automatic result of 1.
+- [ ] Public, private, blind and self roll modes are respected.
+- [ ] Dice So Nice remains compatible when enabled.
+- [ ] English and French labels display correctly.
 
 ## 8. Known risks
 
-### Upstream internal API changes
+### Upstream data-model changes
 
-The upstream system may change `game.dune`, sheet implementations, pool behavior or roll internals without maintaining compatibility for external modules.
+The upstream system may change Actor Skills, Drives, Focuses, resources or other data without maintaining compatibility for external modules.
 
-Mitigation: local adapters, feature detection, a narrow compatibility baseline and manual validation against each supported upstream version.
+Mitigation: narrow data access, explicit actor validation and manual testing against each supported upstream version.
 
 ### Foundry API evolution
 
-Foundry major versions can significantly change Applications, sheets, document APIs and scene controls.
+Foundry major versions can significantly change DialogV2, Scene controls, chat messages and document APIs.
 
 Mitigation: target one major version at a time and avoid claiming compatibility without testing.
 
+### Duplicate roll logic
+
+The module now contains a small result-calculation implementation alongside the upstream roller.
+
+Mitigation: keep the calculation pure and covered by local checks; compare behavior with upstream and rules when compatibility changes.
+
 ### Multiplayer consistency
 
-Momentum, Threat and activation state can be changed concurrently by multiple clients.
+Momentum, Threat and activation state can be changed concurrently by multiple clients once those features are implemented.
 
 Mitigation: establish authority and transaction rules before implementing shared-state automation.
 
@@ -280,7 +309,7 @@ Mitigation: establish authority and transaction rules before implementing shared
 
 Too much automatic behavior can hide rules, surprise the game master or make house rules difficult.
 
-Mitigation: visible transactions, configurable behavior and a progressive feature design.
+Mitigation: visible transactions, configurable behavior and progressive feature design.
 
 ### Documentation sprawl
 
@@ -290,18 +319,17 @@ Mitigation: enforce the three-document policy and keep this file as the source o
 
 ## 9. Current status
 
-- Repository created as private.
-- Project name, repository name and module id selected.
-- README includes a prominent AI-assisted development disclosure.
-- `AGENTS.md` defines minimal-context and documentation rules for humans and AI agents.
-- This file centralizes scope, architecture, roadmap, status, testing and decisions.
-- Foundry manifest, localization scaffold and runtime entry point are present.
-- Dependency-free local validation is available through `npm run check`.
-- GitHub Actions have been removed to avoid consuming limited action credits.
-- No user-facing functionality is implemented yet.
-- Manual loading validation in Foundry 13 remains pending.
+- Repository is private and pre-alpha.
+- AI-assisted development disclosure and agent rules are present.
+- Documentation remains concentrated in three Markdown files.
+- Local validation is manual; GitHub Actions are disabled.
+- Module version 0.1.0 implements the first guided-test workflow.
+- Pure calculation checks pass in a local Node environment.
+- Full `npm run check` from a repository checkout has not yet been performed in this development session.
+- No Foundry runtime validation has yet been performed.
+- Shared Momentum and Threat automation is not implemented.
 
-Next expected step: perform the Phase 0 manual Foundry checklist, then inspect the current upstream roll implementation and design the Phase 1 adapter before writing the guided test UI.
+Next expected step: install or update the module in Foundry 13, execute the manual checklist above and fix any runtime or visual issue before beginning Phase 2.
 
 ## 10. Decision log
 
@@ -325,7 +353,7 @@ Next expected step: perform the Phase 0 manual Foundry checklist, then inspect t
 
 - Date: 2026-08-06
 - Status: Accepted
-- Decision: Establish Foundry 13 and upstream Dune system 13.0.2 as the initial development and compatibility baseline.
+- Decision: Establish Foundry 13 and upstream Dune system 13.0.2 as the initial compatibility baseline.
 - Rationale: The current upstream manifest targets Foundry 13 and identifies version 13.0.2.
 - Consequences: Other major versions are unsupported until deliberately tested and recorded.
 
@@ -335,13 +363,13 @@ Next expected step: perform the Phase 0 manual Foundry checklist, then inspect t
 - Status: Accepted
 - Decision: Keep scope, roadmap, architecture, status, risks, testing notes and decisions together in `docs/PROJECT.md`.
 - Rationale: The project needs durable context for human and AI contributors without requiring consultation of dozens of small files.
-- Consequences: Separate architecture, roadmap, TODO and ADR documents are prohibited by default. A future split requires a new decision.
+- Consequences: Separate architecture, roadmap, TODO and ADR documents are prohibited by default.
 
 ### D-0005 — Record every meaningful decision in the same change
 
 - Date: 2026-08-06
 - Status: Accepted
-- Decision: Product and technical decisions with lasting consequences must be appended to this decision log in the commit or pull request that implements them.
+- Decision: Product and technical decisions with lasting consequences must be appended to this decision log in the change that implements them.
 - Rationale: Development conversations, especially AI-assisted ones, are not a durable project record.
 - Consequences: A change that introduces an undocumented meaningful decision is incomplete.
 
@@ -351,22 +379,22 @@ Next expected step: perform the Phase 0 manual Foundry checklist, then inspect t
 - Status: Accepted
 - Decision: State prominently that AI tools substantially assist analysis, design, implementation, testing and documentation.
 - Rationale: The development process should be transparent, and generated output must not be mistaken for independently verified work.
-- Consequences: Human review remains mandatory and the disclosure must remain present unless the maintainer explicitly changes this policy.
+- Consequences: Human review remains mandatory and the disclosure must remain present unless explicitly changed.
 
 ### D-0007 — Start without runtime dependencies
 
 - Date: 2026-08-06
 - Status: Accepted
-- Decision: Do not require third-party Foundry modules or JavaScript runtime libraries in the initial scaffold.
-- Rationale: The first workflows can be evaluated against Foundry and the upstream Dune system directly, reducing compatibility and support cost.
-- Consequences: Any dependency added later requires a recorded decision and a clear fallback or installation story.
+- Decision: Do not require third-party Foundry modules or JavaScript runtime libraries in the initial implementation.
+- Rationale: The first workflows can use Foundry and the upstream Dune system directly, reducing compatibility and support cost.
+- Consequences: Any dependency added later requires a recorded decision and a clear installation story.
 
 ### D-0008 — Implement features in workflow-value order
 
 - Date: 2026-08-06
 - Status: Accepted
 - Decision: Prioritize the guided test workflow, then pool transactions, Traits and Complications, and finally the activation tracker.
-- Rationale: The guided test and resource workflows are expected to remove the most frequent table friction and establish reusable foundations.
+- Rationale: The guided test and resource workflows remove the most frequent table friction and establish reusable foundations.
 - Consequences: Later campaign and HUD conveniences remain candidates rather than committed scope.
 
 ### D-0009 — Use dependency-free validation for the initial scaffold
@@ -374,8 +402,8 @@ Next expected step: perform the Phase 0 manual Foundry checklist, then inspect t
 - Date: 2026-08-06
 - Status: Superseded by D-0010
 - Decision: Validate the initial repository with a small Node.js script using only standard-library APIs, executed locally and by GitHub Actions.
-- Rationale: The scaffold needed reliable structural checks without adding package-management overhead or premature linting frameworks.
-- Consequences: The dependency-free local validation remains; the GitHub Actions portion has been removed.
+- Rationale: The scaffold needed reliable structural checks without premature tooling.
+- Consequences: The dependency-free local validation remains; the GitHub Actions portion was removed.
 
 ### D-0010 — Keep validation manual
 
@@ -383,4 +411,44 @@ Next expected step: perform the Phase 0 manual Foundry checklist, then inspect t
 - Status: Accepted
 - Decision: Do not use GitHub Actions for routine validation. Run `npm run check` and Foundry runtime checks manually.
 - Rationale: The repository has limited GitHub Actions credits, and continuous validation is not worth the recurring cost at this stage.
-- Consequences: Contributors and AI agents must report which checks were run. Automated validation may return later only through a new recorded decision.
+- Consequences: Contributors and AI agents must report which checks were run.
+
+### D-0011 — Use Foundry core Roll for the guided test
+
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Implement Phase 1 with Foundry's core `Roll` and `Roll.toMessage` APIs plus a local result calculator instead of calling the upstream `DuneRoll.performTest` method.
+- Rationale: The upstream method does not accept difficulty or preserve Skill, Drive, Focus and generated Momentum in a form suitable for the QoL result card, and it is not treated as a stable public API.
+- Consequences: The module owns a small amount of duplicated rules logic that must remain isolated and tested.
+
+### D-0012 — Defer shared pool mutation to Phase 2
+
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Phase 1 displays and records the progressive cost and source of extra dice but does not change Momentum or Threat pools. Determination is spent directly on an owned Actor because that behavior is local and already modeled by the upstream system.
+- Rationale: Shared-pool mutation requires explicit authority, synchronization, history and rollback design.
+- Consequences: Players must update shared pools manually during 0.1.0.
+
+### D-0013 — Count complications independently from successes
+
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Evaluate the complication range independently from the success threshold, allowing one die to produce both a success and a complication.
+- Rationale: The two outcomes represent separate properties of the die result and should not be mutually exclusive.
+- Consequences: This intentionally differs from the upstream implementation's current `else if` sequence and is covered by a local regression check.
+
+### D-0014 — Store versioned guided-test metadata on ChatMessages
+
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Store the selected values and computed outcome under `flags.dune-qol.guidedTest` with schema version 1.
+- Rationale: Chat output should remain inspectable and later buttons or transaction workflows need structured context.
+- Consequences: Any incompatible flag-schema change requires a version increment and compatibility handling.
+
+### D-0015 — Use the Token scene controls as the first entry point
+
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Open the guided test from a button in the Token scene controls, using one selected token or the user's assigned character as fallback.
+- Rationale: This entry point is available during normal scene play and does not require patching upstream Actor sheets.
+- Consequences: Sheet buttons or macro API access may be added later, but are not part of 0.1.0.
