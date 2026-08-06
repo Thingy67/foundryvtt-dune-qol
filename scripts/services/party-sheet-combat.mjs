@@ -7,6 +7,7 @@ import { localize } from "../localization.mjs";
 
 const PARTY_ROOT = ".dune-qol-party-sheet";
 const COMBAT_TAB = "combat";
+let combatTabActive = false;
 
 export function registerPartySheetCombatHooks() {
   Hooks.on("renderApplicationV2", (_application, element) => {
@@ -26,6 +27,12 @@ async function injectCombatTab(root) {
   const main = root.querySelector(":scope > main");
   if (!navigation || !main) return;
 
+  for (const baseButton of navigation.querySelectorAll("[data-party-tab]")) {
+    baseButton.addEventListener("click", () => {
+      combatTabActive = false;
+    }, { capture: true });
+  }
+
   let button = navigation.querySelector(`[data-party-extension-tab="${COMBAT_TAB}"]`);
   if (!button) {
     button = document.createElement("button");
@@ -33,7 +40,10 @@ async function injectCombatTab(root) {
     button.dataset.partyExtensionTab = COMBAT_TAB;
     button.textContent = localize("DUNEQOL.PartySheet.Tabs.Combat");
     navigation.append(button);
-    button.addEventListener("click", () => activateCombatTab(root, button));
+    button.addEventListener("click", () => {
+      combatTabActive = true;
+      activateCombatTab(root, button);
+    });
   }
 
   let section = main.querySelector(`[data-party-extension-panel="${COMBAT_TAB}"]`);
@@ -45,13 +55,14 @@ async function injectCombatTab(root) {
   }
 
   await refreshCombatPanel(root);
+  if (combatTabActive) activateCombatTab(root, button);
 }
 
 async function refreshCombatPanel(root) {
   const section = root.querySelector(`[data-party-extension-panel="${COMBAT_TAB}"]`);
   if (!section) return;
 
-  const wasActive = section.classList.contains("active");
+  const wasActive = section.classList.contains("active") || combatTabActive;
   const model = await getCombatModel();
   section.innerHTML = buildCombatPanelHtml(model, { embedded: true });
   if (wasActive) section.classList.add("active");
