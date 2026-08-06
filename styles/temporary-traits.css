@@ -1,0 +1,71 @@
+.dune-qol-temporary-traits-dialog,
+.dune-qol-temporary-trait-history {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.dune-qol-temporary-traits-dialog p,
+.dune-qol-temporary-trait-history p,
+.dune-qol-temporary-trait-history ul {
+  margin: 0;
+}
+
+.dune-qol-temporary-trait-list {
+  display: grid;
+  gap: 0.4rem;
+  max-height: 22rem;
+  overflow-y: auto;
+  padding-inline-end: 0.2rem;
+}
+
+.dune-qol-temporary-trait-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0.55rem;
+  border: 1px solid var(--color-border-light-tertiary, #888);
+  border-radius: 0.35rem;
+  background: rgb(0 0 0 / 4%);
+}
+
+.dune-qol-temporary-trait-row:hover {
+  border-color: var(--color-border-highlight, #8f6b32);
+  background: rgb(143 107 50 / 10%);
+}
+
+.dune-qol-temporary-trait-row__name {
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.dune-qol-temporary-trait-row__source {
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--color-border-highlight, #8f6b32);
+  border-radius: 999px;
+  font-size: 0.75em;
+  white-space: nowrap;
+}
+
+.dune-qol-temporary-traits-dialog__warning {
+  padding: 0.45rem 0.55rem;
+  border-inline-start: 3px solid var(--color-level-warning, #a66a00);
+  background: rgb(166 106 0 / 9%);
+}
+
+.dune-qol-temporary-trait-history ul {
+  padding-inline-start: 1.25rem;
+}
+
+@media (max-width: 520px) {
+  .dune-qol-temporary-trait-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .dune-qol-temporary-trait-row__source {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
