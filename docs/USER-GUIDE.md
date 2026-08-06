@@ -84,11 +84,28 @@ Pour chaque complication :
 
 Le module crée un Item de type `trait` directement sur le personnage, utilise le champ temporaire natif, comptabilise la complication résolue et ajoute un message d’historique.
 
-Un joueur possédant le personnage peut demander la création, mais un MJ actif effectue l’écriture autoritaire. Chaque complication permet la création d’un seul Trait. La suppression ultérieure du Trait ne rouvre pas automatiquement la complication d’origine.
+Un joueur possédant le personnage peut demander la création, mais un MJ actif effectue l’écriture autoritaire. Chaque complication permet la création d’un seul Trait.
+
+### Gérer les Traits temporaires
+
+À partir de la version `0.6.0`, la barre de titre de la fiche contient **Traits temporaires** pour le MJ et le propriétaire du personnage.
+
+1. Ouvrez la fiche concernée.
+2. Cliquez sur **Traits temporaires**.
+3. Cochez un ou plusieurs Traits.
+4. Choisissez :
+   - **Rendre persistants** pour désactiver leur état temporaire ;
+   - **Supprimer** pour retirer définitivement les Items.
+
+La liste ne montre que les Items de type `trait` dont le champ natif `system.temporary` est actif. Les Traits créés depuis une complication affichent un badge **Complication**.
+
+Pour un joueur, l’action est envoyée au MJ actif, qui vérifie que le joueur possède toujours le personnage et que les Items sélectionnés sont encore temporaires. Un message dans le chat conserve la liste des Traits modifiés.
+
+Lorsqu’un Trait de complication est rendu persistant, le module tente également de mettre à jour sa provenance sur le résultat d’origine. Lorsqu’il est supprimé, la suppression est enregistrée mais **la complication reste résolue** : supprimer le Trait ne permet pas d’en créer automatiquement un nouveau pour le même résultat.
 
 ### Demander un test en tant que MJ
 
-À partir de la version `0.5.3`, le MJ peut préparer et imposer un test directement depuis la fiche du personnage concerné.
+Le MJ peut préparer et imposer un test directement depuis la fiche du personnage concerné.
 
 1. Ouvrez la fiche du personnage.
 2. Cliquez sur **Demander un test** dans la barre de titre.
@@ -101,9 +118,9 @@ Un joueur possédant le personnage peut demander la création, mais un MJ actif 
 7. La **Spécialisation proposée** reste indicative et modifiable.
 8. Cliquez sur **Envoyer la demande**.
 
-Dans la fenêtre reçue par le joueur, toute Compétence ou Motivation imposée est affichée mais désactivée. Les valeurs laissées libres restent sélectionnables. Le module conserve techniquement les valeurs verrouillées lors de l’envoi du formulaire.
+Dans la fenêtre reçue par le joueur, toute Compétence ou Motivation imposée est affichée mais désactivée. Les valeurs laissées libres restent sélectionnables.
 
-La demande est conservée à la fois dans un message privé et dans une file persistante sur le compte du joueur. Le client joueur consulte cette file à la connexion et lorsqu’elle est mise à jour. Le socket ne sert qu’à accélérer la vérification pour un joueur déjà connecté.
+La demande est conservée à la fois dans un message privé et dans une file persistante sur le compte du joueur. Le client joueur consulte cette file à la connexion et lorsqu’elle est mise à jour.
 
 ### Fin d’une demande de test
 
@@ -113,7 +130,7 @@ Le bouton **Ouvrir le test** reste disponible tant qu’aucun résultat n’a é
 - fermer ou annuler ne termine pas la demande ;
 - rouvrir la demande reste possible.
 
-Lorsque le joueur clique sur **Lancer le test** et que le résultat apparaît dans le chat, le module associe ce résultat à la demande. Le MJ actif vérifie l’auteur, le personnage et le destinataire, puis marque la demande comme terminée. Le bouton **Ouvrir le test** disparaît ensuite du message privé.
+Lorsque le joueur clique sur **Lancer le test** et que le résultat apparaît dans le chat, le module associe ce résultat à la demande. Le MJ actif vérifie l’auteur, le personnage et le destinataire, puis marque la demande comme terminée. Le bouton **Ouvrir le test** disparaît ensuite.
 
 ### Choisir la langue
 
@@ -133,13 +150,21 @@ Une scène active est nécessaire. Utilisez le bouton de la fiche de personnage 
 
 Vérifiez que le module est au minimum en version `0.3.1`, puis rechargez complètement la partie. Le champ doit être désactivé à 2 dés et actif à partir de 3 dés.
 
+#### Aucun Trait n’apparaît dans le gestionnaire
+
+Seuls les Items de type `trait` ayant `system.temporary: true` sont affichés. Un Trait déjà persistant n’apparaît pas. Vérifiez également que les deux clients utilisent la version `0.6.0` ou ultérieure et ont été complètement rechargés.
+
+#### Une action sur les Traits échoue
+
+Pour un joueur, un MJ actif est nécessaire. Le module refuse aussi l’action si le Trait a été supprimé, rendu persistant ou déplacé depuis l’ouverture de la fenêtre. Reouvrez alors **Traits temporaires** pour actualiser la liste.
+
 #### Le contexte vide ferme la fenêtre sans envoyer
 
-Mettez le module à jour en version `0.5.3` ou ultérieure. Le contexte est facultatif et ne doit plus bloquer la demande.
+Mettez le module à jour en version `0.5.3` ou ultérieure. Le contexte est facultatif.
 
 #### Une Compétence ou Motivation imposée reste modifiable
 
-Vérifiez que les deux clients utilisent `0.5.3` ou une version ultérieure, puis rechargez-les complètement. Une valeur sélectionnée par le MJ doit être désactivée chez le joueur ; **Au choix du joueur** doit rester libre.
+Vérifiez que les deux clients utilisent `0.5.3` ou une version ultérieure, puis rechargez-les complètement.
 
 #### Le bouton Ouvrir le test reste après le résultat
 
@@ -149,12 +174,10 @@ Vérifiez que les deux clients utilisent `0.5.4` ou une version ultérieure et q
 Dune QoL | Test request marked as completed.
 ```
 
-Sans ce message, copiez l’erreur `Dune QoL | Test-request completion failed.` et les détails associés.
-
 #### Le joueur ne reçoit pas la demande
 
 1. Vérifiez que les deux clients affichent la même version de Dune QoL.
-2. Rechargez complètement la page des deux côtés après la mise à jour.
+2. Rechargez complètement la page des deux côtés.
 3. Vérifiez que le joueur possède toujours le personnage.
 4. Ouvrez l’onglet Chat côté joueur : un message privé doit être présent.
 5. Côté MJ, cherchez `Dune QoL | Test request queued for user delivery.`.
@@ -198,6 +221,19 @@ Momentum spent on extra dice must already exist before the test. Generated Momen
 
 A result with complications displays **Complication resolution**. The module creates one embedded upstream `trait` Item per resolved complication and records the result in chat. Player requests are executed by the active game master.
 
+### Managing temporary Traits
+
+Starting with version `0.6.0`, the Actor-sheet title bar provides **Temporary Traits** for the GM and Actor owner.
+
+1. Open the Actor sheet.
+2. Click **Temporary Traits**.
+3. Select one or more listed Traits.
+4. Choose **Make persistent** or **Delete**.
+
+Only upstream `trait` Items whose `system.temporary` value is true are listed. Traits generated from complications display a **Complication** badge.
+
+Player actions are executed by the active GM after permission and current-Item validation. A chat history lists the affected Traits. Promoting a generated Trait updates its source provenance when available. Deleting one does not reopen the resolved complication.
+
 ### Requesting a test as game master
 
 Open the relevant Actor sheet and click **Request test**.
@@ -219,6 +255,6 @@ Open **Game Settings → Configure Settings → Dune: Adventures in the Imperium
 
 ### Troubleshooting
 
-Token controls require an active Scene. The extra-die source requires module `0.3.1` or newer and at least 3 dice. Empty request context and locked GM-selected Skill/Drive behavior require `0.5.3` or newer. Result-based request completion and the revised chat layout require `0.5.4` or newer.
+Token controls require an active Scene. The extra-die source requires module `0.3.1` or newer and at least 3 dice. Empty request context and locked GM-selected Skill/Drive behavior require `0.5.3` or newer. Result-based request completion and the revised chat layout require `0.5.4` or newer. Temporary Trait management requires `0.6.0` or newer and an active GM for player actions.
 
 For runtime errors, press **F12**, reproduce the issue and copy the complete console entry prefixed with `Dune QoL`.
