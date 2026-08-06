@@ -44,11 +44,15 @@ const requiredFiles = [
   "scripts/adapters/dune-pools.mjs",
   "scripts/domain/dune-test.mjs",
   "scripts/domain/pool-plan.mjs",
+  "scripts/domain/complication-resolution.mjs",
   "scripts/features/guided-test.mjs",
+  "scripts/features/guided-test-ui.mjs",
   "scripts/services/pool-transactions.mjs",
+  "scripts/services/complication-traits.mjs",
   "styles/dune-qol.css",
   "tools/test-dune-test.mjs",
   "tools/test-pool-plan.mjs",
+  "tools/test-complication-resolution.mjs",
   "lang/en.json",
   "lang/fr.json"
 ];
@@ -78,7 +82,7 @@ if (manifest) {
   }
 
   if (manifest.socket !== true) {
-    fail("module.json must enable the module socket for authoritative pool transactions.");
+    fail("module.json must enable the module socket for authoritative shared-state transactions.");
   }
 
   const duneSystem = manifest.relationships?.systems?.find(
