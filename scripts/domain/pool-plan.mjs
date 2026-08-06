@@ -21,15 +21,18 @@ function normalizePoolValues(values, name) {
 }
 
 /**
- * Build the shared-resource changes proposed by a guided test.
+ * Build the shared-resource operations proposed by a guided test.
  *
  * The plan remains data only. It does not mutate Foundry or upstream state.
+ * An operation may require application even when spending and generation have
+ * a net delta of zero, because the purchase still needs validation and history.
  */
 export function buildGuidedTestPoolPlan({
   extraDiceSource = "none",
   extraDiceCost = 0,
   momentumGenerated = 0
 } = {}) {
+  const source = String(extraDiceSource);
   const cost = nonNegativeInteger(extraDiceCost, "extraDiceCost");
   const generated = nonNegativeInteger(momentumGenerated, "momentumGenerated");
 
@@ -38,28 +41,28 @@ export function buildGuidedTestPoolPlan({
     threat: 0
   };
 
-  if (cost > 0 && extraDiceSource === "momentum") {
+  const hasRecordedPurchase = cost > 0 && (source === "momentum" || source === "threat");
+  if (hasRecordedPurchase && source === "momentum") {
     deltas.momentum -= cost;
-  } else if (cost > 0 && extraDiceSource === "threat") {
+  } else if (hasRecordedPurchase && source === "threat") {
     deltas.threat += cost;
   }
 
   return {
     version: 1,
-    source: String(extraDiceSource),
+    source,
     cost,
     generated,
     deltas,
-    hasChanges: deltas.momentum !== 0 || deltas.threat !== 0
+    hasChanges: generated > 0 || hasRecordedPurchase
   };
 }
 
 /**
  * Calculate target pool values before any persistent write is attempted.
  *
- * Momentum used to purchase dice must already be available before the test;
- * generated Momentum cannot retroactively fund that purchase. Momentum is then
- * capped at the configured maximum.
+ * Momentum used to purchase dice must already be available independently of
+ * generated Momentum. Momentum is then capped at the configured maximum.
  */
 export function calculatePoolTargets({
   current,
