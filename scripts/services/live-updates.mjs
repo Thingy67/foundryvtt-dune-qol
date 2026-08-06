@@ -12,12 +12,10 @@ export function registerLiveUpdateHooks() {
 
   Hooks.on("updateSetting", (setting) => {
     const key = String(setting?.key ?? setting?.id ?? "");
-    if (key !== PARTY_DATA_KEY && key !== COMBAT_STATE_KEY) return;
-
-    const refresh = document.querySelector(
-      ".dune-qol-party-sheet [data-party-action='refresh']"
-    );
-    if (refresh instanceof HTMLButtonElement) refresh.click();
+    if (key === PARTY_DATA_KEY) {
+      refreshOpenPartySheet();
+      return;
+    }
 
     if (key === COMBAT_STATE_KEY) {
       Hooks.callAll("duneQolCombatStateChanged");
@@ -26,6 +24,13 @@ export function registerLiveUpdateHooks() {
   });
 
   Hooks.on("duneQolCombatStateChanged", renderCombatTracker);
+}
+
+function refreshOpenPartySheet() {
+  const refresh = document.querySelector(
+    ".dune-qol-party-sheet [data-party-action='refresh']"
+  );
+  if (refresh instanceof HTMLButtonElement) refresh.click();
 }
 
 function openCombatTracker() {
