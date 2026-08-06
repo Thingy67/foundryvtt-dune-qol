@@ -9,7 +9,7 @@ export async function initializeLocalization() {
   activeLanguage = configuredLanguage === "fr" ? "fr" : "en";
 
   try {
-    const response = await fetch(`modules/${MODULE_ID}/lang/${activeLanguage}.json`, {
+    const response = await fetch(`/modules/${MODULE_ID}/lang/${activeLanguage}.json`, {
       cache: "no-store"
     });
     if (!response.ok) {
