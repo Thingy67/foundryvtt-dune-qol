@@ -52,15 +52,19 @@ const requiredFiles = [
   "scripts/services/temporary-traits.mjs",
   "scripts/services/test-requests.mjs",
   "scripts/services/test-request-completion.mjs",
+  "scripts/services/group-tools.mjs",
   "styles/dune-qol.css",
   "styles/temporary-traits.css",
+  "styles/group-tools.css",
   "tools/test-dune-test.mjs",
   "tools/test-pool-plan.mjs",
   "tools/test-complication-resolution.mjs",
   "lang/en.json",
   "lang/fr.json",
   "lang/en-temporary-traits.json",
-  "lang/fr-temporary-traits.json"
+  "lang/fr-temporary-traits.json",
+  "lang/en-group-tools.json",
+  "lang/fr-group-tools.json"
 ];
 
 for (const relativePath of requiredFiles) {
@@ -71,10 +75,16 @@ for (const relativePath of requiredFiles) {
 
 const manifest = await readJson("module.json");
 const packageJson = await readJson("package.json");
-await readJson("lang/en.json");
-await readJson("lang/fr.json");
-await readJson("lang/en-temporary-traits.json");
-await readJson("lang/fr-temporary-traits.json");
+for (const languageFile of [
+  "lang/en.json",
+  "lang/fr.json",
+  "lang/en-temporary-traits.json",
+  "lang/fr-temporary-traits.json",
+  "lang/en-group-tools.json",
+  "lang/fr-group-tools.json"
+]) {
+  await readJson(languageFile);
+}
 
 if (manifest) {
   if (manifest.id !== "dune-qol") {
