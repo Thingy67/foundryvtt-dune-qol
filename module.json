@@ -1,0 +1,48 @@
+{
+  "id": "dune-qol",
+  "type": "module",
+  "title": "Dune: Adventures in the Imperium QoL",
+  "description": "Optional quality-of-life workflows for the community Dune: Adventures in the Imperium game system.",
+  "version": "0.0.1",
+  "authors": [
+    {
+      "name": "Thingy67",
+      "url": "https://github.com/Thingy67"
+    }
+  ],
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13.351",
+    "maximum": "13"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "dune",
+        "type": "system",
+        "compatibility": {
+          "minimum": "13.0.2",
+          "verified": "13.0.2"
+        }
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/dune-qol.mjs"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "fr",
+      "name": "Français",
+      "path": "lang/fr.json"
+    }
+  ],
+  "url": "https://github.com/Thingy67/foundryvtt-dune-qol",
+  "bugs": "https://github.com/Thingy67/foundryvtt-dune-qol/issues",
+  "readme": "README.md"
+}
