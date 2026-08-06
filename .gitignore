@@ -1,0 +1,14 @@
+node_modules/
+dist/
+release/
+releases/
+*.zip
+*.log
+
+.DS_Store
+Thumbs.db
+
+.idea/
+.vscode/
+
+coverage/
