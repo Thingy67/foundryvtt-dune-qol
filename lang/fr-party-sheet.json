@@ -50,6 +50,9 @@
   "DUNEQOL.PartySheet.Requests.OpenRequest": "Afficher la demande dans le chat",
   "DUNEQOL.PartySheet.Requests.OpenResult": "Afficher le résultat dans le chat",
   "DUNEQOL.PartySheet.Requests.Cancel": "Annuler la demande",
+  "DUNEQOL.PartySheet.Requests.CancelTitle": "Annuler une demande de test",
+  "DUNEQOL.PartySheet.Requests.CancelConfirm": "Annuler la demande de test concernant {actor} ? Le joueur ne pourra plus l’ouvrir depuis cette demande.",
+  "DUNEQOL.PartySheet.Requests.UnknownActor": "ce personnage",
   "DUNEQOL.PartySheet.Requests.Cancelled": "Demande de test annulée.",
   "DUNEQOL.PartySheet.Requests.Empty": "Aucune demande de test visible.",
   "DUNEQOL.PartySheet.Errors.Failed": "La feuille de groupe a rencontré une erreur : {message}"
