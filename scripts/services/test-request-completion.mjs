@@ -50,8 +50,8 @@ async function handleSocketMessage(payload) {
 
 async function completeRequest(payload) {
   try {
-    const requestMessage = game.messages.get(payload.requestMessageId);
-    const resultMessage = game.messages.get(payload.resultMessageId);
+    const requestMessage = await waitForMessage(payload.requestMessageId);
+    const resultMessage = await waitForMessage(payload.resultMessageId);
     if (!requestMessage || !resultMessage) {
       throw new Error("The request or result message is unavailable.");
     }
@@ -111,6 +111,18 @@ function renderRequestCompletion(message, html) {
 
   const root = getHtmlRoot(html);
   root?.querySelector(`[data-dune-qol-action="${OPEN_ACTION}"]`)?.remove();
+}
+
+async function waitForMessage(messageId) {
+  if (!messageId) return null;
+
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const message = game.messages.get(messageId);
+    if (message) return message;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  return null;
 }
 
 function getPrimaryActiveGM() {
