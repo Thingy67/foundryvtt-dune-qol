@@ -5,6 +5,7 @@ import {
 import { format, localize } from "../localization.mjs";
 
 const GUIDED_TEST_SELECTOR = ".dune-qol-guided-test";
+const TEST_REQUEST_DIALOG_SELECTOR = ".dune-qol-test-request-dialog";
 const BOUND_ATTRIBUTE = "duneQolExtraDiceBound";
 let pendingPreset = null;
 
@@ -19,20 +20,28 @@ export function queueGuidedTestPreset(request) {
 }
 
 /**
- * Configure dynamic Guided-test form controls through Foundry's documented
- * ApplicationV2 render hook. The hook receives the pending HTMLElement, so it
- * does not depend on DialogV2.form being available during the render event.
+ * Configure dynamic forms through Foundry's documented ApplicationV2 render
+ * hook. The hook receives the pending HTMLElement, so it does not depend on
+ * DialogV2.form being available during the render event.
  */
 Hooks.on("renderApplicationV2", (_application, element) => {
   if (!(element instanceof HTMLElement)) return;
 
-  const roots = element.matches(GUIDED_TEST_SELECTOR)
+  const guidedTestRoots = element.matches(GUIDED_TEST_SELECTOR)
     ? [element]
     : [...element.querySelectorAll(GUIDED_TEST_SELECTOR)];
 
-  for (const root of roots) {
+  for (const root of guidedTestRoots) {
     applyPendingPreset(root);
     configureExtraDiceControls(root);
+  }
+
+  const requestDialogRoots = element.matches(TEST_REQUEST_DIALOG_SELECTOR)
+    ? [element]
+    : [...element.querySelectorAll(TEST_REQUEST_DIALOG_SELECTOR)];
+
+  for (const root of requestDialogRoots) {
+    configureTestRequestDialog(root);
   }
 });
 
@@ -125,6 +134,16 @@ function configureExtraDiceControls(root) {
   diceInput.addEventListener("input", updateExtraDice);
   diceInput.addEventListener("change", updateExtraDice);
   updateExtraDice();
+}
+
+function configureTestRequestDialog(root) {
+  const contextInput = root.querySelector('input[name="context"]');
+  if (!(contextInput instanceof HTMLInputElement)) return;
+
+  // Context is useful but optional. Leaving the native required attribute in
+  // place causes DialogV2 to close after reportValidity() rejects submission.
+  contextInput.required = false;
+  contextInput.removeAttribute("required");
 }
 
 function escapeHtml(value) {
