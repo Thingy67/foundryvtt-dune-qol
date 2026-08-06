@@ -2,6 +2,7 @@ import { registerGuidedTestHooks } from "./features/guided-test.mjs";
 import { initializeLocalization } from "./localization.mjs";
 import { registerComplicationTraitHooks } from "./services/complication-traits.mjs";
 import { registerGroupToolHooks } from "./services/group-tools.mjs";
+import { registerPartySheetHooks } from "./services/party-sheet.mjs";
 import { registerPoolTransactionHooks } from "./services/pool-transactions.mjs";
 import { registerTemporaryTraitHooks } from "./services/temporary-traits.mjs";
 import { registerTestRequestCompletionHooks } from "./services/test-request-completion.mjs";
@@ -29,6 +30,7 @@ Hooks.once("init", () => {
   registerTestRequestHooks();
   registerTestRequestCompletionHooks();
   registerGroupToolHooks();
+  registerPartySheetHooks();
 });
 
 Hooks.once("i18nInit", async () => {
