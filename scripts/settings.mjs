@@ -3,7 +3,8 @@ const MODULE_ID = "dune-qol";
 export const SETTING_KEYS = Object.freeze({
   language: "language",
   launcherLocation: "launcherLocation",
-  hideNativeRoller: "hideNativeRoller"
+  hideNativeRoller: "hideNativeRoller",
+  partyData: "partyData"
 });
 
 export const LAUNCHER_LOCATIONS = Object.freeze({
@@ -80,6 +81,22 @@ export function registerSettings() {
     type: Boolean,
     default: true,
     requiresReload: true
+  });
+
+  game.settings.register(MODULE_ID, SETTING_KEYS.partyData, {
+    name: "Dune QoL Party data",
+    scope: "world",
+    config: false,
+    type: Object,
+    default: {
+      version: 1,
+      houseName: "",
+      houseInfo: "",
+      globalStatus: "",
+      groupNotes: "",
+      objectives: "",
+      actorMeta: {}
+    }
   });
 
   Hooks.on("renderSettingsConfig", async (_application, html) => {
