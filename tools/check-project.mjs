@@ -35,9 +35,12 @@ const requiredFiles = [
   "README.md",
   "AGENTS.md",
   "docs/PROJECT.md",
+  "docs/USER-GUIDE.md",
   "module.json",
   "package.json",
   "scripts/dune-qol.mjs",
+  "scripts/settings.mjs",
+  "scripts/localization.mjs",
   "scripts/domain/dune-test.mjs",
   "scripts/features/guided-test.mjs",
   "styles/dune-qol.css",
@@ -113,6 +116,9 @@ if (await exists("README.md")) {
   if (!readme.includes("AI-assisted development disclosure")) {
     fail("README.md must retain the AI-assisted development disclosure.");
   }
+  if (!readme.includes("docs/USER-GUIDE.md")) {
+    fail("README.md must link to the user guide.");
+  }
 }
 
 if (await exists("AGENTS.md")) {
@@ -128,9 +134,10 @@ if (await exists("docs/PROJECT.md")) {
     fail("docs/PROJECT.md must contain the central decision log.");
   }
 
+  const allowedMarkdown = new Set(["PROJECT.md", "USER-GUIDE.md"]);
   const docsEntries = await readdir(path.join(root, "docs"), { withFileTypes: true });
   const extraMarkdown = docsEntries
-    .filter((entry) => entry.isFile() && entry.name.endsWith(".md") && entry.name !== "PROJECT.md")
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".md") && !allowedMarkdown.has(entry.name))
     .map((entry) => entry.name);
 
   if (extraMarkdown.length > 0) {
