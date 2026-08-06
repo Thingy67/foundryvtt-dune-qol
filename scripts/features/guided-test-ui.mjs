@@ -4,13 +4,10 @@ import {
 } from "../domain/dune-test.mjs";
 import { format, localize } from "../localization.mjs";
 
-const MODULE_ID = "dune-qol";
 const GUIDED_TEST_SELECTOR = ".dune-qol-guided-test";
 const TEST_REQUEST_DIALOG_SELECTOR = ".dune-qol-test-request-dialog";
 const BOUND_ATTRIBUTE = "duneQolExtraDiceBound";
-const REQUEST_RESULT_TIMEOUT_MS = 60_000;
 let pendingPreset = null;
-let armedRequestedResult = null;
 
 /**
  * Queue a one-shot preset for the next Guided-test dialog rendered on this
@@ -20,31 +17,6 @@ export function queueGuidedTestPreset(request) {
   pendingPreset = request && typeof request === "object"
     ? foundry.utils.deepClone(request)
     : null;
-}
-
-/**
- * Return the request associated with a newly created Guided-test result.
- * A request is armed only when the player actually presses the roll button,
- * not when the dialog merely opens.
- */
-export function consumeRequestedTestResult(message) {
-  if (!armedRequestedResult) return null;
-  if (Date.now() > armedRequestedResult.expiresAt) {
-    armedRequestedResult = null;
-    return null;
-  }
-
-  const guidedTest = message?.getFlag?.(MODULE_ID, "guidedTest");
-  const authorId = typeof message?.user === "string"
-    ? message.user
-    : message?.user?.id ?? message?.author?.id ?? null;
-
-  if (!guidedTest || guidedTest.actorUuid !== armedRequestedResult.actorUuid) return null;
-  if (authorId !== game.user.id) return null;
-
-  const request = foundry.utils.deepClone(armedRequestedResult);
-  armedRequestedResult = null;
-  return request;
 }
 
 /**
@@ -86,10 +58,10 @@ function applyPendingPreset(root) {
   setInputValue(root, "difficulty", preset.difficulty);
   setInputValue(root, "complicationRange", preset.complicationRange);
   setInputValue(root, "context", preset.context);
+  setHiddenInput(root, "duneQolRequestMessageId", request.requestMessageId);
 
   root.dataset.duneQolRequestMessageId = request.requestMessageId ?? "";
   root.dataset.duneQolRequestedBy = request.requestedBy ?? "";
-  armRequestedResultOnRoll(root, request);
 
   const banner = document.createElement("aside");
   banner.className = "dune-qol-test-request-banner";
@@ -100,28 +72,6 @@ function applyPendingPreset(root) {
     }))}</span>
   `;
   root.prepend(banner);
-}
-
-function armRequestedResultOnRoll(root, request) {
-  if (!request.requestMessageId || !request.actorUuid) return;
-
-  const form = root.closest("form");
-  const application = root.closest(".application") ?? form?.parentElement ?? root.parentElement;
-  const rollButton = application?.querySelector('button[data-action="roll"]');
-  let armed = false;
-
-  const arm = () => {
-    if (armed) return;
-    armed = true;
-    armedRequestedResult = {
-      requestMessageId: request.requestMessageId,
-      actorUuid: request.actorUuid,
-      expiresAt: Date.now() + REQUEST_RESULT_TIMEOUT_MS
-    };
-  };
-
-  form?.addEventListener("submit", arm, { once: true, capture: true });
-  rollButton?.addEventListener("click", arm, { once: true, capture: true });
 }
 
 /**
@@ -143,15 +93,28 @@ function lockSelectValue(root, name, value) {
   select.setAttribute("aria-disabled", "true");
   select.title = localize("DUNEQOL.TestRequests.LockedByGm");
 
-  const hidden = document.createElement("input");
-  hidden.type = "hidden";
-  hidden.name = name;
-  hidden.value = normalizedValue;
-  hidden.dataset.duneQolLockedValue = name;
-  select.insertAdjacentElement("afterend", hidden);
+  setHiddenInput(root, name, normalizedValue, select);
 
   select.closest("label")?.classList.add("dune-qol-locked-field");
   select.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+function setHiddenInput(root, name, value, afterElement = null) {
+  if (value === null || value === undefined || value === "") return;
+
+  root.querySelector(`input[type="hidden"][name="${name}"]`)?.remove();
+
+  const hidden = document.createElement("input");
+  hidden.type = "hidden";
+  hidden.name = name;
+  hidden.value = String(value);
+  hidden.dataset.duneQolHiddenValue = name;
+
+  if (afterElement instanceof HTMLElement) {
+    afterElement.insertAdjacentElement("afterend", hidden);
+  } else {
+    root.append(hidden);
+  }
 }
 
 function setInputValue(root, name, value) {
