@@ -102,7 +102,7 @@ async function completeRequest(payload) {
 
 function renderRequestCompletion(message, html) {
   const request = message.getFlag(MODULE_ID, "testRequest");
-  if (!request || request.status !== "completed") return;
+  if (!request || request.status === "pending") return;
 
   const root = getHtmlRoot(html);
   root?.querySelector(`[data-dune-qol-action="${OPEN_ACTION}"]`)?.remove();
