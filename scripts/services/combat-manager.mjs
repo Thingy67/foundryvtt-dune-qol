@@ -76,16 +76,23 @@ export function buildCombatPanelHtml(model, { embedded = false } = {}) {
   }
 
   const state = model.state;
-  const activeLabel = state.activeSide === "players"
-    ? localize("DUNEQOL.Combat.Side.Players")
-    : localize("DUNEQOL.Combat.Side.Opposition");
-  const costPool = state.activeSide === "players" ? "Momentum" : localize("DUNEQOL.Pools.Threat");
+  const activeLabel = sideLabel(state.activeSide);
+  const retainLocked = state.retainLockedSide === state.activeSide;
+  const paymentControl = state.activeSide === "players"
+    ? `<label><span>${escapeHtml(localize("DUNEQOL.Combat.RetainPayment"))}</span>
+        <select name="retainPayment">
+          <option value="momentum">Momentum</option>
+          <option value="threat">${escapeHtml(localize("DUNEQOL.Combat.Payment.AddThreat"))}</option>
+        </select>
+      </label>`
+    : `<input name="retainPayment" type="hidden" value="threat">
+       <p class="hint">${escapeHtml(localize("DUNEQOL.Combat.Payment.OppositionThreat"))}</p>`;
   const combatants = model.combatants.map((combatant) => `
     <label class="dune-qol-combatant-row ${combatant.acted ? "acted" : ""}">
       ${model.canEdit ? `<input type="checkbox" name="combatantIds" value="${escapeHtml(combatant.id)}">` : ""}
       <img src="${escapeHtml(combatant.img)}" alt="">
       <span class="dune-qol-combatant-row__name">${escapeHtml(combatant.name)}</span>
-      <small>${escapeHtml(combatant.side === "players" ? localize("DUNEQOL.Combat.Side.Players") : localize("DUNEQOL.Combat.Side.Opposition"))}</small>
+      <small>${escapeHtml(sideLabel(combatant.side))}</small>
       <small>${escapeHtml(combatant.acted ? localize("DUNEQOL.Combat.Acted") : localize("DUNEQOL.Combat.NotActed"))}</small>
       <button type="button" data-combat-select-token="${escapeHtml(combatant.id)}" title="${escapeHtml(localize("DUNEQOL.Combat.SelectToken"))}"><i class="fa-solid fa-crosshairs"></i></button>
     </label>
@@ -109,8 +116,10 @@ export function buildCombatPanelHtml(model, { embedded = false } = {}) {
       <button type="button" data-combat-action="mark-acted"><i class="fa-solid fa-check"></i> ${escapeHtml(localize("DUNEQOL.Combat.MarkActed"))}</button>
       <button type="button" data-combat-action="mark-unacted"><i class="fa-solid fa-rotate-left"></i> ${escapeHtml(localize("DUNEQOL.Combat.MarkUnacted"))}</button>
       <button type="button" data-combat-action="pass"><i class="fa-solid fa-right-left"></i> ${escapeHtml(localize("DUNEQOL.Combat.Pass"))}</button>
-      <label><span>${escapeHtml(format("DUNEQOL.Combat.RetainCost", { pool: costPool }))}</span><input name="retainCost" type="number" min="0" max="6" step="1" value="0"></label>
-      <button type="button" data-combat-action="retain"><i class="fa-solid fa-hand"></i> ${escapeHtml(localize("DUNEQOL.Combat.Retain"))}</button>
+      ${paymentControl}
+      <label><span>${escapeHtml(localize("DUNEQOL.Combat.RetainCost"))}</span><input name="retainCost" type="number" min="0" max="6" step="1" value="2"></label>
+      <button type="button" data-combat-action="retain" ${retainLocked ? "disabled" : ""}><i class="fa-solid fa-hand"></i> ${escapeHtml(localize("DUNEQOL.Combat.Retain"))}</button>
+      ${retainLocked ? `<p class="hint dune-qol-combat-retain-lock">${escapeHtml(localize("DUNEQOL.Combat.RetainLocked"))}</p>` : ""}
       <button type="button" data-combat-action="reset-round"><i class="fa-solid fa-arrow-rotate-left"></i> ${escapeHtml(localize("DUNEQOL.Combat.ResetRound"))}</button>
       <button type="button" data-combat-action="new-round"><i class="fa-solid fa-forward-step"></i> ${escapeHtml(localize("DUNEQOL.Combat.NewRound"))}</button>
     </div>` : ""}
@@ -129,9 +138,10 @@ export function configureCombatPanel(root, { rerender = null } = {}) {
       const action = button.dataset.combatAction;
       const selected = [...panel.querySelectorAll("input[name='combatantIds']:checked")].map((input) => input.value);
       const cost = Number(panel.querySelector("input[name='retainCost']")?.value ?? 0);
+      const payment = String(panel.querySelector("[name='retainPayment']")?.value ?? "momentum");
       button.disabled = true;
       try {
-        await applyCombatCommand(action, { combatantIds: selected, cost });
+        await applyCombatCommand(action, { combatantIds: selected, cost, payment });
         if (typeof rerender === "function") await rerender();
       } finally {
         button.disabled = false;
@@ -144,7 +154,7 @@ export function configureCombatPanel(root, { rerender = null } = {}) {
   }
 }
 
-export async function applyCombatCommand(action, { combatantIds = [], cost = 0 } = {}) {
+export async function applyCombatCommand(action, { combatantIds = [], cost = 0, payment = "momentum" } = {}) {
   if (!game.user.isGM) {
     ui.notifications.error(localize("DUNEQOL.Combat.Errors.GmOnly"));
     return;
@@ -179,6 +189,9 @@ export async function applyCombatCommand(action, { combatantIds = [], cost = 0 }
       case "mark-acted":
         if (selectedIds.length === 0) throw new Error(localize("DUNEQOL.Combat.Errors.NoSelection"));
         next.actedCombatantIds = [...new Set([...next.actedCombatantIds, ...selectedIds])];
+        if (next.retainLockedSide && selectedIds.some((id) => combatantSide(combat.combatants.get(id)) !== next.retainLockedSide)) {
+          next.retainLockedSide = null;
+        }
         label = format("DUNEQOL.Combat.HistoryMarked", { names: combatantNames(combat, selectedIds) });
         break;
       case "mark-unacted":
@@ -187,32 +200,30 @@ export async function applyCombatCommand(action, { combatantIds = [], cost = 0 }
         label = format("DUNEQOL.Combat.HistoryUnmarked", { names: combatantNames(combat, selectedIds) });
         break;
       case "pass":
-        next.activeSide = next.activeSide === "players" ? "opposition" : "players";
-        label = format("DUNEQOL.Combat.HistoryPassed", {
-          side: next.activeSide === "players" ? localize("DUNEQOL.Combat.Side.Players") : localize("DUNEQOL.Combat.Side.Opposition")
-        });
+        next.activeSide = oppositeSide(next.activeSide);
+        label = format("DUNEQOL.Combat.HistoryPassed", { side: sideLabel(next.activeSide) });
         break;
       case "retain": {
+        if (next.retainLockedSide === next.activeSide) {
+          throw new Error(localize("DUNEQOL.Combat.Errors.RetainLocked"));
+        }
         const normalizedCost = boundedInteger(cost, 0, 6);
-        if (normalizedCost === null) {
-          throw new Error(localize("DUNEQOL.Combat.Errors.InvalidCost"));
-        }
-        const pool = next.activeSide === "players" ? "momentum" : "threat";
-        if (normalizedCost > 0) {
-          const pools = await readDunePools();
-          if (pools[pool] < normalizedCost) {
-            throw new Error(format("DUNEQOL.Combat.Errors.InsufficientPool", { available: pools[pool], cost: normalizedCost }));
-          }
-          await writeDunePool(pool, pools[pool] - normalizedCost);
-        }
-        label = format("DUNEQOL.Combat.HistoryRetained", {
-          side: next.activeSide === "players" ? localize("DUNEQOL.Combat.Side.Players") : localize("DUNEQOL.Combat.Side.Opposition"),
+        if (normalizedCost === null) throw new Error(localize("DUNEQOL.Combat.Errors.InvalidCost"));
+        const paymentResult = await applyRetentionPayment({
+          side: next.activeSide,
+          payment,
           cost: normalizedCost
+        });
+        next.retainLockedSide = next.activeSide;
+        label = format("DUNEQOL.Combat.HistoryRetained", {
+          side: sideLabel(next.activeSide),
+          payment: paymentResult
         });
         break;
       }
       case "reset-round":
         next.actedCombatantIds = [];
+        next.retainLockedSide = null;
         label = localize("DUNEQOL.Combat.HistoryReset");
         break;
       case "new-round":
@@ -224,6 +235,7 @@ export async function applyCombatCommand(action, { combatantIds = [], cost = 0 }
         }
         next.round = combat.round ?? ((current.round ?? 0) + 1);
         next.actedCombatantIds = [];
+        next.retainLockedSide = null;
         next.activeSide = "players";
         label = format("DUNEQOL.Combat.HistoryNewRound", { round: next.round });
         break;
@@ -240,13 +252,35 @@ export async function applyCombatCommand(action, { combatantIds = [], cost = 0 }
     await saveCombatState(next);
     ui.notifications.info(label);
   } catch (error) {
-    console.error("Dune QoL | Combat command failed.", error, { action, combatantIds, cost });
+    console.error("Dune QoL | Combat command failed.", error, { action, combatantIds, cost, payment });
     ui.notifications.error(format("DUNEQOL.Combat.Errors.Failed", {
       message: error instanceof Error ? error.message : String(error)
     }));
   } finally {
     activeCommands.delete(commandKey);
   }
+}
+
+async function applyRetentionPayment({ side, payment, cost }) {
+  if (cost === 0) return localize("DUNEQOL.Combat.Payment.None");
+
+  const pools = await readDunePools();
+  if (side === "players" && payment === "threat") {
+    await writeDunePool("threat", pools.threat + cost);
+    return format("DUNEQOL.Combat.Payment.ThreatAdded", { cost });
+  }
+
+  const pool = side === "opposition" ? "threat" : "momentum";
+  if (pools[pool] < cost) {
+    throw new Error(format("DUNEQOL.Combat.Errors.InsufficientPool", {
+      available: pools[pool],
+      cost
+    }));
+  }
+  await writeDunePool(pool, pools[pool] - cost);
+  return pool === "momentum"
+    ? format("DUNEQOL.Combat.Payment.MomentumSpent", { cost })
+    : format("DUNEQOL.Combat.Payment.ThreatSpent", { cost });
 }
 
 async function renderCombatTrackerPanel(html) {
@@ -274,6 +308,7 @@ async function synchronizeRound(combat) {
 
   current.round = round;
   current.actedCombatantIds = [];
+  current.retainLockedSide = null;
   current.activeSide = "players";
   current.history = appendHistory(current.history, {
     at: new Date().toISOString(),
@@ -293,43 +328,59 @@ function normalizeCombatState(value, combat) {
   const source = value && typeof value === "object" ? value : {};
   if (!combat || source.combatId !== combat.id) {
     return {
-      version: 1,
+      version: 2,
       combatId: combat?.id ?? null,
       round: Number(combat?.round ?? 0),
       activeSide: "players",
       actedCombatantIds: [],
+      retainLockedSide: null,
       history: []
     };
   }
 
   const validIds = new Set([...combat.combatants].map((combatant) => combatant.id));
   return {
-    version: 1,
+    version: 2,
     combatId: combat.id,
     round: Number(source.round ?? combat.round ?? 0),
     activeSide: source.activeSide === "opposition" ? "opposition" : "players",
     actedCombatantIds: Array.isArray(source.actedCombatantIds)
       ? [...new Set(source.actedCombatantIds.map(String).filter((id) => validIds.has(id)))]
       : [],
+    retainLockedSide: source.retainLockedSide === "players" || source.retainLockedSide === "opposition"
+      ? source.retainLockedSide
+      : null,
     history: Array.isArray(source.history) ? source.history.slice(-100) : []
   };
 }
 
 function buildCombatantModel(combatant, state) {
-  const actor = combatant.actor;
-  const hasPlayerOwner = actor
-    ? game.users.some((user) => !user.isGM && actor.testUserPermission(user, "OWNER"))
-    : false;
-  const disposition = Number(combatant.token?.disposition ?? 0);
-  const side = hasPlayerOwner || disposition > 0 ? "players" : "opposition";
-
   return {
     id: combatant.id,
     name: combatant.name,
-    img: combatant.img ?? actor?.img ?? "icons/svg/mystery-man.svg",
-    side,
+    img: combatant.img ?? combatant.actor?.img ?? "icons/svg/mystery-man.svg",
+    side: combatantSide(combatant),
     acted: state.actedCombatantIds.includes(combatant.id)
   };
+}
+
+function combatantSide(combatant) {
+  const actor = combatant?.actor;
+  const hasPlayerOwner = actor
+    ? game.users.some((user) => !user.isGM && actor.testUserPermission(user, "OWNER"))
+    : false;
+  const disposition = Number(combatant?.token?.disposition ?? 0);
+  return hasPlayerOwner || disposition > 0 ? "players" : "opposition";
+}
+
+function sideLabel(side) {
+  return side === "opposition"
+    ? localize("DUNEQOL.Combat.Side.Opposition")
+    : localize("DUNEQOL.Combat.Side.Players");
+}
+
+function oppositeSide(side) {
+  return side === "players" ? "opposition" : "players";
 }
 
 function appendHistory(history, entry) {
