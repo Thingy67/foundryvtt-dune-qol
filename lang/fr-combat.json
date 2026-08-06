@@ -30,6 +30,7 @@
   "DUNEQOL.Combat.HistoryNewRound": "Début du round {round} ; les activations sont réinitialisées et les joueurs commencent.",
   "DUNEQOL.Combat.Errors.GmOnly": "Seul un maître de jeu peut modifier le suivi du combat.",
   "DUNEQOL.Combat.Errors.NoSelection": "Sélectionnez au moins un combattant.",
+  "DUNEQOL.Combat.Errors.InvalidCost": "Le coût doit être un nombre entier compris entre 0 et 6.",
   "DUNEQOL.Combat.Errors.InsufficientPool": "Réserve insuffisante : {available} disponible, {cost} requis.",
   "DUNEQOL.Combat.Errors.UnknownAction": "L’action de combat demandée n’est pas reconnue.",
   "DUNEQOL.Combat.Errors.TokenUnavailable": "Le token de ce combattant n’est pas disponible sur la scène active.",
