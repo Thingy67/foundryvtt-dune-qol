@@ -76,6 +76,7 @@
 }
 
 .dune-qol-test-card__die {
+  position: relative;
   display: grid;
   place-items: center;
   width: 2rem;
@@ -98,7 +99,8 @@
 .dune-qol-test-card__die.determination::after {
   content: "D";
   position: absolute;
-  transform: translate(0.72rem, -0.72rem);
+  inset-block-start: -0.25rem;
+  inset-inline-end: -0.2rem;
   font-size: 0.6rem;
 }
 
