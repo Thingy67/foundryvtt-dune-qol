@@ -50,6 +50,9 @@
   "DUNEQOL.PartySheet.Requests.OpenRequest": "Show request in chat",
   "DUNEQOL.PartySheet.Requests.OpenResult": "Show result in chat",
   "DUNEQOL.PartySheet.Requests.Cancel": "Cancel request",
+  "DUNEQOL.PartySheet.Requests.CancelTitle": "Cancel test request",
+  "DUNEQOL.PartySheet.Requests.CancelConfirm": "Cancel the test request for {actor}? The player will no longer be able to open it from this request.",
+  "DUNEQOL.PartySheet.Requests.UnknownActor": "this character",
   "DUNEQOL.PartySheet.Requests.Cancelled": "Test request cancelled.",
   "DUNEQOL.PartySheet.Requests.Empty": "No visible test request.",
   "DUNEQOL.PartySheet.Errors.Failed": "The Party Sheet encountered an error: {message}"
