@@ -3,7 +3,8 @@ import { getModuleLanguage } from "./settings.mjs";
 const MODULE_ID = "dune-qol";
 const SUPPLEMENTAL_DICTIONARIES = [
   "temporary-traits",
-  "group-tools"
+  "group-tools",
+  "party-sheet"
 ];
 let translations = {};
 let activeLanguage = "en";
