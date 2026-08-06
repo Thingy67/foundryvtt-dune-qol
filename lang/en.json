@@ -125,5 +125,6 @@
   "DUNEQOL.TestRequests.Errors.GmOnly": "Only a game master can send a test request.",
   "DUNEQOL.TestRequests.Errors.InvalidRecipient": "The recipient no longer owns this Actor.",
   "DUNEQOL.TestRequests.Errors.ActorUnavailable": "The requested Actor is unavailable or you no longer own it.",
+  "DUNEQOL.TestRequests.Errors.InvalidRequest": "The received test request could not be validated.",
   "DUNEQOL.TestRequests.Errors.SendFailed": "The test request could not be sent: {message}"
 }
