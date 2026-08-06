@@ -6,6 +6,8 @@ const MODULE_ID = "dune-qol";
 const SOCKET_NAME = `module.${MODULE_ID}`;
 const REQUEST_ACTION = "request-guided-test";
 const OPEN_ACTION = "open-requested-test";
+const processedRequestIds = new Set();
+const processingRequestIds = new Set();
 
 export function registerTestRequestHooks() {
   Hooks.once("ready", () => {
@@ -21,6 +23,10 @@ export function registerTestRequestHooks() {
     addRequestButton(application, html, actor);
   });
 
+  Hooks.on("createChatMessage", (message) => {
+    void processIncomingRequestMessage(message, { reportInvalid: false });
+  });
+
   Hooks.on("renderChatMessage", (message, html) => {
     void configureRequestCard(message, html);
   });
@@ -32,15 +38,16 @@ function addRequestButton(application, html, actor) {
   if (!header || header.querySelector(`[data-dune-qol-action="${REQUEST_ACTION}"]`)) return;
 
   const button = document.createElement("a");
-  button.className = "header-button control dune-qol-sheet-launcher";
+  button.className = "header-button dune-qol-sheet-launcher";
   button.dataset.duneQolAction = REQUEST_ACTION;
+  button.setAttribute("role", "button");
   button.title = localize("DUNEQOL.TestRequests.SheetButtonTitle");
   button.innerHTML = `<i class="fa-solid fa-paper-plane"></i> ${escapeHtml(localize("DUNEQOL.TestRequests.SheetButton"))}`;
   button.addEventListener("click", (event) => {
     event.preventDefault();
-    event.stopPropagation();
+    event.stopImmediatePropagation();
     void openRequestDialog(actor);
-  });
+  }, { capture: true });
 
   const guidedButton = header.querySelector('[data-dune-qol-action="dune-qol-guided-test"]');
   const closeButton = header.querySelector(".close");
@@ -156,13 +163,20 @@ async function createTestRequest(actor, formData) {
     }
   });
 
-  if (recipient.active) {
-    game.socket.emit(SOCKET_NAME, {
-      type: "open-guided-test-request",
-      messageId: message.id,
-      recipientUserId: recipient.id
-    });
-  }
+  console.debug("Dune QoL | Test request created.", {
+    messageId: message.id,
+    requestId,
+    recipientUserId: recipient.id,
+    recipientActive: recipient.active
+  });
+
+  // The ChatMessage itself is the durable delivery mechanism. The socket only
+  // accelerates opening the dialog for a currently connected recipient.
+  game.socket.emit(SOCKET_NAME, {
+    type: "open-guided-test-request",
+    messageId: message.id,
+    recipientUserId: recipient.id
+  });
 
   ui.notifications.info(
     format("DUNEQOL.TestRequests.Sent", {
@@ -178,43 +192,81 @@ async function handleSocketMessage(payload) {
   if (payload.recipientUserId !== game.user.id) return;
 
   const message = await waitForRequestMessage(payload.messageId);
-  const request = message?.getFlag(MODULE_ID, "testRequest");
+  if (!message) {
+    console.warn("Dune QoL | Test-request socket arrived before its ChatMessage was available.", payload);
+    return;
+  }
+
+  await processIncomingRequestMessage(message, { reportInvalid: true });
+}
+
+async function processIncomingRequestMessage(message, { reportInvalid }) {
+  const request = message?.getFlag?.(MODULE_ID, "testRequest");
+  if (!request || request.recipientUserId !== game.user.id) return false;
+
+  const author = getMessageAuthor(message);
   const validRequest = Boolean(
-    message
-    && request
-    && message.author?.isGM
-    && request.requestedBy === message.author.id
-    && request.recipientUserId === game.user.id
-    && message.whisper?.includes(game.user.id)
+    author?.isGM
+    && request.requestedBy === author.id
+    && Array.isArray(message.whisper)
+    && message.whisper.includes(game.user.id)
+    && typeof request.requestId === "string"
+    && request.requestId.length > 0
   );
 
   if (!validRequest) {
-    console.warn("Dune QoL | Rejected an invalid test-request socket payload.", payload);
-    ui.notifications.error(localize("DUNEQOL.TestRequests.Errors.InvalidRequest"));
-    return;
+    console.warn("Dune QoL | Rejected an invalid test-request message.", {
+      messageId: message.id,
+      request,
+      authorId: author?.id ?? null,
+      whisper: message.whisper
+    });
+    if (reportInvalid) {
+      ui.notifications.error(localize("DUNEQOL.TestRequests.Errors.InvalidRequest"));
+    }
+    return false;
   }
 
-  const actor = request.actorUuid ? await fromUuid(request.actorUuid).catch(() => null) : null;
-  if (!actor || !actor.isOwner) {
-    ui.notifications.error(localize("DUNEQOL.TestRequests.Errors.ActorUnavailable"));
-    return;
+  if (processedRequestIds.has(request.requestId)) return true;
+  if (processingRequestIds.has(request.requestId)) return true;
+
+  processingRequestIds.add(request.requestId);
+  try {
+    const actor = request.actorUuid ? await fromUuid(request.actorUuid).catch(() => null) : null;
+    if (!actor || !actor.isOwner) {
+      ui.notifications.error(localize("DUNEQOL.TestRequests.Errors.ActorUnavailable"));
+      return false;
+    }
+
+    processedRequestIds.add(request.requestId);
+
+    ui.notifications.info(
+      format("DUNEQOL.TestRequests.Received", {
+        user: request.requestedByName ?? localize("DUNEQOL.TestRequests.UnknownGm"),
+        actor: actor.name
+      })
+    );
+
+    queueGuidedTestPreset({
+      actorUuid: actor.uuid,
+      requestMessageId: message.id,
+      requestedBy: request.requestedBy,
+      requestedByName: request.requestedByName,
+      preset: request.preset
+    });
+
+    console.debug("Dune QoL | Test request received by player.", {
+      messageId: message.id,
+      requestId: request.requestId,
+      actorUuid: actor.uuid,
+      recipientUserId: game.user.id
+    });
+
+    await safelyOpenGuidedTest(actor);
+    return true;
+  } finally {
+    processingRequestIds.delete(request.requestId);
   }
-
-  ui.notifications.info(
-    format("DUNEQOL.TestRequests.Received", {
-      user: request.requestedByName ?? localize("DUNEQOL.TestRequests.UnknownGm"),
-      actor: actor.name
-    })
-  );
-
-  queueGuidedTestPreset({
-    actorUuid: actor.uuid,
-    requestMessageId: message.id,
-    requestedBy: request.requestedBy,
-    requestedByName: request.requestedByName,
-    preset: request.preset
-  });
-  await safelyOpenGuidedTest(actor);
 }
 
 async function configureRequestCard(message, html) {
@@ -232,6 +284,7 @@ async function configureRequestCard(message, html) {
 
   button.addEventListener("click", async (event) => {
     event.preventDefault();
+    event.stopImmediatePropagation();
     button.disabled = true;
     try {
       const actor = await fromUuid(request.actorUuid).catch(() => null);
@@ -257,13 +310,20 @@ async function configureRequestCard(message, html) {
 async function waitForRequestMessage(messageId) {
   if (!messageId) return null;
 
-  for (let attempt = 0; attempt < 10; attempt += 1) {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
     const message = game.messages.get(messageId);
     if (message) return message;
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   return null;
+}
+
+function getMessageAuthor(message) {
+  const userId = typeof message.user === "string"
+    ? message.user
+    : message.user?.id ?? message.author?.id ?? null;
+  return userId ? game.users.get(userId) ?? message.author ?? null : message.author ?? null;
 }
 
 function buildRequestDialogContent({ actor, recipients, skills, drives }) {
