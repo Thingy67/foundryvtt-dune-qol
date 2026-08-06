@@ -50,6 +50,7 @@ const requiredFiles = [
   "scripts/services/pool-transactions.mjs",
   "scripts/services/complication-traits.mjs",
   "scripts/services/test-requests.mjs",
+  "scripts/services/test-request-completion.mjs",
   "styles/dune-qol.css",
   "tools/test-dune-test.mjs",
   "tools/test-pool-plan.mjs",
