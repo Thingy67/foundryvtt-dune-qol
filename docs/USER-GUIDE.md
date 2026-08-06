@@ -74,19 +74,13 @@ Pour chaque complication :
 3. laissez **Trait temporaire** coché, sauf si le Trait doit réellement persister ;
 4. confirmez.
 
-Le module :
+Le module crée un Item de type `trait` directement sur le personnage, utilise le champ temporaire natif, comptabilise la complication résolue et ajoute un message d’historique.
 
-- crée un Item de type `trait` directement sur le personnage associé au jet ;
-- utilise le champ temporaire natif du système Dune ;
-- comptabilise un Trait créé comme une complication résolue ;
-- affiche les Traits déjà créés et le nombre restant ;
-- ajoute un message d’historique dans le chat.
-
-Un joueur possédant le personnage peut demander la création, mais un MJ actif effectue l’écriture autoritaire. Chaque complication permet la création d’un seul Trait. La suppression ultérieure du Trait sur la fiche ne rouvre pas automatiquement la complication d’origine.
+Un joueur possédant le personnage peut demander la création, mais un MJ actif effectue l’écriture autoritaire. Chaque complication permet la création d’un seul Trait. La suppression ultérieure du Trait ne rouvre pas automatiquement la complication d’origine.
 
 ### Demander un test en tant que MJ
 
-À partir de la version `0.5.0`, le MJ peut préparer une demande directement depuis la fiche du personnage concerné.
+À partir de la version `0.5.1`, le MJ peut préparer une demande directement depuis la fiche du personnage concerné.
 
 1. Ouvrez la fiche du personnage.
 2. Cliquez sur **Demander un test** dans la barre de titre.
@@ -97,9 +91,9 @@ Un joueur possédant le personnage peut demander la création, mais un MJ actif 
 
 Les suggestions ne sont pas verrouillées : le joueur peut les modifier avant le jet.
 
-Le module crée un message privé visible par le MJ et le joueur. Si le joueur est connecté, il reçoit aussi une notification et la fenêtre du Test guidé s’ouvre automatiquement avec les valeurs préremplies. Si le joueur est hors ligne, le message reste disponible et son bouton **Ouvrir le test** fonctionnera après sa connexion.
+Le module crée un message privé visible par le MJ et le joueur. Ce message est la livraison principale de la demande. Lorsqu’il est reçu par un joueur connecté, la fenêtre du Test guidé s’ouvre automatiquement avec les valeurs préremplies. Une notification socket peut accélérer cette ouverture, mais elle n’est pas indispensable.
 
-La version initiale ne marque pas encore automatiquement la demande comme terminée après le jet. Le bouton du message peut donc être réutilisé pour rouvrir le même test.
+Si le joueur est hors ligne, le message reste disponible et son bouton **Ouvrir le test** fonctionnera après sa connexion. La demande n’est pas encore automatiquement marquée comme terminée après le jet.
 
 ### Choisir la langue
 
@@ -131,9 +125,25 @@ Connectez au moins un compte MJ actif. Les réserves partagées et la création 
 
 Le personnage doit appartenir au moins à un utilisateur non-MJ. Vérifiez ses permissions dans Foundry. Les joueurs hors ligne sont proposés, mais marqués comme tels.
 
-#### Le joueur ne reçoit pas automatiquement la fenêtre demandée
+#### Le joueur ne reçoit pas la demande
 
-Vérifiez qu’il est connecté, qu’il possède toujours le personnage et que le module `0.5.0` est chargé chez les deux utilisateurs. Le message privé permet toujours d’ouvrir manuellement le test.
+1. Vérifiez que **les deux clients** affichent Dune QoL `0.5.1`.
+2. Rechargez complètement la page des deux côtés après la mise à jour.
+3. Vérifiez que le joueur possède toujours le personnage.
+4. Ouvrez l’onglet Chat côté joueur : un message privé doit être présent même si l’ouverture automatique échoue.
+5. Dans la console du joueur, cherchez :
+
+```text
+Dune QoL | Test request received by player.
+```
+
+Côté MJ, la création réussie produit :
+
+```text
+Dune QoL | Test request created.
+```
+
+Une version antérieure à `0.5.1` peut afficher une erreur Foundry liée à `onclick` et ne pas ouvrir la fenêtre côté joueur.
 
 #### Le Trait n’apparaît pas
 
@@ -173,28 +183,19 @@ Momentum spent on extra dice must already exist before the test. Generated Momen
 
 ### Creating a Trait from a complication
 
-A result with complications displays **Complication resolution**.
-
-For each complication:
-
-1. click **Create a complication Trait**;
-2. enter the Trait name;
-3. leave **Temporary Trait** selected unless it should persist;
-4. confirm.
-
-The module creates an embedded upstream `trait` Item on the Actor, records it on the source result and posts a history message. One Trait may be created for each complication. A player request is executed by the active game master.
+A result with complications displays **Complication resolution**. The module creates one embedded upstream `trait` Item per resolved complication and records the result in chat. Player requests are executed by the active game master.
 
 Deleting the Trait later does not automatically reopen the original complication.
 
 ### Requesting a test as game master
 
-Starting with version `0.5.0`, open the relevant Actor sheet and click **Request test** in its title bar.
+Starting with version `0.5.1`, open the relevant Actor sheet and click **Request test** in its title bar.
 
 Choose a receiving player who owns the Actor, set difficulty, complication range and context, and optionally suggest Skill, Drive and Focus. Suggestions prefill the player’s dialog but remain editable.
 
-A private chat card is created for the game master and recipient. An active recipient also receives a notification and an automatically opened prefilled Guided-test dialog. An offline recipient can use **Open test** from the persisted private message after connecting.
+A private chat card is the primary delivery mechanism. A connected recipient processes that message and automatically opens one prefilled Guided-test dialog. The socket notification only accelerates this path. An offline recipient can use **Open test** from the persisted private message after connecting.
 
-The initial version does not automatically mark the request as completed after a roll, so the card may be reused.
+The request is not automatically marked completed after a roll, so the card may be reused.
 
 ### Language
 
@@ -204,6 +205,6 @@ Open **Game Settings → Configure Settings → Dune: Adventures in the Imperium
 
 Token controls require an active Scene. The extra-die source requires module `0.3.1` or newer and at least 3 dice. Player pool and Trait requests require an active game master.
 
-A test request requires at least one non-GM user with Owner permission on the Actor. Offline owners remain selectable and can use the private chat card later.
+A test request requires at least one non-GM user with Owner permission on the Actor. Both clients must run and fully reload Dune QoL `0.5.1`. The player should receive a private chat message even if automatic opening fails.
 
 For runtime errors, press **F12**, reproduce the issue and copy the complete console entry prefixed with `Dune QoL`.
