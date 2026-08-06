@@ -1,0 +1,310 @@
+.dune-qol-party-sheet-window .window-content {
+  padding: 0;
+  overflow: hidden;
+}
+
+.dune-qol-party-sheet {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+  background: var(--background, transparent);
+}
+
+.dune-qol-party-sheet__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.55rem 0.65rem 0;
+  border-bottom: 1px solid var(--color-border-light-tertiary, #888);
+}
+
+.dune-qol-party-sheet__tabs button {
+  flex: 0 1 auto;
+  width: auto;
+  margin: 0;
+  padding: 0.45rem 0.75rem;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.dune-qol-party-sheet__tabs button.active {
+  font-weight: 700;
+  box-shadow: inset 0 -3px 0 var(--color-border-highlight, currentColor);
+}
+
+.dune-qol-party-sheet__toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid var(--color-border-light-tertiary, #888);
+}
+
+.dune-qol-party-sheet__toolbar button,
+.dune-qol-party-character footer button,
+.dune-qol-party-trait-actions button {
+  width: auto;
+  margin: 0;
+}
+
+.dune-qol-party-sheet > main {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.dune-qol-party-tab {
+  display: none;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  padding: 0.75rem;
+}
+
+.dune-qol-party-tab.active {
+  display: block;
+}
+
+.dune-qol-party-pools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.25rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding: 0.65rem;
+  border: 1px solid var(--color-border-light-tertiary, #888);
+  border-radius: 0.4rem;
+  background: rgb(0 0 0 / 4%);
+}
+
+.dune-qol-party-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.dune-qol-party-overview-grid label,
+.dune-qol-party-character__meta label {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.dune-qol-party-overview-grid .wide {
+  grid-column: 1 / -1;
+}
+
+.dune-qol-party-overview-grid textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.dune-qol-party-character-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: 0.75rem;
+}
+
+.dune-qol-party-character {
+  display: grid;
+  align-content: start;
+  gap: 0.65rem;
+  min-width: 0;
+  padding: 0.7rem;
+  border: 1px solid var(--color-border-light-tertiary, #888);
+  border-radius: 0.45rem;
+  background: rgb(0 0 0 / 4%);
+}
+
+.dune-qol-party-character > header {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.dune-qol-party-character > header img {
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: cover;
+  border: 1px solid var(--color-border-light-tertiary, #888);
+  border-radius: 0.35rem;
+}
+
+.dune-qol-party-character > header div {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.dune-qol-party-character > header strong,
+.dune-qol-party-character > header small {
+  overflow-wrap: anywhere;
+}
+
+.dune-qol-party-character__meta {
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.8fr) minmax(12rem, 1.2fr);
+  gap: 0.6rem;
+}
+
+.dune-qol-party-character__resources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.dune-qol-party-character__resources > span {
+  padding: 0.2rem 0.45rem;
+  border: 1px solid var(--color-border-light-tertiary, #999);
+  border-radius: 999px;
+}
+
+.dune-qol-party-character__traits {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding-inline-start: 1.1rem;
+}
+
+.dune-qol-party-character footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.dune-qol-party-trait-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.dune-qol-party-trait-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 0.75rem;
+}
+
+.dune-qol-party-trait-group {
+  padding: 0.65rem;
+  border: 1px solid var(--color-border-light-tertiary, #888);
+  border-radius: 0.4rem;
+  background: rgb(0 0 0 / 4%);
+}
+
+.dune-qol-party-trait-group h3 {
+  margin: 0 0 0.5rem;
+}
+
+.dune-qol-party-trait-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0.35rem 0;
+  border-bottom: 1px dotted var(--color-border-light-tertiary, #999);
+}
+
+.dune-qol-party-trait-row span {
+  overflow-wrap: anywhere;
+}
+
+.dune-qol-party-trait-row small,
+.dune-qol-request-status {
+  padding: 0.08rem 0.35rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.dune-qol-party-request-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.6rem;
+}
+
+.dune-qol-party-request-toolbar label {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.dune-qol-party-request-table-wrap {
+  overflow: auto;
+}
+
+.dune-qol-party-request-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dune-qol-party-request-table-wrap th,
+.dune-qol-party-request-table-wrap td {
+  padding: 0.45rem;
+  border-bottom: 1px solid var(--color-border-light-tertiary, #999);
+  vertical-align: top;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+.dune-qol-party-request-actions {
+  display: flex;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.dune-qol-party-request-actions button {
+  width: 2rem;
+  min-width: 2rem;
+  margin: 0;
+  padding: 0.25rem;
+}
+
+.dune-qol-request-status--pending {
+  opacity: 0.9;
+}
+
+.dune-qol-request-status--completed {
+  font-weight: 600;
+}
+
+.dune-qol-request-status--cancelled {
+  opacity: 0.65;
+  text-decoration: line-through;
+}
+
+.dune-qol-party-trait-history ul {
+  margin-bottom: 0;
+}
+
+@media (max-width: 720px) {
+  .dune-qol-party-overview-grid,
+  .dune-qol-party-character__meta {
+    grid-template-columns: 1fr;
+  }
+
+  .dune-qol-party-overview-grid .wide {
+    grid-column: auto;
+  }
+
+  .dune-qol-party-request-table-wrap table,
+  .dune-qol-party-request-table-wrap thead,
+  .dune-qol-party-request-table-wrap tbody,
+  .dune-qol-party-request-table-wrap tr,
+  .dune-qol-party-request-table-wrap th,
+  .dune-qol-party-request-table-wrap td {
+    display: block;
+  }
+
+  .dune-qol-party-request-table-wrap thead {
+    display: none;
+  }
+
+  .dune-qol-party-request-table-wrap tr {
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    border: 1px solid var(--color-border-light-tertiary, #888);
+    border-radius: 0.35rem;
+  }
+}
