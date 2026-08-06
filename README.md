@@ -3,7 +3,7 @@
 A companion module for Foundry Virtual Tabletop that improves comfort of play for the community **Dune: Adventures in the Imperium** game system.
 
 > [!IMPORTANT]
-> This project is public, pre-alpha and not ready for normal campaign use. Version `0.1.1` still requires manual validation in Foundry 13.
+> This project is public, pre-alpha and not ready for normal campaign use. Version `0.2.0` still requires manual validation in Foundry 13.
 
 ## Installation through Foundry
 
@@ -21,11 +21,52 @@ https://raw.githubusercontent.com/Thingy67/foundryvtt-dune-qol/main/module.json
 > [!WARNING]
 > Use the raw address above. Do not paste the GitHub page address containing `/blob/main/module.json`: that page returns HTML instead of the JSON manifest expected by Foundry.
 
-This pre-alpha installation currently downloads the latest state of the `main` branch. Versioned release archives will replace this development setup when the module is ready for normal distribution.
+This pre-alpha installation downloads the latest state of the `main` branch. Restart or reload Foundry after an update.
+
+## User guide
+
+The single user-facing manual is [`docs/USER-GUIDE.md`](docs/USER-GUIDE.md). It explains:
+
+- the difference between the native **Dune Dice Roller** and the QoL **Guided test**;
+- where the Guided test button appears;
+- every field in the test dialog;
+- language and launcher settings;
+- troubleshooting and update steps.
+
+## Current feature — guided test
+
+Version `0.2.0` treats **Guided test** as the preferred dice interface:
+
+- launcher on supported Actor sheets by default, so no active Scene is required;
+- optional launcher in Token scene controls;
+- optional hiding of the native Dune roller buttons to avoid duplicate interfaces;
+- user-selectable English or French interface;
+- Skill, Drive, Focus, difficulty, dice and complication-range selection;
+- progressive extra-die cost and source display;
+- Determination spending;
+- automatic calculation of successes, failure or success, complications and generated Momentum;
+- localized enriched chat card and structured ChatMessage flags;
+- explicit notification and console error if the window cannot open.
+
+The upstream Dune roller remains part of the game system. Dune QoL does not modify its code; it only hides detected launcher buttons when that setting is enabled.
+
+Momentum and Threat pools are **not changed automatically** yet.
+
+## Settings
+
+Open:
+
+**Game Settings → Configure Settings → Dune: Adventures in the Imperium QoL**
+
+Available settings:
+
+- **Module language**: English or Français;
+- **Guided test launcher**: Actor sheet, Token controls, or both;
+- **Hide the native Dune dice roller**: enabled by default to reduce duplicated interfaces.
+
+A reload is required after changing these settings.
 
 ## Manual installation for development
-
-Alternatively, clone the repository into the Foundry user-data module directory:
 
 ```bash
 cd /path/to/foundry-data/Data/modules
@@ -39,44 +80,11 @@ cd /path/to/foundry-data/Data/modules/dune-qol
 git pull
 ```
 
-Restart Foundry after cloning or updating so the manifest, JavaScript, localization and stylesheet changes are applied.
-
-## Current feature — guided test
-
-Version `0.1.1` provides a first guided 2d20 test workflow:
-
-- launch from the Token scene controls;
-- use one selected token, or the user's assigned character as fallback;
-- select a Skill and a Drive from the Actor;
-- enter an optional Focus;
-- set difficulty, total dice and complication range;
-- display the progressive cost and source of extra dice;
-- use and spend one point of Determination;
-- calculate successes, complications, success or failure and generated Momentum;
-- publish a localized, enriched result card in chat;
-- retain structured test context in the ChatMessage flags.
-
-Momentum and Threat pools are **not changed automatically** in this version. Shared-pool transactions will be implemented only after permissions, synchronization and history have been designed.
-
-The complete scope, status, manual checklist and decision log are maintained in [`docs/PROJECT.md`](docs/PROJECT.md).
-
-## Planned priorities
-
-1. Momentum and Threat transactions with visible history.
-2. Quick handling of Traits and Complications.
-3. Game-master test requests.
-4. An activation tracker adapted to Dune conflicts.
-5. Supporting-character, HUD and campaign conveniences.
-
 ## Compatibility baseline
 
-The current development target is:
-
-- Foundry Virtual Tabletop 13, verified against build 351;
-- [`foundryvtt-dune-system`](https://gitlab.com/fvtt-modiphius/foundryvtt-dune-system), system id `dune`;
-- Dune system version **13.0.1**, which is the version currently published in the Foundry package catalog.
-
-The upstream repository's development branch may contain a newer unreleased version. The module must not require an unreleased system version unless a feature demonstrably depends on it.
+- Foundry Virtual Tabletop 13, verified target build 351;
+- Dune system id `dune`;
+- published Dune system version **13.0.1**.
 
 Compatibility is not claimed until the relevant manual tests have been completed and recorded.
 
@@ -88,9 +96,15 @@ From the repository root, with Node.js 20 or newer:
 npm run check
 ```
 
-This runs structural checks and the dependency-free guided-test calculation checks. No GitHub Actions workflow is used; Foundry runtime and visual validation are performed manually.
+No GitHub Actions workflow is used. Foundry runtime and visual validation are performed manually. The detailed checklist and development decisions are maintained in [`docs/PROJECT.md`](docs/PROJECT.md).
 
-The detailed Foundry checklist is kept in [`docs/PROJECT.md`](docs/PROJECT.md).
+## Planned priorities
+
+1. Momentum and Threat transactions with visible history.
+2. Quick handling of Traits and Complications.
+3. Game-master test requests.
+4. An activation tracker adapted to Dune conflicts.
+5. Supporting-character, HUD and campaign conveniences.
 
 ## AI-assisted development disclosure
 
@@ -117,28 +131,21 @@ See [`AGENTS.md`](AGENTS.md) for the rules that apply to both human contributors
 ├── AGENTS.md
 ├── README.md
 ├── docs/
-│   └── PROJECT.md
+│   ├── PROJECT.md
+│   └── USER-GUIDE.md
 ├── lang/
 ├── module.json
 ├── scripts/
 │   ├── domain/
 │   ├── features/
-│   └── dune-qol.mjs
+│   ├── dune-qol.mjs
+│   ├── localization.mjs
+│   └── settings.mjs
 ├── styles/
 └── tools/
 ```
 
-The project deliberately avoids separate roadmap, architecture, ADR and TODO document trees. Those subjects belong in `docs/PROJECT.md` unless a documented decision explicitly approves a split.
-
-## Documentation workflow
-
-Before making a significant change:
-
-1. read `AGENTS.md`;
-2. read only the relevant sections of `docs/PROJECT.md`;
-3. inspect only the source files needed for the task;
-4. implement and test the change;
-5. update project status and the decision log when applicable.
+The project deliberately avoids separate roadmap, architecture, ADR, TODO and per-feature documentation trees.
 
 ## Licensing and status
 
