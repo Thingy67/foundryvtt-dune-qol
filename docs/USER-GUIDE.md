@@ -36,7 +36,7 @@ Depuis les contrôles de token, un token sélectionné est utilisé. Sans sélec
 - **Plage de complication** accepte une valeur de 15 à 20.
 - **Source des dés supplémentaires** devient disponible à partir de 3 dés.
 - **Détermination** dépense un point et ajoute un résultat automatique de 1.
-- **Contexte du test** ajoute une courte description au résultat.
+- **Contexte du test** ajoute une courte description facultative au résultat.
 
 Le coût progressif des dés supplémentaires est de 0, 1, 3 ou 6 Momentum/Menace pour 2, 3, 4 ou 5 dés.
 
@@ -80,20 +80,24 @@ Un joueur possédant le personnage peut demander la création, mais un MJ actif 
 
 ### Demander un test en tant que MJ
 
-À partir de la version `0.5.1`, le MJ peut préparer une demande directement depuis la fiche du personnage concerné.
+À partir de la version `0.5.3`, le MJ peut préparer et imposer un test directement depuis la fiche du personnage concerné.
 
 1. Ouvrez la fiche du personnage.
 2. Cliquez sur **Demander un test** dans la barre de titre.
 3. Choisissez le joueur destinataire parmi les utilisateurs possédant ce personnage.
-4. Indiquez la difficulté, la plage de complication et le contexte.
-5. Vous pouvez suggérer une Compétence, une Motivation et une Spécialisation.
-6. Cliquez sur **Envoyer la demande**.
+4. Indiquez la difficulté et la plage de complication.
+5. Le contexte est facultatif.
+6. Pour la **Compétence** et la **Motivation** :
+   - sélectionnez une valeur pour l’imposer au joueur ;
+   - laissez **Au choix du joueur** pour lui laisser ce choix.
+7. La **Spécialisation proposée** reste indicative et modifiable.
+8. Cliquez sur **Envoyer la demande**.
 
-Les suggestions ne sont pas verrouillées : le joueur peut les modifier avant le jet.
+Dans la fenêtre reçue par le joueur, toute Compétence ou Motivation imposée est affichée mais désactivée. Les valeurs laissées libres restent sélectionnables. Le module conserve techniquement les valeurs verrouillées lors de l’envoi du formulaire.
 
-Le module crée un message privé visible par le MJ et le joueur. Ce message est la livraison principale de la demande. Lorsqu’il est reçu par un joueur connecté, la fenêtre du Test guidé s’ouvre automatiquement avec les valeurs préremplies. Une notification socket peut accélérer cette ouverture, mais elle n’est pas indispensable.
+La demande est conservée à la fois dans un message privé et dans une file persistante sur le compte du joueur. Le client joueur consulte cette file à la connexion et lorsqu’elle est mise à jour. Le socket ne sert qu’à accélérer la vérification pour un joueur déjà connecté.
 
-Si le joueur est hors ligne, le message reste disponible et son bouton **Ouvrir le test** fonctionnera après sa connexion. La demande n’est pas encore automatiquement marquée comme terminée après le jet.
+La demande n’est pas encore automatiquement marquée comme terminée après le jet. Le bouton **Ouvrir le test** du message privé peut donc être réutilisé.
 
 ### Choisir la langue
 
@@ -113,6 +117,14 @@ Une scène active est nécessaire. Utilisez le bouton de la fiche de personnage 
 
 Vérifiez que le module est au minimum en version `0.3.1`, puis rechargez complètement la partie. Le champ doit être désactivé à 2 dés et actif à partir de 3 dés.
 
+#### Le contexte vide ferme la fenêtre sans envoyer
+
+Mettez le module à jour en version `0.5.3` ou ultérieure. Le contexte est facultatif et ne doit plus bloquer la demande.
+
+#### Une Compétence ou Motivation imposée reste modifiable
+
+Vérifiez que les deux clients utilisent `0.5.3` ou une version ultérieure, puis rechargez-les complètement. Une valeur sélectionnée par le MJ doit être désactivée chez le joueur ; **Au choix du joueur** doit rester libre.
+
 #### Le bouton est visible, mais aucune fenêtre ne s’ouvre
 
 Ouvrez **F12 → Console**, reproduisez le problème et copiez l’erreur complète préfixée `Dune QoL`.
@@ -127,23 +139,21 @@ Le personnage doit appartenir au moins à un utilisateur non-MJ. Vérifiez ses p
 
 #### Le joueur ne reçoit pas la demande
 
-1. Vérifiez que **les deux clients** affichent Dune QoL `0.5.1`.
+1. Vérifiez que les deux clients affichent Dune QoL `0.5.3`.
 2. Rechargez complètement la page des deux côtés après la mise à jour.
 3. Vérifiez que le joueur possède toujours le personnage.
-4. Ouvrez l’onglet Chat côté joueur : un message privé doit être présent même si l’ouverture automatique échoue.
-5. Dans la console du joueur, cherchez :
+4. Ouvrez l’onglet Chat côté joueur : un message privé doit être présent.
+5. Côté MJ, cherchez dans la console :
 
 ```text
-Dune QoL | Test request received by player.
+Dune QoL | Test request queued for user delivery.
 ```
 
-Côté MJ, la création réussie produit :
+6. Côté joueur, cherchez :
 
 ```text
-Dune QoL | Test request created.
+Dune QoL | Test request received from user inbox.
 ```
-
-Une version antérieure à `0.5.1` peut afficher une erreur Foundry liée à `onclick` et ne pas ouvrir la fenêtre côté joueur.
 
 #### Le Trait n’apparaît pas
 
@@ -189,13 +199,18 @@ Deleting the Trait later does not automatically reopen the original complication
 
 ### Requesting a test as game master
 
-Starting with version `0.5.1`, open the relevant Actor sheet and click **Request test** in its title bar.
+Starting with version `0.5.3`, open the relevant Actor sheet and click **Request test**.
 
-Choose a receiving player who owns the Actor, set difficulty, complication range and context, and optionally suggest Skill, Drive and Focus. Suggestions prefill the player’s dialog but remain editable.
+Choose a receiving player, set difficulty and complication range, and optionally enter context. For Skill and Drive:
 
-A private chat card is the primary delivery mechanism. A connected recipient processes that message and automatically opens one prefilled Guided-test dialog. The socket notification only accelerates this path. An offline recipient can use **Open test** from the persisted private message after connecting.
+- selecting a value makes it mandatory and locked in the player dialog;
+- **Player chooses** leaves the field editable.
 
-The request is not automatically marked completed after a roll, so the card may be reused.
+The proposed Focus remains editable. Disabled locked selects are paired with hidden form values so the imposed choices are retained when rolling.
+
+Requests are preserved in private chat and in a persistent inbox on the recipient User document. The player client checks that inbox on connection and updates; the socket only accelerates inspection for an online player.
+
+The request is not automatically marked completed after a roll, so the private card may be reused.
 
 ### Language
 
@@ -205,6 +220,6 @@ Open **Game Settings → Configure Settings → Dune: Adventures in the Imperium
 
 Token controls require an active Scene. The extra-die source requires module `0.3.1` or newer and at least 3 dice. Player pool and Trait requests require an active game master.
 
-A test request requires at least one non-GM user with Owner permission on the Actor. Both clients must run and fully reload Dune QoL `0.5.1`. The player should receive a private chat message even if automatic opening fails.
+Empty request context and locked GM-selected Skill/Drive behavior require module `0.5.3` or newer. Both clients must fully reload after updating.
 
 For runtime errors, press **F12**, reproduce the issue and copy the complete console entry prefixed with `Dune QoL`.
