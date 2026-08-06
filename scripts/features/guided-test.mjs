@@ -145,6 +145,7 @@ async function performGuidedTest(actor, formData) {
     const focus = String(formData.get("focus") ?? "").trim();
     const useDetermination = formData.has("determination");
     const context = String(formData.get("context") ?? "").trim();
+    const requestMessageId = String(formData.get("duneQolRequestMessageId") ?? "").trim() || null;
     const requestedSource = totalDice > TEST_LIMITS.minimumDice
       ? String(formData.get("extraDiceSource") ?? "unrecorded")
       : "none";
@@ -202,7 +203,7 @@ async function performGuidedTest(actor, formData) {
     });
 
     const rollMode = game.settings.get("core", "rollMode");
-    await roll.toMessage(
+    const resultMessage = await roll.toMessage(
       {
         speaker: ChatMessage.getSpeaker({ actor }),
         content,
@@ -210,7 +211,7 @@ async function performGuidedTest(actor, formData) {
         flags: {
           [MODULE_ID]: {
             guidedTest: {
-              version: 2,
+              version: 4,
               actorUuid: actor.uuid,
               actorName: actor.name,
               skill: skill.key,
@@ -226,6 +227,7 @@ async function performGuidedTest(actor, formData) {
               complications: outcome.complications,
               momentum: outcome.momentum,
               succeeded: outcome.succeeded,
+              requestMessageId,
               poolPlan,
               poolApplication: {
                 version: 1,
@@ -237,6 +239,20 @@ async function performGuidedTest(actor, formData) {
       },
       { rollMode }
     );
+
+    if (requestMessageId && resultMessage?.id) {
+      Hooks.callAll("duneQolGuidedTestResultCreated", {
+        requestMessageId,
+        resultMessageId: resultMessage.id,
+        actorUuid: actor.uuid,
+        recipientUserId: game.user.id
+      });
+    } else if (requestMessageId) {
+      console.warn("Dune QoL | Requested test rolled, but no result ChatMessage was returned.", {
+        requestMessageId,
+        actorUuid: actor.uuid
+      });
+    }
   } catch (error) {
     console.error("Dune QoL | Guided test failed.", error);
     ui.notifications.error(
@@ -253,15 +269,16 @@ function addActorSheetLauncher(application, html, actor) {
   if (!header || header.querySelector(`[data-dune-qol-action="${CONTROL_NAME}"]`)) return;
 
   const button = document.createElement("a");
-  button.className = "header-button control dune-qol-sheet-launcher";
+  button.className = "header-button dune-qol-sheet-launcher";
   button.dataset.duneQolAction = CONTROL_NAME;
+  button.setAttribute("role", "button");
   button.title = localize("DUNEQOL.GuidedTest.Control");
   button.innerHTML = `<i class="fa-solid fa-dice-d20"></i> ${escapeHtml(localize("DUNEQOL.GuidedTest.SheetButton"))}`;
   button.addEventListener("click", (event) => {
     event.preventDefault();
-    event.stopPropagation();
-    safelyOpenGuidedTest(actor);
-  });
+    event.stopImmediatePropagation();
+    void safelyOpenGuidedTest(actor);
+  }, { capture: true });
 
   const closeButton = header.querySelector(".close");
   header.insertBefore(button, closeButton ?? null);
