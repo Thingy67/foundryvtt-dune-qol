@@ -27,15 +27,20 @@ function normalizeKey(value) {
 }
 
 function numericValue(value) {
-  if (Number.isFinite(Number(value))) return Number(value);
-  if (value && Number.isFinite(Number(value.value))) return Number(value.value);
-  if (value && Number.isFinite(Number(value.current))) return Number(value.current);
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim() !== "" && Number.isFinite(Number(value))) {
+    return Number(value);
+  }
+  if (value && typeof value === "object") {
+    if (typeof value.value === "number" && Number.isFinite(value.value)) return value.value;
+    if (typeof value.current === "number" && Number.isFinite(value.current)) return value.current;
+  }
   return null;
 }
 
 function registeredSystemSettings() {
   const registry = game.settings?.settings;
-  if (!(registry instanceof Map)) return [];
+  if (!registry || typeof registry.entries !== "function") return [];
 
   return [...registry.entries()]
     .filter(([fullKey]) => String(fullKey).startsWith(`${SYSTEM_ID}.`))
@@ -209,15 +214,23 @@ export async function writeDunePool(pool, targetValue) {
 }
 
 export function describeDunePoolApi() {
+  const dune = game.dune ?? null;
   const pools = upstreamPools();
   return {
+    systemVersion: game.system?.version ?? "unknown",
     settings: registeredSystemSettings().map((entry) => entry.fullKey),
+    gameDunePresent: Boolean(dune),
+    gameDuneProperties: objectProperties(dune),
     poolObjectPresent: Boolean(pools),
-    poolObjectProperties: pools
-      ? [...new Set([
-        ...Object.keys(pools),
-        ...Object.getOwnPropertyNames(Object.getPrototypeOf(pools) ?? {})
-      ])].sort()
-      : []
+    poolObjectProperties: objectProperties(pools)
   };
+}
+
+function objectProperties(value) {
+  if (!value || (typeof value !== "object" && typeof value !== "function")) return [];
+
+  return [...new Set([
+    ...Object.keys(value),
+    ...Object.getOwnPropertyNames(Object.getPrototypeOf(value) ?? {})
+  ])].sort();
 }
