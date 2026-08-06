@@ -3,7 +3,7 @@
 A companion module for Foundry Virtual Tabletop that improves comfort of play for the community **Dune: Adventures in the Imperium** game system.
 
 > [!IMPORTANT]
-> This project is public, pre-alpha and not ready for normal campaign use. Version `0.1.0` still requires manual validation in Foundry 13.
+> This project is public, pre-alpha and not ready for normal campaign use. Version `0.1.1` still requires manual validation in Foundry 13.
 
 ## Installation through Foundry
 
@@ -39,11 +39,11 @@ cd /path/to/foundry-data/Data/modules/dune-qol
 git pull
 ```
 
-Restart Foundry after installing or updating, then enable **Dune: Adventures in the Imperium QoL** in a world using system `dune`.
+Restart Foundry after cloning or updating so the manifest, JavaScript, localization and stylesheet changes are applied.
 
 ## Current feature — guided test
 
-Version `0.1.0` provides a first guided 2d20 test workflow:
+Version `0.1.1` provides a first guided 2d20 test workflow:
 
 - launch from the Token scene controls;
 - use one selected token, or the user's assigned character as fallback;
@@ -72,9 +72,11 @@ The complete scope, status, manual checklist and decision log are maintained in 
 
 The current development target is:
 
-- Foundry Virtual Tabletop 13;
+- Foundry Virtual Tabletop 13, verified against build 351;
 - [`foundryvtt-dune-system`](https://gitlab.com/fvtt-modiphius/foundryvtt-dune-system), system id `dune`;
-- Dune system version 13.0.2 as the compatibility reference.
+- Dune system version **13.0.1**, which is the version currently published in the Foundry package catalog.
+
+The upstream repository's development branch may contain a newer unreleased version. The module must not require an unreleased system version unless a feature demonstrably depends on it.
 
 Compatibility is not claimed until the relevant manual tests have been completed and recorded.
 
@@ -86,7 +88,7 @@ From the repository root, with Node.js 20 or newer:
 npm run check
 ```
 
-This runs structural checks and dependency-free guided-test calculation checks. No GitHub Actions workflow is used; Foundry runtime and visual validation are performed manually.
+This runs structural checks and the dependency-free guided-test calculation checks. No GitHub Actions workflow is used; Foundry runtime and visual validation are performed manually.
 
 The detailed Foundry checklist is kept in [`docs/PROJECT.md`](docs/PROJECT.md).
 
@@ -140,7 +142,7 @@ Before making a significant change:
 
 ## Licensing and status
 
-The source repository is public, but no open-source license has been selected yet. Public visibility does not grant permission to redistribute or reuse the project beyond rights provided by applicable law.
+No open-source license has been selected yet. Do not redistribute third-party material without the maintainer's explicit permission.
 
 ## Disclaimer
 
