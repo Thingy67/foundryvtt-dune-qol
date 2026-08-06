@@ -8,10 +8,10 @@ Last updated: 2026-08-06
 
 - Foundry VTT 13, build 351;
 - Dune system id `dune`, version 13.0.1;
-- module id `dune-qol`, version 0.9.1;
+- module id `dune-qol`, version 0.9.2;
 - public pre-alpha repository;
 - English and French interfaces;
-- manual validation only, without GitHub Actions;
+- manual Foundry validation, without GitHub Actions;
 - substantial AI-assisted development with human review responsibility.
 
 ## 2. Principles
@@ -32,49 +32,42 @@ Last updated: 2026-08-06
 
 Status: **core and GM paths manually validated; broader multiplayer validation remains**.
 
-- Actor-sheet and optional Token-controls launchers;
+- guided tests from Actor sheets and optional Token controls;
 - Skill, Drive, Focus, difficulty, dice, complication range and Determination;
-- extra-die cost/source, successes, Momentum and complications;
-- explicit Momentum/Threat changes with history and duplicate protection;
+- extra-die source/cost, successes, Momentum and complications;
+- explicit Momentum/Threat transactions with history and duplicate protection;
 - one upstream `trait` Item per resolved complication;
 - temporary/persistent Traits, provenance and rollback.
 
-### Temporary Trait manager
-
-Status: **manually validated in 0.6.0**.
-
-- Actor-sheet bulk promotion or deletion;
-- active-GM authority for player actions;
-- history and preserved complication provenance.
-
-### Test requests and group tools
+### Traits and requests
 
 Status: **manually validated through 0.7.0**.
 
-- individual and group requests;
+- Actor-sheet temporary-Trait manager;
+- individual and group test requests;
 - imposed or free Skill/Drive;
 - persistent private delivery and offline inbox;
-- independent state per recipient;
-- completion only after a matching result;
-- completed/cancelled requests hide **Open test**;
+- independent completion per recipient;
 - global party Trait overview.
 
 ### Party Sheet
 
-Status: **implemented in 0.8.0 and extended through 0.9.1; Foundry validation required**.
+Status: **implemented through 0.9.2; Foundry validation required**.
 
 Persistent ApplicationV2 accessible from Token controls to GMs and players.
 
 - **Overview:** Momentum, Threat, House, global status, objectives and notes.
 - **Characters:** primary/supporting classification, owners, roles, portraits, detected resources and quick Test/Traits/sheet/token actions.
 - **Traits:** all Traits grouped by Actor; GM cross-Actor promotion and confirmed deletion with history and provenance.
-- **Requests:** history, pending/completed/cancelled filters, request/result navigation and GM cancellation with inbox cleanup.
+- **Requests:** pending/completed/cancelled filters, request/result navigation and GM cancellation with inbox cleanup.
 - **Combat:** shared combat panel also used by the native Combat Tracker.
-- World-setting changes refresh open Party and combat views on connected clients.
+- world-setting changes refresh open Party and combat views on connected clients;
+- V13 Chat navigation uses `Sidebar.changeTab`, centers and briefly highlights the target message;
+- cancelling a pending request requires explicit confirmation.
 
 ### Combat manager
 
-Status: **implemented through 0.9.1; Foundry validation required**.
+Status: **implemented through 0.9.2; Foundry validation required**.
 
 Dune side-based activation layered over the active native Foundry Combat.
 
@@ -88,15 +81,14 @@ Dune side-based activation layered over the active native Foundry Combat.
 - player retention may spend Momentum or add Threat;
 - opposition retention spends Threat;
 - a side cannot retain twice before an opposing combatant acts;
-- retention lock clears when an opposing combatant is marked acted, on reset, or on a new round;
-- pool preflight through the existing adapter;
-- activation reset and native `nextRound()` integration;
-- manual Foundry round synchronization;
+- retention lock clears after an opposing activation, reset, or new round;
+- activation reset preserves the current side;
+- new round resets activations and starts with the player side;
+- native `nextRound()` and manual round synchronization;
 - persistent history and token selection;
-- interface in Token controls, Combat Tracker and Party Sheet;
-- V13 sidebar navigation uses `changeTab`, with a legacy fallback.
+- interface in Token controls, Combat Tracker and Party Sheet.
 
-The module does not replace native Combat, Combatants or round data. Exceptional retention costs remain under GM control.
+Critical combat transitions and retention payments are isolated in `scripts/domain/combat-state.mjs` and covered by dependency-free Node tests.
 
 ## 4. MVP scope and remaining work
 
@@ -105,13 +97,14 @@ The MVP includes Party Sheet, request tracking, cross-Actor Trait actions and co
 Remaining work:
 
 1. validate Party Sheet as GM and player, including persistence and cross-client refresh;
-2. validate Combat Tracker injection, Party Sheet Combat tab and token actions;
-3. verify neutral/allied/hostile classification and manual correction needs;
-4. verify native/manual round transitions, both player payment options, opposition payment and the retention lock;
-5. correct narrow-layout and light/dark-theme issues;
-6. complete player-to-GM, roll-mode and Dice So Nice regressions;
-7. run `npm run check` from a complete checkout;
-8. create a versioned release artifact and stable manifest.
+2. validate Chat navigation, cancellation confirmation and inbox cleanup;
+3. validate Combat Tracker injection, Party Sheet Combat tab and token actions;
+4. verify neutral/allied/hostile classification and manual correction needs;
+5. verify rounds, both player retention payments, opposition payment and retention lock;
+6. correct narrow-layout and light/dark-theme issues;
+7. complete player-to-GM, roll-mode and Dice So Nice regressions;
+8. run the full `npm run check` from a complete checkout;
+9. create a versioned release artifact and stable manifest.
 
 After MVP:
 
@@ -131,6 +124,10 @@ scripts/
 ├── localization.mjs
 ├── adapters/dune-pools.mjs
 ├── domain/
+│   ├── dune-test.mjs
+│   ├── pool-plan.mjs
+│   ├── complication-resolution.mjs
+│   └── combat-state.mjs
 ├── features/
 └── services/
     ├── pool-transactions.mjs
@@ -141,12 +138,13 @@ scripts/
     ├── group-tools.mjs
     ├── party-sheet.mjs
     ├── party-sheet-shortcuts.mjs
+    ├── party-sheet-navigation.mjs
     ├── party-sheet-combat.mjs
     ├── combat-manager.mjs
     └── live-updates.mjs
 ```
 
-- `domain/`: pure calculations;
+- `domain/`: pure calculations and state transitions;
 - `adapters/`: upstream integration points;
 - `services/`: permissions, sockets, persistence and coordinated workflows;
 - `features/`: test behavior and render-time UI.
@@ -185,35 +183,37 @@ Run from a complete checkout:
 npm run check
 ```
 
-### Foundry checklist — 0.9.1
+Targeted checks genuinely completed for 0.9.2:
 
-Loading and Party Sheet:
+- `node --check` on the combat domain, combat test and combat manager;
+- `tools/test-combat-state.mjs`: **Combat state checks passed**.
 
-- [ ] 0.9.1 loads without initialization errors.
-- [ ] Party and combat controls appear with an active Scene.
+The full repository command has not yet been run in this environment because a complete checkout could not be materialized.
+
+### Foundry checklist — 0.9.2
+
+Party Sheet:
+
 - [ ] GM edits persist; connected players refresh and see read-only data.
 - [ ] primary/supporting classification and roles persist.
 - [ ] Test, Traits, sheet and token actions target the correct Actor.
 - [ ] cross-Actor Trait promotion/deletion and history work.
-- [ ] request filters, links, cancellation and inbox cleanup work.
+- [ ] request filters and request/result links open the Chat tab and target message.
+- [ ] cancellation asks for confirmation, cleans the inbox and prevents later completion.
 
 Combat:
 
-- [ ] no active Combat shows an empty state.
-- [ ] active native Combat populates both panels.
-- [ ] clicking the combat control opens the Combat sidebar tab.
+- [ ] no active Combat shows a clear empty state.
+- [ ] active native Combat populates Combat Tracker and Party Sheet panels.
 - [ ] side inference is sensible for player, allied and hostile tokens.
 - [ ] selected combatants can be marked acted or available.
 - [ ] pass changes the active side.
-- [ ] player retention defaults to cost 2 and can spend Momentum.
-- [ ] player retention can instead add the entered amount of Threat.
-- [ ] opposition retention spends the entered amount of Threat.
-- [ ] invalid or insufficient payments leave state unchanged.
-- [ ] the same side cannot retain again until an opposing combatant is marked acted.
-- [ ] reset and next round clear activations and the retention lock.
-- [ ] manual Foundry round changes synchronize state.
-- [ ] token selection and persistent history work.
-- [ ] player clients refresh after world combat-state updates.
+- [ ] player retention defaults to 2 and can spend Momentum or add Threat.
+- [ ] opposition retention spends Threat.
+- [ ] invalid/insufficient payments leave state unchanged.
+- [ ] the same side cannot retain again until an opposing combatant acts.
+- [ ] reset preserves the active side; new round starts with players.
+- [ ] manual round changes, token selection, history and player refresh work.
 
 Regression:
 
@@ -231,8 +231,7 @@ Regression:
 - Request history depends on request ChatMessages remaining in the world.
 - Side inference may require manual correction for neutral or allied NPCs.
 - Retention unlocking depends on the GM marking an opposing combatant as acted.
-- Combat Tracker DOM and upstream pool APIs may change in later versions.
-- Native Combat round behavior remains to be tested on the supported build.
+- Combat Tracker and sidebar DOM/APIs may change in later Foundry versions.
 
 ## 9. Decision log
 
@@ -295,5 +294,7 @@ All decisions are dated 2026-08-06 unless stated otherwise. Superseded decisions
 - **D-0055 — Accepted:** store side, acted Combatants and history in `dune-qol.combatState`, scoped to Combat id.
 - **D-0056 — Amended by D-0059:** initially use an explicit GM-entered retention cost paid from Momentum or Threat.
 - **D-0057 — Accepted:** share one combat model between Combat Tracker and Party Sheet, with ownership/disposition inference.
-- **D-0058 — Accepted:** synchronize open Party/combat views through world-setting update hooks and use V13 `Sidebar.changeTab` with legacy fallback.
-- **D-0059 — Accepted:** default initiative retention to cost 2; player characters may spend Momentum or add Threat, opposition spends Threat, and the same side cannot retain again until an opposing combatant acts.
+- **D-0058 — Accepted:** synchronize open Party/combat views through world-setting hooks and use V13 `Sidebar.changeTab` with fallback.
+- **D-0059 — Accepted:** default retention to cost 2; players may spend Momentum or add Threat, opposition spends Threat, and the same side cannot retain again until an opponent acts.
+- **D-0060 — Accepted:** extract combat state transitions and retention planning into a pure domain module covered by dependency-free regression tests included in `npm run check`.
+- **D-0061 — Accepted:** route Party Sheet request/result navigation through V13 `Sidebar.changeTab`, highlight the target ChatMessage, and require confirmation before cancelling a pending request.
