@@ -1,137 +1,121 @@
 # Project source of truth
 
-Central living reference for **Dune: Adventures in the Imperium QoL**. Scope, architecture, status, tests, risks and decisions stay in this document instead of being distributed across many files.
+Central living reference for **Dune: Adventures in the Imperium QoL**. Scope, architecture, status, tests, risks and decisions stay here instead of being distributed across many files.
 
 Last updated: 2026-08-06
 
-## 1. Project summary
-
-`dune-qol` is an optional companion module for the community Dune system. It extends the installed system without modifying or forking it.
-
-Current baseline:
+## 1. Baseline
 
 - Foundry VTT 13, build 351;
 - Dune system id `dune`, version 13.0.1;
-- module id `dune-qol`, version 0.5.4;
+- module id `dune-qol`, version 0.6.0;
 - public pre-alpha repository;
 - English and French interfaces;
-- substantial AI-assisted development with human review responsibility;
-- manual validation only, without GitHub Actions.
+- manual validation only, without GitHub Actions;
+- substantial AI-assisted development with human review responsibility.
 
 ## 2. Principles
 
-1. Extend the upstream system; do not replace it.
+1. Extend the upstream system without modifying or forking it.
 2. Keep automation explicit, visible and reversible where practical.
-3. Respect Foundry permissions and use a GM for authoritative shared-state changes.
+3. Respect Foundry permissions and use an active GM for authoritative multiplayer changes.
 4. Preserve normal Dune play when the module is disabled.
-5. Prefer small understandable workflows and minimal dependencies.
+5. Prefer small workflows, public APIs and minimal dependencies.
 6. Do not reproduce commercial rules text or copyrighted assets.
-7. Support English and French from the first usable version of a feature.
-8. Record meaningful decisions while keeping documentation concentrated.
-9. Never claim a runtime validation that was not performed.
-10. AI-generated work remains subject to human review and testing.
+7. Support English and French for every user-facing workflow.
+8. Record meaningful decisions with the implementing change.
+9. Never claim validation that was not performed.
 
-## 3. Scope and status
+## 3. Implemented workflows
 
-### Repository and loading scaffold
+### Guided tests
 
-Status: **implemented and manually validated**.
+Status: **core workflow manually validated**.
 
-- public raw manifest installation;
-- Foundry and Dune compatibility declarations;
-- localization, settings and stylesheet entry points;
-- dependency-free `npm run check` command;
-- no GitHub Actions workflow.
-
-### Guided test
-
-Status: **implemented and manually validated for the core GM workflow**.
-
-- Actor-sheet launcher, with optional Token-control launcher;
+- Actor-sheet launcher and optional Token-controls launcher;
 - optional hiding of the native Dune roller;
-- Skill, Drive, optional Focus, difficulty, dice and complication range;
-- progressive extra-die cost and declared source;
-- Determination spending;
-- successes, complications, outcome and generated Momentum;
-- enriched localized chat result and versioned flags;
+- Skill, Drive, Focus, difficulty, dice, complication range and Determination;
+- extra-die cost and source;
+- success, failure, Momentum and complications;
 - narrow-chat layout with one parameter per row;
-- outcome color used as an accent rather than for all result text.
+- structured and versioned ChatMessage flags.
 
-Remaining: broader Actor-sheet, roll-mode, Dice So Nice and multiplayer validation.
+Remaining validation: all roll modes, Dice So Nice, dark/light themes and additional Actor-sheet variants.
 
-### Momentum and Threat transactions
+### Momentum and Threat
 
-Status: **GM path manually validated; player path still requires multiplayer testing**.
+Status: **GM path manually validated; player path still needs multiplayer validation**.
 
-- explicit confirmation from the result card;
-- pre-funded Momentum validation and cap of 6;
+- explicit application from the result card;
 - active-GM authority for player requests;
-- isolated feature-detected upstream pool adapter;
+- pre-funded Momentum validation and cap of six;
 - duplicate protection, preflight checks and best-effort rollback;
-- source-message status and public transaction history.
+- public transaction history.
 
-### Traits and Complications
+### Complication Traits
 
-Status: **initial workflow manually validated**.
+Status: **creation workflow manually validated**.
 
 - one embedded upstream `trait` Item per complication;
 - temporary by default, persistent when selected;
 - active-GM authority for player requests;
-- source-message resolution tracking and provenance flags;
-- rollback if source-message recording fails;
+- provenance stored on the Item and source result;
+- rollback if source recording fails;
 - public history message.
 
-Remaining: multiplayer player path and quick management of temporary Traits.
+### Temporary Trait manager
+
+Status: **implemented in 0.6.0; Foundry validation required**.
+
+- **Temporary Traits** button on Actor sheets for the GM or Actor owner;
+- lists all embedded `trait` Items whose `system.temporary` is true;
+- checkbox selection of one or several Traits;
+- bulk **Make persistent** and **Delete** actions;
+- player requests executed by the primary active GM;
+- public history message;
+- complication-generated Traits show their origin;
+- promotion updates source-result provenance when available;
+- deletion records provenance but does not reopen a resolved complication.
 
 ### Game-master test requests
 
-Status: **delivery, constraints and completion tracking implemented through 0.5.4; two-client validation required**.
+Status: **single-recipient workflow implemented through 0.5.4; two-client validation still required**.
 
-- GM-only **Request test** action on supported Actor sheets;
-- one non-GM Actor owner selected as recipient;
-- difficulty and complication range supplied by the GM;
-- context is optional;
-- Skill and Drive may be left to **Player chooses**;
-- any Skill or Drive selected by the GM is imposed and locked in the player dialog;
-- Focus remains an optional editable proposal;
-- private request ChatMessage with **Open test**;
-- persistent recipient inbox under User flags;
-- socket used only to prompt an online client to inspect its inbox;
-- inbox checked on client ready and User-document updates;
-- one-shot prefilled Guided-test dialog with requesting-GM banner;
-- disabled imposed selects are paired with hidden form values so submission preserves them;
-- per-request duplicate protection;
-- player acknowledgement followed by GM cleanup of the inbox entry;
-- pressing **Open test**, opening the dialog or cancelling does not complete the request;
-- the request-message id is embedded in the submitted Guided-test form and stored in the result flags;
-- the matching result ChatMessage triggers a completion claim only after successful creation;
-- the GM validates request author, recipient, Actor, result author and the stored request-message id;
-- a completed request stores its result message id and no longer renders **Open test**.
+- GM action on the target Actor sheet;
+- one non-GM owner as recipient;
+- optional context;
+- Skill and Drive either imposed or left to the player;
+- editable Focus proposal;
+- private ChatMessage plus persistent User inbox;
+- request completed only after a matching result exists and the active GM validates it;
+- completed request no longer displays **Open test**.
 
-Planned group-request extension:
+Not yet implemented: cancelled/expired states and visible result backlink.
 
-- keep the Actor-sheet action as the single-player workflow for that Actor;
-- add a separate GM-only action to the Token scene controls for group requests;
-- show the non-GM players in a checklist so the GM can select one or several recipients;
-- create an independent request and completion state for each selected player, so one result never completes the requests of the other recipients;
-- define and display the Actor used by each selected player before sending, rather than silently assuming the wrong character.
+## 4. Planned work
 
-Not yet implemented: group requests, cancelled/expired states and a visible result backlink from the completed request.
+### Next functional block — group test requests
 
-### Medium-priority backlog
+- keep Actor-sheet requests single-recipient;
+- add a distinct GM-only action to Token scene controls;
+- display non-GM players with checkboxes;
+- allow one or several recipients;
+- resolve and show the Actor used by each selected player before sending;
+- create independent request and completion state per recipient.
 
-- group Test requests from Token controls, with one-or-more player selection by checkboxes;
-- quick management of temporary Traits;
+### Medium priority
+
 - supporting-character handoff and control conveniences;
-- HUD and campaign conveniences;
-- conflict zones, Asset movement, House projects and campaign clocks as separately approved workflows.
+- token HUD and campaign conveniences;
+- conflict zones and Asset movement;
+- House projects and campaign clocks.
 
-### Low-priority end-of-roadmap backlog
+### Low-priority end of roadmap
 
-1. **Combat and initiative management:** active side, activated Actors, pass/retain initiative, round reset, history and resource-cost integration.
-2. **Guided character creation:** assist a user through creating a valid Dune character without replacing the upstream character sheet or reproducing protected rules text. This is intended as the final major convenience workflow.
+1. Combat and initiative management: active side, activated Actors, pass/retain initiative, round reset, history and resource costs.
+2. Guided character creation: assist creation of a valid Dune character without replacing the upstream sheet or reproducing protected rules text.
 
-## 4. Architecture
+## 5. Architecture
 
 ```text
 scripts/
@@ -150,27 +134,15 @@ scripts/
 └── services/
     ├── pool-transactions.mjs
     ├── complication-traits.mjs
+    ├── temporary-traits.mjs
     ├── test-requests.mjs
     └── test-request-completion.mjs
 ```
 
-### Boundaries
-
-- `domain/` contains pure calculations with no Foundry access.
-- `adapters/` isolates unstable upstream integration points.
-- `services/` owns permissions, sockets, persistence and coordinated workflows.
-- `features/` owns user-facing test behavior and render-time UI.
-
-`features/guided-test-ui.mjs` inserts the request-message id as a hidden form value. `features/guided-test.mjs` records that id on the successfully created result and emits a local completion hook. `services/test-request-completion.mjs` sends the claim to the active GM, validates both messages and updates the request state.
-
-### Persistent data
-
-Preferred storage order:
-
-1. existing upstream Actors, Items and shared pools;
-2. `dune-qol` flags on existing Foundry Documents;
-3. world or client settings for small configuration;
-4. custom Documents only if earlier options are insufficient.
+- `domain/`: pure calculations with no Foundry access.
+- `adapters/`: unstable upstream integration points.
+- `services/`: permissions, sockets, persistence and coordinated workflows.
+- `features/`: user-facing test behavior and render-time UI.
 
 Current flag namespaces:
 
@@ -178,27 +150,26 @@ Current flag namespaces:
 flags.dune-qol.guidedTest
 flags.dune-qol.poolTransaction
 flags.dune-qol.complicationTrait
+flags.dune-qol.temporaryTraitManagement
 flags.dune-qol.testRequest
 flags.dune-qol.testRequestInbox
 flags.dune-qol.testRequestResult
 ```
 
-A completed request stores `status`, `completedAt`, `completedBy` and `resultMessageId`. The result stores the originating request-message id in its Guided-test flags and a validated backlink under `flags.dune-qol.testRequestResult`.
+Supplemental feature translations are loaded by `scripts/localization.mjs` and merged with the base language file. This avoids duplicating or rewriting the large base dictionaries for isolated workflows.
 
-No public module API exists yet.
-
-## 5. Documentation policy
+## 6. Documentation policy
 
 Approved Markdown documents:
 
-- `README.md`: public overview and installation;
-- `AGENTS.md`: working rules for humans and AI agents;
-- `docs/PROJECT.md`: project source of truth;
-- `docs/USER-GUIDE.md`: single bilingual user manual.
+- `README.md` — public overview and installation;
+- `AGENTS.md` — working rules;
+- `docs/PROJECT.md` — source of truth;
+- `docs/USER-GUIDE.md` — single bilingual user manual.
 
-Do not create separate roadmap, architecture, ADR, TODO, release-note or per-feature manual files without a recorded decision.
+Do not create separate roadmap, architecture, ADR, TODO, release-note or per-feature manuals without a recorded decision.
 
-## 6. Testing
+## 7. Validation
 
 Run manually from a checkout:
 
@@ -206,73 +177,47 @@ Run manually from a checkout:
 npm run check
 ```
 
-This checks JavaScript syntax, JSON, manifest consistency, required files, documentation policy and pure domain regressions. Foundry runtime tests remain manual.
+This checks JavaScript syntax, JSON, manifest consistency, required files, documentation policy and pure domain regressions.
 
-### Foundry checklist — 0.5.4
+### Foundry checklist — 0.6.0
 
 Loading:
 
-- [ ] Both clients display 0.5.4 and fully reload.
-- [ ] No console error appears during module initialization.
+- [ ] Foundry displays version 0.6.0 after full reload.
+- [ ] No initialization error appears.
+- [ ] English and French supplemental translations load.
 
-Request preparation and delivery:
+Temporary Traits:
 
-- [ ] Context may be left empty.
-- [ ] An imposed Skill or Drive is locked and survives form submission.
-- [ ] A field left to **Player chooses** remains editable.
-- [ ] The online player receives one prefilled dialog.
-- [ ] The private request card is visible to the player and GM.
+- [ ] The Actor-sheet button appears for GM and owner, not unauthorized users.
+- [ ] An Actor without temporary Traits shows an empty state.
+- [ ] Temporary Traits are listed alphabetically.
+- [ ] Complication-generated Traits display the origin badge.
+- [ ] No selection keeps the dialog open and shows a warning.
+- [ ] **Make persistent** changes `system.temporary` to false.
+- [ ] **Delete** removes the selected Items.
+- [ ] A history message lists the affected Traits.
+- [ ] A promoted complication Trait updates its source record.
+- [ ] A deleted complication Trait does not reopen the complication.
+- [ ] A player-owned Actor sends the action to the active GM and receives the result.
 
-Request completion:
+Regression:
 
-- [ ] Opening and cancelling leave **Open test** visible.
-- [ ] Reopening without rolling leaves **Open test** visible.
-- [ ] Rolling creates the result before the request is marked completed.
-- [ ] The result Guided-test flag contains the source request-message id.
-- [ ] The GM console displays `Dune QoL | Test request marked as completed.`.
-- [ ] The request flag becomes `status: completed` and stores the result message id.
-- [ ] **Open test** disappears for both player and GM after synchronization.
-- [ ] An unrelated Guided test does not complete the request.
+- [ ] Guided tests still work.
+- [ ] Result cards remain readable.
+- [ ] Momentum/Threat application still works.
+- [ ] Complication Trait creation still works.
+- [ ] Single-player GM test requests still work and complete after the result.
 
-Chat-card presentation:
+## 8. Known risks
 
-- [ ] Difficulty, Focus, complication range and total dice each occupy one row.
-- [ ] Long French labels do not overlap their values.
-- [ ] Success and failure cards remain legible in both light and dark themes.
-- [ ] Dice, pool actions and complication actions still fit the normal chat width.
-
-Existing workflows:
-
-- [x] Core Guided test works.
-- [x] GM can apply generated Momentum and receive history.
-- [x] A complication can create the expected Trait.
-- [ ] Player-to-GM pool and Trait requests remain to be tested.
-
-## 7. Known risks
-
-- A player client that has not loaded the updated module cannot process inbox or completion hooks.
-- User-flag delivery depends on a GM being allowed to update the recipient User document.
-- Request completion depends on the module socket reaching an active GM; the result remains valid even if the request card is not updated.
-- Completion requires Foundry `Roll.toMessage` to return the created ChatMessage, as expected on the supported Foundry baseline.
-- Imposed selections are ignored if the requested Skill or Drive no longer exists when the dialog opens.
-- Group requests will require an explicit Actor resolution per recipient and separate request identifiers; a shared state would risk completing the wrong player's request.
-- Foundry and upstream schema changes require explicit compatibility testing.
+- Multiplayer workflows require every client to load the same module version.
+- User-flag delivery and authoritative changes depend on an active GM.
 - Shared-state operations cannot be fully atomic across distributed clients.
-- Deleting a generated Trait does not reopen the original complication.
-
-## 8. Current status
-
-- Guided tests, language selection, launcher placement, GM pool transactions and complication Traits passed initial manual testing.
-- Version 0.5.0 opened the GM dialog but produced a native header-control error and no player opening.
-- Version 0.5.1 removed the header collision but ChatMessage/socket delivery still did not reach the tested player client.
-- Version 0.5.2 added a persistent User-document inbox.
-- Version 0.5.3 made context optional and enforced GM-selected Skill and Drive values.
-- Version 0.5.4 adds direct result-based request completion and redesigns the narrow chat result layout.
-- Group requests from Token controls are now recorded as a medium-priority extension of the request workflow.
-- Combat/initiative management and guided character creation are explicitly low-priority end-of-roadmap items.
-- GitHub Actions remain disabled.
-
-Next step: reload both clients on 0.5.4, open then cancel one request, then reopen and roll it. Confirm that the button remains after cancellation and disappears only after the result appears.
+- Temporary-Trait history creation is best effort after the Item operation succeeds.
+- Provenance updates are best effort if the original ChatMessage was deleted.
+- Deleting a generated Trait intentionally does not reopen its original complication.
+- Foundry or upstream schema changes require explicit compatibility testing.
 
 ## 9. Decision log
 
@@ -285,7 +230,7 @@ All decisions are dated 2026-08-06 unless stated otherwise. Superseded decisions
 - **D-0005 — Accepted:** record lasting product and technical decisions with the implementing change.
 - **D-0006 — Accepted:** disclose substantial AI assistance and retain human responsibility.
 - **D-0007 — Accepted:** start without third-party runtime dependencies.
-- **D-0008 — Amended by D-0043:** prioritize Guided test, pools, complications and requests; combat tracking is no longer the immediate next major workflow.
+- **D-0008 — Amended by D-0043:** prioritize Guided test, pools, complications and requests; combat tracking is not the immediate next workflow.
 - **D-0009 — Superseded by D-0010:** use dependency-free validation locally and in GitHub Actions.
 - **D-0010 — Accepted:** keep local validation but disable GitHub Actions.
 - **D-0011 — Accepted:** use Foundry core `Roll` plus isolated local result calculations.
@@ -314,11 +259,13 @@ All decisions are dated 2026-08-06 unless stated otherwise. Superseded decisions
 - **D-0034 — Accepted:** start GM test requests from the target Actor sheet.
 - **D-0035 — Amended by D-0037 and D-0039:** persist requests in private chat and optionally open them live.
 - **D-0036 — Superseded by D-0040:** initially keep all GM-selected Skill, Drive and Focus values editable.
-- **D-0037 — Superseded by D-0039:** make the private ChatMessage the primary request-delivery event and retain sockets as an accelerator.
+- **D-0037 — Superseded by D-0039:** make private ChatMessage the primary delivery event and retain sockets as an accelerator.
 - **D-0038 — Accepted:** injected sheet links must not use Foundry's native `control` class.
-- **D-0039 — Accepted:** use a persistent request inbox on the recipient `User` document as the authoritative delivery path; keep private chat as the visible fallback and sockets only as refresh/acknowledgement signals.
-- **D-0040 — Accepted:** a Skill or Drive selected by the GM is imposed and locked; choosing **Player chooses** leaves that characteristic editable, while Focus remains an advisory proposal.
-- **D-0041 — Accepted:** request context is optional and an empty context must not block or silently close the send dialog.
-- **D-0042 — Accepted:** a test request becomes completed only after a matching Guided-test result ChatMessage exists and the active GM validates it; opening or cancelling never completes the request.
-- **D-0043 — Accepted:** place combat/initiative management near the end of the roadmap and guided character creation last, both as low-priority convenience workflows.
-- **D-0044 — Accepted:** keep Actor-sheet requests single-recipient and add a distinct GM Token-controls workflow for selecting one or several players with checkboxes; each recipient must receive an independent request linked to an explicitly resolved Actor.
+- **D-0039 — Accepted:** use a persistent request inbox on the recipient User document as authoritative delivery; keep private chat as visible fallback and sockets for refresh/acknowledgement.
+- **D-0040 — Accepted:** a Skill or Drive selected by the GM is imposed and locked; **Player chooses** leaves it editable, while Focus remains advisory.
+- **D-0041 — Accepted:** request context is optional and an empty value must not block or silently close sending.
+- **D-0042 — Accepted:** complete a request only after a matching Guided-test result exists and the active GM validates it.
+- **D-0043 — Accepted:** place combat/initiative near the end and guided character creation last.
+- **D-0044 — Accepted:** keep Actor-sheet requests single-recipient and add a distinct Token-controls group workflow with per-recipient Actors and independent request states.
+- **D-0045 — Accepted:** manage temporary Traits from the Actor sheet with checkbox-based bulk promotion or deletion; player actions use active-GM authority, provenance is preserved, and deletion never reopens resolved complications.
+- **D-0046 — Accepted:** allow isolated workflows to add supplemental per-language JSON dictionaries merged by the module localization service.
