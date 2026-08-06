@@ -2,6 +2,7 @@ import { registerGuidedTestHooks } from "./features/guided-test.mjs";
 import { initializeLocalization } from "./localization.mjs";
 import { registerComplicationTraitHooks } from "./services/complication-traits.mjs";
 import { registerPoolTransactionHooks } from "./services/pool-transactions.mjs";
+import { registerTestRequestHooks } from "./services/test-requests.mjs";
 import { registerSettings } from "./settings.mjs";
 
 const MODULE_ID = "dune-qol";
@@ -21,6 +22,7 @@ Hooks.once("init", () => {
   registerGuidedTestHooks();
   registerPoolTransactionHooks();
   registerComplicationTraitHooks();
+  registerTestRequestHooks();
 });
 
 Hooks.once("i18nInit", async () => {
