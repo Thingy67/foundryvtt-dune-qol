@@ -1,92 +1,88 @@
 # Dune QoL — Guide utilisateur / User guide
 
-Ce fichier est l’unique manuel utilisateur du module. Il sera complété au fur et à mesure des fonctionnalités, sans créer un document séparé pour chaque bouton.
+Ce fichier est l’unique manuel utilisateur du module. Il est complété au fur et à mesure des fonctionnalités, sans créer un document séparé pour chaque bouton.
 
 ## Français
 
-### Pourquoi plusieurs lanceurs de dés ?
+### Test guidé et lanceur natif
 
-Le système Dune fournit son propre **Dune Dice Roller**. Son apparence change selon qu’un personnage est disponible ou non :
+Le système Dune fournit son propre **Dune Dice Roller**. **Dune QoL** fournit la fenêtre **Test guidé — …**, qui ajoute notamment la difficulté, le Momentum généré, la source des dés supplémentaires, la Détermination et des actions directement dans le résultat du chat.
 
-- sans personnage exploitable, il affiche un formulaire générique avec seuil manuel ;
-- avec un token ou un personnage attribué, il affiche les Compétences et Motivations ;
-- **Dune QoL** ajoute une fenêtre intitulée **Test guidé — …**.
-
-Le Test guidé couvre le même besoin principal, mais ajoute la difficulté, le Momentum généré, la source et le coût des dés supplémentaires, la Détermination et une carte de résultat plus lisible. Il est considéré comme l’interface principale du module.
-
-Dans **Game Settings → Configure Settings → Dune: Adventures in the Imperium QoL**, l’option **Masquer le lanceur de dés natif de Dune** est activée par défaut. Elle masque les boutons natifs détectés sans modifier le code du système Dune.
+L’option **Masquer le lanceur de dés natif de Dune** est activée par défaut dans les réglages du module. Elle masque les boutons natifs détectés sans modifier les fichiers du système.
 
 ### Ouvrir le Test guidé
 
 Par défaut :
 
 1. ouvrez une fiche de personnage Dune ;
-2. cliquez sur le bouton **Test guidé** avec l’icône d20 dans la barre de titre.
+2. cliquez sur **Test guidé** dans la barre de titre.
 
-Cette méthode fonctionne même sans scène active.
+Cette méthode fonctionne sans scène active.
 
 Le réglage **Emplacement du test guidé** propose :
 
-- **Fiche de personnage** — valeur par défaut ;
-- **Contrôles de token** — bouton dans la barre d’outils de scène, nécessitant une scène active ;
-- **Fiche de personnage et contrôles de token** — active les deux accès.
+- **Fiche de personnage** ;
+- **Contrôles de token**, avec une scène active ;
+- **Fiche de personnage et contrôles de token**.
 
-Lors d’un lancement depuis les contrôles de token :
-
-1. le token sélectionné est utilisé ;
-2. sans token sélectionné, le personnage attribué à l’utilisateur est utilisé ;
-3. plusieurs tokens sélectionnés déclenchent un avertissement ;
-4. il faut posséder les droits sur le personnage.
+Depuis les contrôles de token, un token sélectionné est utilisé. Sans sélection, le personnage attribué à l’utilisateur est utilisé. Plusieurs tokens sélectionnés ou des droits insuffisants produisent un avertissement.
 
 ### Champs du test
 
 - **Compétence** et **Motivation** sont lues sur le personnage.
-- **Spécialisation** est facultative ; renseignez-la seulement si elle s’applique.
+- **Spécialisation** est facultative.
 - **Difficulté** indique le nombre de succès nécessaires.
 - **Nombre total de dés** accepte de 2 à 5 d20.
 - **Plage de complication** accepte une valeur de 15 à 20.
-- **Source des dés supplémentaires** indique comment ils ont été obtenus.
-- **Détermination** dépense un point du personnage et ajoute un résultat automatique de 1.
+- **Source des dés supplémentaires** devient disponible à partir de 3 dés.
+- **Détermination** dépense un point et ajoute un résultat automatique de 1.
 - **Contexte du test** ajoute une courte description au résultat.
 
-Le coût progressif indiqué pour les dés supplémentaires est de 0, 1, 3 ou 6 Momentum/Menace pour un total de 2, 3, 4 ou 5 dés.
+Le coût progressif des dés supplémentaires est de 0, 1, 3 ou 6 Momentum/Menace pour 2, 3, 4 ou 5 dés.
 
 ### Résultat dans le chat
 
-La carte affiche :
-
-- la Compétence, la Motivation et le seuil ;
-- la Spécialisation, la difficulté et la plage de complication ;
-- chaque résultat de dé ;
-- les succès ;
-- la réussite ou l’échec ;
-- le Momentum généré ;
-- les complications ;
-- la Détermination et la source des dés supplémentaires lorsqu’elles sont utilisées.
+La carte affiche les paramètres du test, chaque résultat de dé, les succès, la réussite ou l’échec, le Momentum généré, les complications et les actions disponibles.
 
 ### Appliquer le Momentum et la Menace
 
-À partir de la version `0.3.0`, le résultat calcule les changements proposés aux réserves partagées.
+Le résultat calcule les changements proposés aux réserves partagées.
 
 Exemples :
 
-- un test génère 2 Momentum sans achat : **Momentum +2** ;
-- un dé supplémentaire coûte 1 Momentum et le test en génère 2 : **Momentum +1** ;
-- deux dés supplémentaires achetés avec la Menace coûtent 3 et le test génère 1 Momentum : **Momentum +1, Menace +3**.
+- aucun achat et 2 Momentum générés : **Momentum +2** ;
+- un dé acheté pour 1 Momentum et 2 générés : **Momentum +1** ;
+- deux dés achetés avec la Menace et 1 Momentum généré : **Momentum +1, Menace +3**.
 
-Les réserves ne changent pas au moment du jet. Il faut cliquer sur **Appliquer les changements** dans la carte du résultat.
+Les réserves ne changent pas au moment du jet. Cliquez sur **Appliquer les changements** :
 
-- Le MJ peut appliquer directement la transaction.
-- Un joueur auteur du jet envoie une demande au MJ actif.
-- Un MJ doit être connecté pour qu’un joueur puisse modifier les réserves.
-- Une seule instance active de MJ exécute la transaction.
-- Le résultat est marqué comme déjà appliqué après réussite.
-- Un second message dans le chat indique les valeurs avant et après.
+- le MJ applique directement la transaction ;
+- un joueur envoie une demande au MJ actif ;
+- le résultat est marqué comme appliqué ;
+- un message d’historique indique les valeurs avant et après.
 
-Le Momentum servant à acheter les dés doit être disponible avant le jet. Le Momentum généré par le résultat ne peut pas financer rétroactivement l’achat. La réserve finale de Momentum est limitée à 6 ; l’éventuel surplus perdu est indiqué dans l’historique.
+Le Momentum utilisé pour acheter les dés doit être disponible avant le jet. Le Momentum généré ne peut pas financer rétroactivement l’achat. La réserve finale est plafonnée à 6.
 
-> [!CAUTION]
-> L’accès technique aux réserves du système Dune 13.0.1 est encore en validation. En cas d’échec, le module ne modifie rien silencieusement : il affiche une erreur et écrit un diagnostic `Dune QoL` dans la console.
+### Créer un Trait depuis une complication
+
+À partir de la version `0.4.0`, un résultat comportant au moins une complication affiche une section **Résolution des complications**.
+
+Pour chaque complication :
+
+1. cliquez sur **Créer un Trait de complication** ;
+2. donnez un nom au Trait ;
+3. laissez **Trait temporaire** coché, sauf si le Trait doit réellement persister ;
+4. confirmez.
+
+Le module :
+
+- crée un Item de type `trait` directement sur le personnage associé au jet ;
+- utilise le champ temporaire natif du système Dune ;
+- comptabilise un Trait créé comme une complication résolue ;
+- affiche les Traits déjà créés et le nombre restant ;
+- ajoute un message d’historique dans le chat.
+
+Un joueur possédant le personnage peut demander la création, mais un MJ actif effectue l’écriture autoritaire. Chaque complication permet la création d’un seul Trait. La suppression ultérieure du Trait sur la fiche ne rouvre pas automatiquement la complication d’origine.
 
 ### Choisir la langue
 
@@ -94,91 +90,83 @@ Dans :
 
 **Game Settings → Configure Settings → Dune: Adventures in the Imperium QoL → Langue du module**
 
-choisissez **English** ou **Français**. Ce réglage ne change que Dune QoL, pas Foundry ni le système Dune. Rechargez la page après la modification.
-
-Les intitulés et descriptions des réglages sont eux aussi remplacés dans la langue choisie lors de l’affichage de la fenêtre de configuration.
+choisissez **English** ou **Français**, puis rechargez la page. Ce réglage ne change que Dune QoL.
 
 ### Dépannage
 
 #### Le bouton des contrôles de token ne fait rien
 
-Les contrôles de token n’existent qu’avec une scène active. Utilisez le bouton de la fiche de personnage ou activez une scène.
+Une scène active est nécessaire. Utilisez le bouton de la fiche de personnage ou activez une scène.
+
+#### La source des dés supplémentaires reste inaccessible
+
+Vérifiez que le module est au minimum en version `0.3.1`, puis rechargez complètement la partie. Le champ doit être désactivé à 2 dés et actif à partir de 3 dés.
 
 #### Le bouton est visible, mais aucune fenêtre ne s’ouvre
 
-Le module affiche une notification et écrit une erreur préfixée `Dune QoL` dans la console. Ouvrez la console avec **F12**, reproduisez le problème et copiez l’erreur complète.
-
-#### Les boutons natifs sont encore visibles
-
-Vérifiez que **Masquer le lanceur de dés natif de Dune** est activé, puis rechargez Foundry. La détection dépend des contrôles exposés par la version du système ; signalez tout bouton restant avec une capture d’écran.
+Ouvrez **F12 → Console**, reproduisez le problème et copiez l’erreur complète préfixée `Dune QoL`.
 
 #### « Un maître de jeu actif est nécessaire »
 
-Le joueur ne peut pas modifier directement une réserve partagée. Connectez au moins un compte MJ actif, puis réessayez depuis le résultat du jet.
+Connectez au moins un compte MJ actif. Les réserves partagées et la création de Traits demandée par un joueur sont exécutées par le MJ.
 
-#### « Dune QoL ne parvient pas à accéder aux réserves »
+#### Le Trait n’apparaît pas
 
-Aucune modification n’a été appliquée. Ouvrez **F12 → Console**, recherchez le message `Upstream pool API probe failed` et copiez l’objet de diagnostic ainsi que l’erreur complète.
-
-#### Momentum insuffisant
-
-La réserve ne contenait pas assez de Momentum au moment de l’application pour payer les dés déclarés comme achetés avec cette ressource. Le Momentum gagné par le test n’est pas pris en compte pour vérifier ce paiement préalable.
+Vérifiez la fiche du personnage associé au jet, dans sa liste de Traits. Si une erreur apparaît, copiez la notification et l’entrée `Dune QoL` de la console.
 
 #### Mettre à jour le module
 
-Depuis l’écran Setup de Foundry, utilisez **Update** sur le module, puis rechargez Foundry. Pendant la pré-alpha, le manifeste télécharge l’état courant de la branche `main`.
+Depuis l’écran Setup de Foundry, utilisez **Update**, puis rechargez Foundry. Pendant la pré-alpha, le manifeste télécharge l’état courant de `main`.
 
 ---
 
 ## English
 
-### Why are there several dice windows?
+### Guided test and the native roller
 
-The upstream Dune system owns **Dune Dice Roller**. It uses a generic layout when no usable Actor is available and an Actor-aware layout when a token or assigned character is available. Dune QoL owns **Guided test — …**.
+The Dune system provides **Dune Dice Roller**. Dune QoL provides **Guided test — …**, adding difficulty, generated Momentum, extra-die source, Determination and chat-card actions.
 
-Guided test serves the same main purpose but adds difficulty, generated Momentum, extra-die cost and source, Determination handling and a clearer result card. It is the module’s preferred interface.
-
-The **Hide the native Dune dice roller** setting is enabled by default. It hides detected native launcher buttons without modifying upstream files.
+**Hide the native Dune dice roller** is enabled by default. It hides detected launcher buttons without modifying upstream files.
 
 ### Opening Guided test
 
-By default, open a supported Actor sheet and click the **Guided test** d20 button in its title bar. This works without an active Scene.
+By default, open a supported Actor sheet and click **Guided test** in its title bar. This works without an active Scene.
 
-The **Guided test launcher** setting offers:
+The launcher setting offers Actor sheet, Token controls, or both. Token controls use one selected token or the user’s assigned character.
 
-- **Actor sheet** — default;
-- **Token controls** — requires an active Scene;
-- **Actor sheet and Token controls** — enables both.
+### Test fields
 
-From Token controls, one selected token is used; otherwise the user’s assigned character is used. Multiple selected tokens or insufficient ownership produce warnings.
-
-### Fields and result
-
-Choose Skill, Drive, optional Focus, difficulty, total dice, complication range, extra-die source, optional Determination and optional context. The chat card displays the complete test context, individual dice, successes, success or failure, generated Momentum and complications.
+Choose Skill, Drive, optional Focus, difficulty, total dice, complication range, extra-die source, optional Determination and optional context. The extra-die source becomes available from 3 dice onward.
 
 ### Applying Momentum and Threat
 
-Starting with version `0.3.0`, the result card calculates proposed shared-pool changes.
+The result card proposes shared-pool changes. The pools are not changed until **Apply resource changes** is clicked.
 
-The pools are not changed when the dice are rolled. Click **Apply resource changes** on the result card:
+A game master applies directly. A player sends the request to the active game master. The source message is marked as applied and a separate history card records before and after values.
 
-- a game master applies the transaction directly;
-- a player who authored the roll sends the request to the active game master;
-- at least one active game master is required;
-- one active game master performs the authoritative write;
-- the source result is marked as applied;
-- a separate chat message records the before and after values.
+Momentum spent on extra dice must already exist before the test. Generated Momentum cannot retroactively pay that cost. Final Momentum is capped at 6.
 
-Momentum spent on extra dice must already exist before the test. Generated Momentum cannot retroactively fund that purchase. Final Momentum is capped at 6 and discarded excess is recorded.
+### Creating a Trait from a complication
 
-The Dune 13.0.1 pool adapter is still undergoing runtime validation. When no supported upstream interface is detected, the module reports an error and does not silently change state.
+Starting with version `0.4.0`, a result with complications displays **Complication resolution**.
+
+For each complication:
+
+1. click **Create a complication Trait**;
+2. enter the Trait name;
+3. leave **Temporary Trait** selected unless it should persist;
+4. confirm.
+
+The module creates an embedded upstream `trait` Item on the Actor, records it on the source result and posts a history message. One Trait may be created for each complication. A player request is executed by the active game master.
+
+Deleting the Trait later does not automatically reopen the original complication.
 
 ### Language
 
-Open **Game Settings → Configure Settings → Dune: Adventures in the Imperium QoL → Module language**, choose **English** or **Français**, then reload. This changes Dune QoL only. The module also replaces its setting labels and hints using the selected language.
+Open **Game Settings → Configure Settings → Dune: Adventures in the Imperium QoL → Module language**, choose **English** or **Français**, then reload.
 
 ### Troubleshooting
 
-Token controls require an active Scene. Actor-sheet launch does not. If a visible button does not open a window, press **F12**, reproduce the issue and copy the complete console error prefixed with `Dune QoL`.
+Token controls require an active Scene. The extra-die source requires module `0.3.1` or newer and at least 3 dice. Player pool and Trait requests require an active game master.
 
-A player needs an active game master to apply pool changes. If the pool adapter fails, copy the console entry `Upstream pool API probe failed`, including its diagnostic object.
+For runtime errors, press **F12**, reproduce the issue and copy the complete console entry prefixed with `Dune QoL`.
