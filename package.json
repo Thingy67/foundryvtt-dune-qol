@@ -1,6 +1,6 @@
 {
   "name": "foundryvtt-dune-qol",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": true,
   "type": "module",
   "description": "Quality-of-life companion module for the Foundry VTT Dune system.",
