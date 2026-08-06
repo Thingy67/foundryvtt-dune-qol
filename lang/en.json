@@ -71,6 +71,7 @@
   "DUNEQOL.Pools.Errors.MessageMissing": "The source guided-test message no longer exists.",
   "DUNEQOL.Pools.Errors.NoActiveGM": "An active game master is required to change shared pools.",
   "DUNEQOL.Pools.Errors.ApplicationFailed": "The resource changes could not be applied: {message}",
+  "DUNEQOL.Pools.Errors.HistoryFailed": "The pools were updated, but the history message could not be created: {message}",
   "DUNEQOL.Pools.Errors.Unknown": "Unknown error",
   "DUNEQOL.Pools.Errors.NoChanges": "This guided test has no shared-resource changes to apply.",
   "DUNEQOL.Pools.Errors.AlreadyApplied": "The shared-resource changes for this test were already applied.",
