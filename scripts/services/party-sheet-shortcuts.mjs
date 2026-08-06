@@ -4,7 +4,8 @@ const PARTY_ROOT = ".dune-qol-party-sheet";
 
 export function registerPartySheetShortcutHooks() {
   Hooks.on("renderApplicationV2", (_application, element) => {
-    const root = getHtmlRoot(element)?.querySelector(PARTY_ROOT);
+    const host = getHtmlRoot(element);
+    const root = host?.matches?.(PARTY_ROOT) ? host : host?.querySelector(PARTY_ROOT);
     if (root) configureCharacterShortcuts(root);
   });
 }
