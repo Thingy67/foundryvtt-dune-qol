@@ -1,0 +1,46 @@
+import { getModuleLanguage } from "./settings.mjs";
+
+const MODULE_ID = "dune-qol";
+let translations = {};
+let activeLanguage = "en";
+
+export async function initializeLocalization() {
+  const configuredLanguage = getModuleLanguage();
+  activeLanguage = configuredLanguage === "fr" ? "fr" : "en";
+
+  try {
+    const response = await fetch(`modules/${MODULE_ID}/lang/${activeLanguage}.json`, {
+      cache: "no-store"
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} ${response.statusText}`);
+    }
+    translations = await response.json();
+  } catch (error) {
+    translations = {};
+    console.error(
+      `Dune QoL | Could not load ${activeLanguage} module translations.`,
+      error
+    );
+    ui.notifications?.warn(
+      `Dune QoL: could not load ${activeLanguage} translations; Foundry language fallback is used.`
+    );
+  }
+}
+
+export function localize(key) {
+  const translated = translations[key];
+  if (typeof translated === "string") return translated;
+  return game.i18n.localize(key);
+}
+
+export function format(key, data = {}) {
+  const template = localize(key);
+  return template.replace(/\{([^}]+)\}/g, (match, name) => {
+    return Object.hasOwn(data, name) ? String(data[name]) : match;
+  });
+}
+
+export function getActiveLanguage() {
+  return activeLanguage;
+}
