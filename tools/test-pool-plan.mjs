@@ -25,6 +25,35 @@ import {
 
   assert.equal(plan.deltas.momentum, 2);
   assert.equal(plan.deltas.threat, 3);
+  assert.equal(plan.hasChanges, true);
+}
+
+{
+  const plan = buildGuidedTestPoolPlan({
+    extraDiceSource: "momentum",
+    extraDiceCost: 1,
+    momentumGenerated: 1
+  });
+
+  assert.equal(plan.deltas.momentum, 0);
+  assert.equal(plan.hasChanges, true);
+
+  const targets = calculatePoolTargets({
+    current: { momentum: 2, threat: 0 },
+    plan
+  });
+  assert.deepEqual(targets.after, { momentum: 2, threat: 0 });
+  assert.deepEqual(targets.changedPools, []);
+}
+
+{
+  const plan = buildGuidedTestPoolPlan({
+    extraDiceSource: "unrecorded",
+    extraDiceCost: 1,
+    momentumGenerated: 0
+  });
+
+  assert.equal(plan.hasChanges, false);
 }
 
 {
