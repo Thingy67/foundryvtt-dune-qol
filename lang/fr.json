@@ -71,6 +71,7 @@
   "DUNEQOL.Pools.Errors.MessageMissing": "Le message du test guidé d’origine n’existe plus.",
   "DUNEQOL.Pools.Errors.NoActiveGM": "Un maître de jeu actif est nécessaire pour modifier les réserves partagées.",
   "DUNEQOL.Pools.Errors.ApplicationFailed": "Les changements de réserves n’ont pas pu être appliqués : {message}",
+  "DUNEQOL.Pools.Errors.HistoryFailed": "Les réserves ont été mises à jour, mais le message d’historique n’a pas pu être créé : {message}",
   "DUNEQOL.Pools.Errors.Unknown": "Erreur inconnue",
   "DUNEQOL.Pools.Errors.NoChanges": "Ce test guidé ne comporte aucun changement de réserve à appliquer.",
   "DUNEQOL.Pools.Errors.AlreadyApplied": "Les changements de réserves de ce test ont déjà été appliqués.",
