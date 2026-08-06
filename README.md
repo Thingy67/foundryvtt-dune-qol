@@ -3,7 +3,7 @@
 A companion module for Foundry Virtual Tabletop that improves comfort of play for the community **Dune: Adventures in the Imperium** game system.
 
 > [!IMPORTANT]
-> This project is public and pre-alpha. Version `0.5.0` requires manual validation in Foundry 13, especially for game-master test requests.
+> This project is public and pre-alpha. Version `0.5.1` requires manual validation in Foundry 13, especially for game-master test requests between two clients.
 
 ## Installation through Foundry
 
@@ -75,16 +75,20 @@ This workflow also applies to older Guided-test messages that already contain co
 
 ### Game-master test requests
 
-Version `0.5.0` adds requests prepared from an Actor sheet:
+A game master can prepare requests from an Actor sheet:
 
-- a game master uses **Request test** in the Actor-sheet title bar;
-- the receiving player is selected among users who own that Actor;
-- difficulty, complication range and context are supplied by the game master;
-- Skill, Drive and Focus may be suggested without being locked;
-- a private chat card preserves the request and provides **Open test**;
-- an active recipient also receives a notification and an automatically opened Guided-test dialog;
-- the dialog is prefilled and clearly identifies the requesting game master;
-- offline recipients can open the persisted private request after connecting.
+- use **Request test** in the Actor-sheet title bar;
+- select a receiving player among users who own that Actor;
+- provide difficulty, complication range and context;
+- optionally suggest Skill, Drive and Focus without locking them;
+- preserve the request as a private chat card with **Open test**;
+- prefill the receiving player's Guided-test dialog;
+- allow an offline recipient to open the persisted request after connecting.
+
+Version `0.5.1` fixes two initial issues:
+
+- injected title-bar buttons no longer trigger Foundry's native header-control click handler;
+- the private ChatMessage is now the primary delivery event on the player client, while the module socket is only an accelerator for immediate opening.
 
 The first version does not mark a request as completed or link it automatically to the resulting roll. The player may reopen the request card when needed.
 
