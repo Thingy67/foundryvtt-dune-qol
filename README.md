@@ -3,7 +3,7 @@
 A companion module for Foundry Virtual Tabletop that improves comfort of play for the community **Dune: Adventures in the Imperium** game system.
 
 > [!IMPORTANT]
-> This project is public and pre-alpha. Version `0.5.1` requires manual validation in Foundry 13, especially for game-master test requests between two clients.
+> This project is public and pre-alpha. Version `0.5.2` requires manual validation in Foundry 13, especially for game-master test requests between two clients.
 
 ## Installation through Foundry
 
@@ -83,12 +83,15 @@ A game master can prepare requests from an Actor sheet:
 - optionally suggest Skill, Drive and Focus without locking them;
 - preserve the request as a private chat card with **Open test**;
 - prefill the receiving player's Guided-test dialog;
-- allow an offline recipient to open the persisted request after connecting.
+- allow an offline recipient to receive the request after connecting.
 
-Version `0.5.1` fixes two initial issues:
+Version `0.5.2` uses three complementary delivery paths:
 
-- injected title-bar buttons no longer trigger Foundry's native header-control click handler;
-- the private ChatMessage is now the primary delivery event on the player client, while the module socket is only an accelerator for immediate opening.
+- a private ChatMessage for a visible and durable request card;
+- a persistent queue in the recipient User flags under `flags.dune-qol.testRequestInbox`;
+- a module socket used only to ask an online client to inspect its queue immediately.
+
+The player client also checks its inbox on connection and whenever its User document changes. After successful opening, it sends an acknowledgement so an active game master can remove the queued entry. This prevents delivery from depending on the chat tab, one specific hook, or the order in which socket and ChatMessage events arrive.
 
 The first version does not mark a request as completed or link it automatically to the resulting roll. The player may reopen the request card when needed.
 
