@@ -38,6 +38,10 @@ const requiredFiles = [
   "module.json",
   "package.json",
   "scripts/dune-qol.mjs",
+  "scripts/domain/dune-test.mjs",
+  "scripts/features/guided-test.mjs",
+  "styles/dune-qol.css",
+  "tools/test-dune-test.mjs",
   "lang/en.json",
   "lang/fr.json"
 ];
@@ -77,6 +81,12 @@ if (manifest) {
   for (const entryPoint of manifest.esmodules ?? []) {
     if (!(await exists(entryPoint))) {
       fail(`module.json references a missing ES module: ${entryPoint}`);
+    }
+  }
+
+  for (const style of manifest.styles ?? []) {
+    if (!(await exists(style))) {
+      fail(`module.json references a missing stylesheet: ${style}`);
     }
   }
 
