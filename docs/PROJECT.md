@@ -12,7 +12,7 @@ Current baseline:
 
 - Foundry VTT 13, build 351;
 - Dune system id `dune`, version 13.0.1;
-- module id `dune-qol`, version 0.5.2;
+- module id `dune-qol`, version 0.5.3;
 - public pre-alpha repository;
 - English and French interfaces;
 - substantial AI-assisted development with human review responsibility;
@@ -83,17 +83,21 @@ Remaining: multiplayer player path and quick management of temporary Traits.
 
 ### Game-master test requests
 
-Status: **delivery redesigned in 0.5.2; two-client validation required**.
+Status: **delivery and constraint semantics revised through 0.5.3; two-client validation required**.
 
 - GM-only **Request test** action on supported Actor sheets;
 - one non-GM Actor owner selected as recipient;
-- required context, difficulty and complication range;
-- optional editable Skill, Drive and Focus suggestions;
+- difficulty and complication range supplied by the GM;
+- context is optional;
+- Skill and Drive may be left to **Player chooses**;
+- any Skill or Drive selected by the GM is imposed and locked in the player dialog;
+- Focus remains an optional editable proposal;
 - private request ChatMessage with **Open test**;
 - persistent recipient inbox under User flags;
 - socket used only to prompt an online client to inspect its inbox;
 - inbox checked on client ready and User-document updates;
 - one-shot prefilled Guided-test dialog with requesting-GM banner;
+- disabled imposed selects are paired with hidden form values so submission preserves them;
 - per-request duplicate protection;
 - player acknowledgement followed by GM cleanup of the inbox entry.
 
@@ -180,17 +184,18 @@ npm run check
 
 This checks JavaScript syntax, JSON, manifest consistency, required files, documentation policy and pure domain regressions. Foundry runtime tests remain manual.
 
-### Foundry checklist — 0.5.2
+### Foundry checklist — 0.5.3
 
 Loading:
 
-- [ ] Both clients display 0.5.2 and fully reload.
+- [ ] Both clients display 0.5.3 and fully reload.
 - [ ] No console error appears during module initialization.
 
 Request preparation:
 
 - [ ] Clicking **Request test** opens one dialog without the native `onclick` error.
 - [ ] Only non-GM Actor owners are listed.
+- [ ] Context may be left empty without closing silently or blocking delivery.
 - [ ] Sending displays `Test request queued for user delivery` in the GM console.
 - [ ] The private request card is visible to the GM.
 - [ ] The selected User contains `flags.dune-qol.testRequestInbox` until acknowledgement.
@@ -200,7 +205,11 @@ Online player:
 - [ ] The User-document update reaches the player.
 - [ ] The player receives a notification and one prefilled dialog.
 - [ ] The player console displays `Test request received from user inbox`.
-- [ ] Suggested Skill, Drive and Focus remain editable.
+- [ ] A Skill selected by the GM is displayed and cannot be changed.
+- [ ] A Drive selected by the GM is displayed and cannot be changed.
+- [ ] A Skill or Drive left on **Player chooses** remains editable.
+- [ ] The locked Skill and Drive are still present in submitted FormData and the roll succeeds.
+- [ ] Proposed Focus remains editable.
 - [ ] The private card is visible and **Open test** works.
 - [ ] The active GM clears the acknowledged inbox entry.
 
@@ -219,11 +228,12 @@ Existing workflows:
 
 ## 7. Known risks
 
-- A player client that has not actually loaded the updated module cannot process the new inbox hook.
+- A player client that has not actually loaded the updated module cannot process the inbox hook or field locking.
 - User-flag delivery depends on a GM being allowed to update the recipient User document.
 - Acknowledgement uses the module socket; if missed, the entry may reopen after a later reload, although session duplicate protection prevents immediate repetition.
 - Requests do not yet track completion and their private cards remain reusable.
 - The Guided-test preset is client-local and consumed once.
+- Imposed selections depend on the requested Skill or Drive still existing on the Actor when opened; an invalid value is ignored and leaves the field editable.
 - Foundry and upstream schema changes require explicit compatibility testing.
 - Shared-state operations cannot be fully atomic across distributed clients.
 - Deleting a generated Trait does not reopen the original complication.
@@ -233,10 +243,11 @@ Existing workflows:
 - Guided tests, language selection, launcher placement, GM pool transactions and complication Traits passed initial manual testing.
 - Version 0.5.0 opened the GM dialog but produced a native header-control error and no player opening.
 - Version 0.5.1 removed the header collision but ChatMessage/socket delivery still did not reach the tested player client.
-- Version 0.5.2 adds a persistent User-document inbox as the authoritative delivery path.
+- Version 0.5.2 added a persistent User-document inbox as the authoritative delivery path.
+- Version 0.5.3 makes context optional and locks any Skill or Drive selected by the GM while leaving explicit player-choice fields free.
 - GitHub Actions remain disabled.
 
-Next step: update and reload both clients to 0.5.2, send one request, then inspect the GM and player console messages and the recipient User flag if it still fails.
+Next step: update and reload both clients to 0.5.3, send a request with one imposed field and one free field, then verify delivery, locking and successful submission.
 
 ## 9. Decision log
 
@@ -277,7 +288,9 @@ All decisions are dated 2026-08-06 unless stated otherwise. Superseded decisions
 - **D-0033 — Accepted:** inject complication controls at chat render time.
 - **D-0034 — Accepted:** start GM test requests from the target Actor sheet.
 - **D-0035 — Amended by D-0037 and D-0039:** persist requests in private chat and optionally open them live.
-- **D-0036 — Accepted:** keep GM suggestions editable by the player.
+- **D-0036 — Superseded by D-0040:** initially keep all GM-selected Skill, Drive and Focus values editable.
 - **D-0037 — Superseded by D-0039:** make the private ChatMessage the primary request-delivery event and retain sockets as an accelerator.
 - **D-0038 — Accepted:** injected sheet links must not use Foundry's native `control` class.
 - **D-0039 — Accepted:** use a persistent request inbox on the recipient `User` document as the authoritative delivery path; keep private chat as the visible fallback and sockets only as refresh/acknowledgement signals.
+- **D-0040 — Accepted:** a Skill or Drive selected by the GM is imposed and locked; choosing **Player chooses** leaves that characteristic editable, while Focus remains an advisory proposal.
+- **D-0041 — Accepted:** request context is optional and an empty context must not block or silently close the send dialog.
