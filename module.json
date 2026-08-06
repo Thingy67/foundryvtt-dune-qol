@@ -46,6 +46,8 @@
     }
   ],
   "url": "https://github.com/Thingy67/foundryvtt-dune-qol",
+  "manifest": "https://raw.githubusercontent.com/Thingy67/foundryvtt-dune-qol/main/module.json",
+  "download": "https://github.com/Thingy67/foundryvtt-dune-qol/archive/refs/heads/main.zip",
   "bugs": "https://github.com/Thingy67/foundryvtt-dune-qol/issues",
   "readme": "README.md"
 }
