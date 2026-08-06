@@ -52,8 +52,8 @@ function applyPendingPreset(root) {
   pendingPreset = null;
   const preset = request.preset ?? {};
 
-  setSelectValue(root, "skill", preset.skill);
-  setSelectValue(root, "drive", preset.drive);
+  lockSelectValue(root, "skill", preset.skill);
+  lockSelectValue(root, "drive", preset.drive);
   setInputValue(root, "focus", preset.focus);
   setInputValue(root, "difficulty", preset.difficulty);
   setInputValue(root, "complicationRange", preset.complicationRange);
@@ -73,12 +73,33 @@ function applyPendingPreset(root) {
   root.prepend(banner);
 }
 
-function setSelectValue(root, name, value) {
+/**
+ * A Skill or Drive selected by the game master is mandatory. Disabled form
+ * controls are not included in FormData, so a hidden input carries the locked
+ * value while the visible select remains readable but cannot be changed.
+ */
+function lockSelectValue(root, name, value) {
   if (!value) return;
+
   const select = root.querySelector(`select[name="${name}"]`);
   if (!(select instanceof HTMLSelectElement)) return;
-  if (![...select.options].some((option) => option.value === String(value))) return;
-  select.value = String(value);
+
+  const normalizedValue = String(value);
+  if (![...select.options].some((option) => option.value === normalizedValue)) return;
+
+  select.value = normalizedValue;
+  select.disabled = true;
+  select.setAttribute("aria-disabled", "true");
+  select.title = localize("DUNEQOL.TestRequests.LockedByGm");
+
+  const hidden = document.createElement("input");
+  hidden.type = "hidden";
+  hidden.name = name;
+  hidden.value = normalizedValue;
+  hidden.dataset.duneQolLockedValue = name;
+  select.insertAdjacentElement("afterend", hidden);
+
+  select.closest("label")?.classList.add("dune-qol-locked-field");
   select.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
