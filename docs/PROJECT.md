@@ -94,7 +94,9 @@ Not yet implemented: cancelled/expired states and visible result backlink.
 
 ## 4. Planned work
 
-### Next functional block — group test requests
+### Next functional block — group test requests and group overview
+
+Group test requests:
 
 - keep Actor-sheet requests single-recipient;
 - add a distinct GM-only action to Token scene controls;
@@ -103,8 +105,20 @@ Not yet implemented: cancelled/expired states and visible result backlink.
 - resolve and show the Actor used by each selected player before sending;
 - create independent request and completion state per recipient.
 
+Global Trait overview:
+
+- add a second GM-only action to Token scene controls;
+- display all player-character Traits in one window, grouped by player and Actor;
+- distinguish temporary and persistent Traits;
+- show complication provenance when available;
+- allow filtering and opening the relevant Actor sheet;
+- keep bulk modification behind explicit selection and confirmation.
+
 ### Medium priority
 
+- Dune Party Sheet, inspired by the PF2e Party Sheet but adapted to Dune;
+- centralize player characters, owners, portraits, Traits, key resources and quick actions;
+- provide an extensible group-level home for later supporting-character, House, project and campaign information;
 - supporting-character handoff and control conveniences;
 - token HUD and campaign conveniences;
 - conflict zones and Asset movement;
@@ -269,3 +283,5 @@ All decisions are dated 2026-08-06 unless stated otherwise. Superseded decisions
 - **D-0044 — Accepted:** keep Actor-sheet requests single-recipient and add a distinct Token-controls group workflow with per-recipient Actors and independent request states.
 - **D-0045 — Accepted:** manage temporary Traits from the Actor sheet with checkbox-based bulk promotion or deletion; player actions use active-GM authority, provenance is preserved, and deletion never reopens resolved complications.
 - **D-0046 — Accepted:** allow isolated workflows to add supplemental per-language JSON dictionaries merged by the module localization service.
+- **D-0047 — Accepted:** add a GM Token-controls action that presents all player-character Traits together, grouped by player and Actor, with temporary/persistent state and safe navigation or management actions.
+- **D-0048 — Accepted:** plan a Dune Party Sheet inspired by PF2e as the central group interface for characters, owners, Traits, resources and future campaign-level conveniences.
