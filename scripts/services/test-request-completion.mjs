@@ -1,5 +1,3 @@
-import { consumeRequestedTestResult } from "../features/guided-test-ui.mjs";
-
 const MODULE_ID = "dune-qol";
 const SOCKET_NAME = `module.${MODULE_ID}`;
 const COMPLETE_ACTION = "complete-guided-test-request";
@@ -10,15 +8,8 @@ export function registerTestRequestCompletionHooks() {
     game.socket.on(SOCKET_NAME, handleSocketMessage);
   });
 
-  Hooks.on("createChatMessage", (message) => {
-    const request = consumeRequestedTestResult(message);
-    if (!request) return;
-
-    void reportCompletedRequest({
-      requestMessageId: request.requestMessageId,
-      resultMessageId: message.id,
-      recipientUserId: game.user.id
-    });
+  Hooks.on("duneQolGuidedTestResultCreated", (payload) => {
+    void reportCompletedRequest(payload);
   });
 
   Hooks.on("renderChatMessage", (message, html) => {
@@ -27,6 +18,8 @@ export function registerTestRequestCompletionHooks() {
 }
 
 async function reportCompletedRequest(payload) {
+  if (!payload?.requestMessageId || !payload?.resultMessageId) return;
+
   if (game.user.isGM) {
     await completeRequest(payload);
     return;
@@ -70,6 +63,8 @@ async function completeRequest(payload) {
       && resultAuthor?.id === payload.recipientUserId
       && guidedTest
       && guidedTest.actorUuid === request.actorUuid
+      && guidedTest.requestMessageId === requestMessage.id
+      && payload.actorUuid === request.actorUuid
       && Array.isArray(requestMessage.whisper)
       && requestMessage.whisper.includes(payload.recipientUserId)
     );
