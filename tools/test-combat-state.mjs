@@ -45,6 +45,13 @@ assert.deepEqual(reset.actedCombatantIds, []);
 assert.equal(reset.retainLockedSide, null);
 assert.equal(oppositeCombatSide("players"), "opposition");
 
+const preserveSide = resetCombatRoundState(
+  { ...enemyActed, activeSide: "opposition" },
+  { round: 1, activeSide: "opposition" }
+);
+assert.equal(preserveSide.activeSide, "opposition");
+assert.deepEqual(preserveSide.actedCombatantIds, []);
+
 const momentum = buildRetentionPlan({
   side: "players",
   payment: "momentum",
