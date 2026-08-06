@@ -3,6 +3,12 @@ import {
   evaluateDuneTest,
   extraDiceCost
 } from "../domain/dune-test.mjs";
+import { format, localize } from "../localization.mjs";
+import {
+  getLauncherLocation,
+  LAUNCHER_LOCATIONS,
+  shouldHideNativeRoller
+} from "../settings.mjs";
 
 const MODULE_ID = "dune-qol";
 const CONTROL_NAME = "dune-qol-guided-test";
@@ -10,22 +16,58 @@ const EXTRA_DICE_SOURCES = new Set(["none", "unrecorded", "momentum", "threat", 
 
 export function registerGuidedTestHooks() {
   Hooks.on("getSceneControlButtons", (controls) => {
-    if (game.system.id !== "dune" || !controls.tokens?.tools) return;
+    if (game.system.id !== "dune") return;
+
+    if (shouldHideNativeRoller()) {
+      hideNativeRollerControls(controls);
+    }
+
+    const launcherLocation = getLauncherLocation();
+    const showTokenLauncher = launcherLocation === LAUNCHER_LOCATIONS.tokenControls
+      || launcherLocation === LAUNCHER_LOCATIONS.both;
+    if (!showTokenLauncher || !controls.tokens?.tools) return;
 
     controls.tokens.tools[CONTROL_NAME] = {
       name: CONTROL_NAME,
-      title: "DUNEQOL.GuidedTest.Control",
+      title: localize("DUNEQOL.GuidedTest.Control"),
       icon: "fa-solid fa-dice-d20",
       order: Object.keys(controls.tokens.tools).length,
       button: true,
       visible: true,
-      onChange: () => openGuidedTest()
+      onChange: () => safelyOpenGuidedTest()
     };
+  });
+
+  Hooks.on("renderActorSheet", (application, html) => {
+    if (game.system.id !== "dune") return;
+
+    const launcherLocation = getLauncherLocation();
+    const showSheetLauncher = launcherLocation === LAUNCHER_LOCATIONS.actorSheet
+      || launcherLocation === LAUNCHER_LOCATIONS.both;
+    if (!showSheetLauncher) return;
+
+    const actor = application.actor ?? application.document;
+    if (!isSupportedActor(actor)) return;
+
+    addActorSheetLauncher(application, html, actor);
   });
 }
 
-export async function openGuidedTest() {
-  const actor = getRollActor();
+export async function safelyOpenGuidedTest(actor = null) {
+  try {
+    await openGuidedTest(actor);
+  } catch (error) {
+    console.error("Dune QoL | Guided-test window failed to open.", error);
+    ui.notifications.error(
+      format("DUNEQOL.GuidedTest.Errors.OpenFailed", {
+        message: error instanceof Error ? error.message : String(error)
+      })
+    );
+  }
+}
+
+export async function openGuidedTest(actorOverride = null) {
+  const actor = actorOverride ?? getRollActor();
   if (!actor) return;
 
   if (!actor.isOwner) {
@@ -43,6 +85,10 @@ export async function openGuidedTest() {
   const focusSuggestions = getFocusSuggestions(actor.system?.Skills);
   const determination = Number(actor.system?.resources?.determination?.value ?? 0);
   const DialogV2 = foundry.applications.api.DialogV2;
+  if (!DialogV2) {
+    throw new Error(localize("DUNEQOL.GuidedTest.Errors.DialogUnavailable"));
+  }
+
   const dialog = new DialogV2({
     window: {
       title: format("DUNEQOL.GuidedTest.Title", { actor: actor.name })
@@ -71,7 +117,7 @@ export async function openGuidedTest() {
       },
       {
         action: "cancel",
-        label: localize("Cancel"),
+        label: localize("DUNEQOL.Cancel"),
         icon: "fa-solid fa-xmark"
       }
     ]
@@ -185,6 +231,69 @@ async function performGuidedTest(actor, formData) {
       })
     );
   }
+}
+
+function addActorSheetLauncher(application, html, actor) {
+  const root = getHtmlRoot(html);
+  const header = root?.querySelector(".window-header");
+  if (!header || header.querySelector(`[data-dune-qol-action="${CONTROL_NAME}"]`)) return;
+
+  const button = document.createElement("a");
+  button.className = "header-button control dune-qol-sheet-launcher";
+  button.dataset.duneQolAction = CONTROL_NAME;
+  button.title = localize("DUNEQOL.GuidedTest.Control");
+  button.innerHTML = `<i class="fa-solid fa-dice-d20"></i> ${escapeHtml(localize("DUNEQOL.GuidedTest.SheetButton"))}`;
+  button.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    safelyOpenGuidedTest(actor);
+  });
+
+  const closeButton = header.querySelector(".close");
+  header.insertBefore(button, closeButton ?? null);
+
+  console.debug(
+    `Dune QoL | Added guided-test launcher to Actor sheet '${application.id ?? actor.name}'.`
+  );
+}
+
+function hideNativeRollerControls(controls) {
+  const nativeTitleKeys = new Set([
+    "DUNE.roll.roller",
+    "DUNE.apps.rolldice"
+  ]);
+  const nativeTitles = new Set([
+    ...nativeTitleKeys,
+    ...[...nativeTitleKeys].map((key) => game.i18n.localize(key))
+  ]);
+
+  for (const control of Object.values(controls ?? {})) {
+    if (!control?.tools) continue;
+
+    for (const [name, tool] of Object.entries(control.tools)) {
+      if (name === CONTROL_NAME) continue;
+      const callbackSource = String(tool?.onChange ?? "");
+      const title = String(tool?.title ?? "");
+      const localizedTitle = game.i18n.localize(title);
+      const isNativeDuneRoller = callbackSource.includes("DuneRoll")
+        || nativeTitles.has(title)
+        || nativeTitles.has(localizedTitle);
+
+      if (isNativeDuneRoller) {
+        delete control.tools[name];
+      }
+    }
+  }
+}
+
+function getHtmlRoot(html) {
+  if (html instanceof HTMLElement) return html;
+  if (html?.[0] instanceof HTMLElement) return html[0];
+  return null;
+}
+
+function isSupportedActor(actor) {
+  return Boolean(actor?.system?.Skills && actor?.system?.Drives);
 }
 
 function configureDialog(dialog) {
@@ -451,14 +560,6 @@ function sourceKey(value) {
     other: "Other"
   };
   return mapping[value] ?? "Unrecorded";
-}
-
-function localize(key) {
-  return game.i18n.localize(key);
-}
-
-function format(key, data) {
-  return game.i18n.format(key, data);
 }
 
 function escapeHtml(value) {
