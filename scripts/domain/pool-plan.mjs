@@ -57,8 +57,9 @@ export function buildGuidedTestPoolPlan({
 /**
  * Calculate target pool values before any persistent write is attempted.
  *
- * Momentum is capped at the configured maximum. Insufficient resources fail
- * before an adapter is called, which prevents a partial spend.
+ * Momentum used to purchase dice must already be available before the test;
+ * generated Momentum cannot retroactively fund that purchase. Momentum is then
+ * capped at the configured maximum.
  */
 export function calculatePoolTargets({
   current,
@@ -67,6 +68,7 @@ export function calculatePoolTargets({
 }) {
   const before = normalizePoolValues(current, "current");
   const maximum = nonNegativeInteger(momentumMaximum, "momentumMaximum");
+  const cost = nonNegativeInteger(plan?.cost ?? 0, "plan.cost");
   const deltas = {
     momentum: Number(plan?.deltas?.momentum ?? 0),
     threat: Number(plan?.deltas?.threat ?? 0)
@@ -74,6 +76,14 @@ export function calculatePoolTargets({
 
   if (!Number.isInteger(deltas.momentum) || !Number.isInteger(deltas.threat)) {
     throw new TypeError("Pool deltas must be integers.");
+  }
+
+  if (plan?.source === "momentum" && cost > before.momentum) {
+    const error = new RangeError("Not enough Momentum for this transaction.");
+    error.code = "INSUFFICIENT_MOMENTUM";
+    error.available = before.momentum;
+    error.required = cost;
+    throw error;
   }
 
   const requestedMomentum = before.momentum + deltas.momentum;
