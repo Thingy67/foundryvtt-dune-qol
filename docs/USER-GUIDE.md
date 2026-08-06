@@ -42,7 +42,15 @@ Le coût progressif des dés supplémentaires est de 0, 1, 3 ou 6 Momentum/Menac
 
 ### Résultat dans le chat
 
-La carte affiche les paramètres du test, chaque résultat de dé, les succès, la réussite ou l’échec, le Momentum généré, les complications et les actions disponibles.
+À partir de la version `0.5.4`, les informations sont affichées verticalement afin de rester lisibles dans la colonne étroite du chat :
+
+- Difficulté ;
+- Spécialisation ;
+- Plage de complication ;
+- Nombre total de dés ;
+- éventuels dés supplémentaires et Détermination.
+
+Chaque information occupe sa propre ligne. La couleur rouge ou verte sert d’accent sur le résultat, sans colorer tout le texte de la carte.
 
 ### Appliquer le Momentum et la Menace
 
@@ -97,7 +105,15 @@ Dans la fenêtre reçue par le joueur, toute Compétence ou Motivation imposée 
 
 La demande est conservée à la fois dans un message privé et dans une file persistante sur le compte du joueur. Le client joueur consulte cette file à la connexion et lorsqu’elle est mise à jour. Le socket ne sert qu’à accélérer la vérification pour un joueur déjà connecté.
 
-La demande n’est pas encore automatiquement marquée comme terminée après le jet. Le bouton **Ouvrir le test** du message privé peut donc être réutilisé.
+### Fin d’une demande de test
+
+Le bouton **Ouvrir le test** reste disponible tant qu’aucun résultat n’a été créé :
+
+- ouvrir la fenêtre ne termine pas la demande ;
+- fermer ou annuler ne termine pas la demande ;
+- rouvrir la demande reste possible.
+
+Lorsque le joueur clique sur **Lancer le test** et que le résultat apparaît dans le chat, le module associe ce résultat à la demande. Le MJ actif vérifie l’auteur, le personnage et le destinataire, puis marque la demande comme terminée. Le bouton **Ouvrir le test** disparaît ensuite du message privé.
 
 ### Choisir la langue
 
@@ -125,39 +141,24 @@ Mettez le module à jour en version `0.5.3` ou ultérieure. Le contexte est facu
 
 Vérifiez que les deux clients utilisent `0.5.3` ou une version ultérieure, puis rechargez-les complètement. Une valeur sélectionnée par le MJ doit être désactivée chez le joueur ; **Au choix du joueur** doit rester libre.
 
-#### Le bouton est visible, mais aucune fenêtre ne s’ouvre
+#### Le bouton Ouvrir le test reste après le résultat
 
-Ouvrez **F12 → Console**, reproduisez le problème et copiez l’erreur complète préfixée `Dune QoL`.
+Vérifiez que les deux clients utilisent `0.5.4` ou une version ultérieure et qu’un MJ est connecté. Dans la console MJ, cherchez :
 
-#### « Un maître de jeu actif est nécessaire »
+```text
+Dune QoL | Test request marked as completed.
+```
 
-Connectez au moins un compte MJ actif. Les réserves partagées et la création de Traits demandée par un joueur sont exécutées par le MJ.
-
-#### Aucun destinataire n’est proposé pour une demande de test
-
-Le personnage doit appartenir au moins à un utilisateur non-MJ. Vérifiez ses permissions dans Foundry. Les joueurs hors ligne sont proposés, mais marqués comme tels.
+Sans ce message, copiez l’erreur `Dune QoL | Test-request completion failed.` et les détails associés.
 
 #### Le joueur ne reçoit pas la demande
 
-1. Vérifiez que les deux clients affichent Dune QoL `0.5.3`.
+1. Vérifiez que les deux clients affichent la même version de Dune QoL.
 2. Rechargez complètement la page des deux côtés après la mise à jour.
 3. Vérifiez que le joueur possède toujours le personnage.
 4. Ouvrez l’onglet Chat côté joueur : un message privé doit être présent.
-5. Côté MJ, cherchez dans la console :
-
-```text
-Dune QoL | Test request queued for user delivery.
-```
-
-6. Côté joueur, cherchez :
-
-```text
-Dune QoL | Test request received from user inbox.
-```
-
-#### Le Trait n’apparaît pas
-
-Vérifiez la fiche du personnage associé au jet, dans sa liste de Traits. Si une erreur apparaît, copiez la notification et l’entrée `Dune QoL` de la console.
+5. Côté MJ, cherchez `Dune QoL | Test request queued for user delivery.`.
+6. Côté joueur, cherchez `Dune QoL | Test request received from user inbox.`.
 
 #### Mettre à jour le module
 
@@ -179,9 +180,11 @@ By default, open a supported Actor sheet and click **Guided test** in its title 
 
 The launcher setting offers Actor sheet, Token controls, or both. Token controls use one selected token or the user’s assigned character.
 
-### Test fields
+### Test fields and result
 
 Choose Skill, Drive, optional Focus, difficulty, total dice, complication range, extra-die source, optional Determination and optional context. The extra-die source becomes available from 3 dice onward.
+
+Starting with `0.5.4`, each parameter occupies its own row in the narrow chat column. Success or failure color is used as an accent while the remaining text keeps the normal chat contrast.
 
 ### Applying Momentum and Threat
 
@@ -195,22 +198,20 @@ Momentum spent on extra dice must already exist before the test. Generated Momen
 
 A result with complications displays **Complication resolution**. The module creates one embedded upstream `trait` Item per resolved complication and records the result in chat. Player requests are executed by the active game master.
 
-Deleting the Trait later does not automatically reopen the original complication.
-
 ### Requesting a test as game master
 
-Starting with version `0.5.3`, open the relevant Actor sheet and click **Request test**.
+Open the relevant Actor sheet and click **Request test**.
 
 Choose a receiving player, set difficulty and complication range, and optionally enter context. For Skill and Drive:
 
 - selecting a value makes it mandatory and locked in the player dialog;
 - **Player chooses** leaves the field editable.
 
-The proposed Focus remains editable. Disabled locked selects are paired with hidden form values so the imposed choices are retained when rolling.
+The proposed Focus remains editable. Requests are preserved in private chat and in a persistent inbox on the recipient User document.
 
-Requests are preserved in private chat and in a persistent inbox on the recipient User document. The player client checks that inbox on connection and updates; the socket only accelerates inspection for an online player.
+### Completing a requested test
 
-The request is not automatically marked completed after a roll, so the private card may be reused.
+**Open test** remains available when the dialog is merely opened, closed or cancelled. It is removed only after the player rolls and the matching result ChatMessage exists. The active game master validates the request/result relationship and marks the request completed.
 
 ### Language
 
@@ -218,8 +219,6 @@ Open **Game Settings → Configure Settings → Dune: Adventures in the Imperium
 
 ### Troubleshooting
 
-Token controls require an active Scene. The extra-die source requires module `0.3.1` or newer and at least 3 dice. Player pool and Trait requests require an active game master.
-
-Empty request context and locked GM-selected Skill/Drive behavior require module `0.5.3` or newer. Both clients must fully reload after updating.
+Token controls require an active Scene. The extra-die source requires module `0.3.1` or newer and at least 3 dice. Empty request context and locked GM-selected Skill/Drive behavior require `0.5.3` or newer. Result-based request completion and the revised chat layout require `0.5.4` or newer.
 
 For runtime errors, press **F12**, reproduce the issue and copy the complete console entry prefixed with `Dune QoL`.
