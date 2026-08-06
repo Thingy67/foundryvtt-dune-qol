@@ -37,9 +37,9 @@ export function registerSettings() {
     config: true,
     type: String,
     choices: {
-      [LAUNCHER_LOCATIONS.actorSheet]: "DUNEQOL.Settings.Launcher.ActorSheet",
-      [LAUNCHER_LOCATIONS.tokenControls]: "DUNEQOL.Settings.Launcher.TokenControls",
-      [LAUNCHER_LOCATIONS.both]: "DUNEQOL.Settings.Launcher.Both"
+      [LAUNCHER_LOCATIONS.actorSheet]: "Actor sheet / Fiche de personnage",
+      [LAUNCHER_LOCATIONS.tokenControls]: "Token controls / Contrôles de token",
+      [LAUNCHER_LOCATIONS.both]: "Both / Les deux"
     },
     default: LAUNCHER_LOCATIONS.actorSheet,
     requiresReload: true
