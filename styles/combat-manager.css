@@ -56,8 +56,17 @@
   min-width: 7rem;
 }
 
-.dune-qol-combat-controls input {
+.dune-qol-combat-controls input,
+.dune-qol-combat-controls select {
   width: 100%;
+}
+
+.dune-qol-combat-retain-lock {
+  flex: 1 0 100%;
+  margin: 0;
+  padding: 0.35rem 0.45rem;
+  border-inline-start: 3px solid currentColor;
+  overflow-wrap: anywhere;
 }
 
 .dune-qol-combatant-list {
@@ -131,7 +140,9 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-#combat-tracker .dune-qol-combat-controls label {
+#combat-tracker .dune-qol-combat-controls label,
+#combat-tracker .dune-qol-combat-controls > .hint,
+#combat-tracker .dune-qol-combat-retain-lock {
   grid-column: 1 / -1;
 }
 
