@@ -1,6 +1,10 @@
 import { getModuleLanguage } from "./settings.mjs";
 
 const MODULE_ID = "dune-qol";
+const SUPPLEMENTAL_DICTIONARIES = [
+  "temporary-traits",
+  "group-tools"
+];
 let translations = {};
 let activeLanguage = "en";
 
@@ -10,14 +14,12 @@ export async function initializeLocalization() {
 
   try {
     const base = await fetchTranslationFile(`${activeLanguage}.json`);
-    const supplemental = await fetchTranslationFile(
-      `${activeLanguage}-temporary-traits.json`,
-      { optional: true }
+    const supplementalFiles = await Promise.all(
+      SUPPLEMENTAL_DICTIONARIES.map((name) =>
+        fetchTranslationFile(`${activeLanguage}-${name}.json`, { optional: true })
+      )
     );
-    translations = {
-      ...base,
-      ...supplemental
-    };
+    translations = Object.assign({}, base, ...supplementalFiles);
   } catch (error) {
     translations = {};
     console.error(
