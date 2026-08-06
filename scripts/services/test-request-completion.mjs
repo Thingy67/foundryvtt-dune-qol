@@ -1,5 +1,4 @@
 import { consumeRequestedTestResult } from "../features/guided-test-ui.mjs";
-import { localize } from "../localization.mjs";
 
 const MODULE_ID = "dune-qol";
 const SOCKET_NAME = `module.${MODULE_ID}`;
@@ -103,9 +102,6 @@ async function completeRequest(payload) {
     });
   } catch (error) {
     console.error("Dune QoL | Test-request completion failed.", error, payload);
-    if (game.user.isGM) {
-      ui.notifications.error(localize("DUNEQOL.TestRequests.Errors.CompletionFailed"));
-    }
   }
 }
 
@@ -114,17 +110,7 @@ function renderRequestCompletion(message, html) {
   if (!request || request.status !== "completed") return;
 
   const root = getHtmlRoot(html);
-  if (!root) return;
-
-  root.querySelector(`[data-dune-qol-action="${OPEN_ACTION}"]`)?.remove();
-
-  const card = root.querySelector(".dune-qol-test-request-card");
-  if (!card || card.querySelector(".dune-qol-test-request-card__completed")) return;
-
-  const status = document.createElement("p");
-  status.className = "dune-qol-test-request-card__completed";
-  status.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${escapeHtml(localize("DUNEQOL.TestRequests.Completed"))}`;
-  card.append(status);
+  root?.querySelector(`[data-dune-qol-action="${OPEN_ACTION}"]`)?.remove();
 }
 
 function getPrimaryActiveGM() {
@@ -144,13 +130,4 @@ function getHtmlRoot(html) {
   if (html instanceof HTMLElement) return html;
   if (html?.[0] instanceof HTMLElement) return html[0];
   return null;
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
 }
