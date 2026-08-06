@@ -1,3 +1,7 @@
+.dune-qol-sheet-launcher {
+  white-space: nowrap;
+}
+
 .dune-qol-guided-test {
   display: grid;
   gap: 0.75rem;
