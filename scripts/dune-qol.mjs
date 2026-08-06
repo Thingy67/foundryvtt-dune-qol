@@ -1,5 +1,6 @@
 import { registerGuidedTestHooks } from "./features/guided-test.mjs";
 import { initializeLocalization } from "./localization.mjs";
+import { registerComplicationTraitHooks } from "./services/complication-traits.mjs";
 import { registerPoolTransactionHooks } from "./services/pool-transactions.mjs";
 import { registerSettings } from "./settings.mjs";
 
@@ -19,6 +20,7 @@ Hooks.once("init", () => {
   registerSettings();
   registerGuidedTestHooks();
   registerPoolTransactionHooks();
+  registerComplicationTraitHooks();
 });
 
 Hooks.once("i18nInit", async () => {
