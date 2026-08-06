@@ -3,6 +3,7 @@ import {
   evaluateDuneTest,
   extraDiceCost
 } from "../domain/dune-test.mjs";
+import { buildGuidedTestPoolPlan } from "../domain/pool-plan.mjs";
 import { format, localize } from "../localization.mjs";
 import {
   getLauncherLocation,
@@ -174,6 +175,12 @@ async function performGuidedTest(actor, formData) {
       difficulty,
       determination: useDetermination
     });
+    const cost = extraDiceCost(totalDice);
+    const poolPlan = buildGuidedTestPoolPlan({
+      extraDiceSource,
+      extraDiceCost: cost,
+      momentumGenerated: outcome.momentum
+    });
 
     if (useDetermination) {
       await actor.update({
@@ -190,7 +197,8 @@ async function performGuidedTest(actor, formData) {
       complicationRange,
       extraDiceSource,
       useDetermination,
-      outcome
+      outcome,
+      poolPlan
     });
 
     const rollMode = game.settings.get("core", "rollMode");
@@ -202,8 +210,9 @@ async function performGuidedTest(actor, formData) {
         flags: {
           [MODULE_ID]: {
             guidedTest: {
-              version: 1,
+              version: 2,
               actorUuid: actor.uuid,
+              actorName: actor.name,
               skill: skill.key,
               drive: drive.key,
               focus: focus || null,
@@ -216,7 +225,12 @@ async function performGuidedTest(actor, formData) {
               successes: outcome.successes,
               complications: outcome.complications,
               momentum: outcome.momentum,
-              succeeded: outcome.succeeded
+              succeeded: outcome.succeeded,
+              poolPlan,
+              poolApplication: {
+                version: 1,
+                status: poolPlan.hasChanges ? "pending" : "not-required"
+              }
             }
           }
         }
@@ -480,7 +494,7 @@ function buildDialogContent({ actor, skills, drives, focusSuggestions, determina
                placeholder="${escapeHtml(localize("DUNEQOL.GuidedTest.ContextPlaceholder"))}">
       </label>
 
-      <p class="hint">${localize("DUNEQOL.GuidedTest.NoPoolMutation")}</p>
+      <p class="hint">${localize("DUNEQOL.GuidedTest.PoolApplicationHint")}</p>
     </div>
   `;
 }
@@ -494,7 +508,8 @@ function buildChatCard({
   complicationRange,
   extraDiceSource,
   useDetermination,
-  outcome
+  outcome,
+  poolPlan
 }) {
   const resultClass = outcome.succeeded ? "success" : "failure";
   const resultText = outcome.succeeded
@@ -529,6 +544,32 @@ function buildChatCard({
         <span>${format("DUNEQOL.GuidedTest.Result.Momentum", { value: outcome.momentum })}</span>
         <span>${format("DUNEQOL.GuidedTest.Result.Complications", { value: outcome.complications })}</span>
       </div>
+
+      ${buildPoolPlanHtml(poolPlan)}
+    </section>
+  `;
+}
+
+function buildPoolPlanHtml(poolPlan) {
+  if (!poolPlan?.hasChanges) return "";
+
+  const momentum = signed(poolPlan.deltas.momentum);
+  const threat = signed(poolPlan.deltas.threat);
+  return `
+    <section class="dune-qol-pool-plan">
+      <strong>${escapeHtml(localize("DUNEQOL.Pools.ProposedTitle"))}</strong>
+      <div class="dune-qol-pool-plan__values">
+        ${poolPlan.deltas.momentum !== 0
+          ? `<span>Momentum ${momentum}</span>`
+          : ""}
+        ${poolPlan.deltas.threat !== 0
+          ? `<span>${escapeHtml(localize("DUNEQOL.Pools.Threat"))} ${threat}</span>`
+          : ""}
+      </div>
+      <button type="button" data-dune-qol-action="apply-pools">
+        <i class="fa-solid fa-coins"></i>
+        ${escapeHtml(localize("DUNEQOL.Pools.Apply"))}
+      </button>
     </section>
   `;
 }
@@ -560,6 +601,10 @@ function sourceKey(value) {
     other: "Other"
   };
   return mapping[value] ?? "Unrecorded";
+}
+
+function signed(value) {
+  return value > 0 ? `+${value}` : String(value);
 }
 
 function escapeHtml(value) {
