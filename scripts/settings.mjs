@@ -106,11 +106,12 @@ export function registerSettings() {
     config: false,
     type: Object,
     default: {
-      version: 1,
+      version: 2,
       combatId: null,
       round: 0,
       activeSide: "players",
       actedCombatantIds: [],
+      retainLockedSide: null,
       history: []
     }
   });
