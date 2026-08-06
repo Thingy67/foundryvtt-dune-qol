@@ -3,7 +3,7 @@
 A companion module for Foundry Virtual Tabletop that improves comfort of play for the community **Dune: Adventures in the Imperium** game system.
 
 > [!IMPORTANT]
-> This project is public and pre-alpha. Version `0.5.2` requires manual validation in Foundry 13, especially for game-master test requests between two clients.
+> This project is public and pre-alpha. Version `0.5.3` requires manual validation in Foundry 13, especially for game-master test requests between two clients.
 
 ## Installation through Foundry
 
@@ -79,19 +79,23 @@ A game master can prepare requests from an Actor sheet:
 
 - use **Request test** in the Actor-sheet title bar;
 - select a receiving player among users who own that Actor;
-- provide difficulty, complication range and context;
-- optionally suggest Skill, Drive and Focus without locking them;
+- provide difficulty and complication range;
+- optionally provide context;
+- select a required Skill and/or Drive, or leave either field to **Player chooses**;
+- optionally propose a Focus, which remains editable;
 - preserve the request as a private chat card with **Open test**;
 - prefill the receiving player's Guided-test dialog;
 - allow an offline recipient to receive the request after connecting.
 
-Version `0.5.2` uses three complementary delivery paths:
+In version `0.5.3`, a Skill or Drive selected by the game master is visibly locked in the player's Guided-test dialog. A hidden form value preserves the imposed selection when the disabled field is submitted. Fields left on **Player chooses** remain editable.
+
+Requests use three complementary delivery paths:
 
 - a private ChatMessage for a visible and durable request card;
 - a persistent queue in the recipient User flags under `flags.dune-qol.testRequestInbox`;
 - a module socket used only to ask an online client to inspect its queue immediately.
 
-The player client also checks its inbox on connection and whenever its User document changes. After successful opening, it sends an acknowledgement so an active game master can remove the queued entry. This prevents delivery from depending on the chat tab, one specific hook, or the order in which socket and ChatMessage events arrive.
+The player client also checks its inbox on connection and whenever its User document changes. After successful opening, it sends an acknowledgement so an active game master can remove the queued entry.
 
 The first version does not mark a request as completed or link it automatically to the resulting roll. The player may reopen the request card when needed.
 
