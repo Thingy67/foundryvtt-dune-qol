@@ -22,7 +22,7 @@ export function registerTestRequestHooks() {
   });
 
   Hooks.on("renderChatMessage", (message, html) => {
-    configureRequestCard(message, html);
+    void configureRequestCard(message, html);
   });
 }
 
@@ -160,8 +160,7 @@ async function createTestRequest(actor, formData) {
     game.socket.emit(SOCKET_NAME, {
       type: "open-guided-test-request",
       messageId: message.id,
-      recipientUserId: recipient.id,
-      request
+      recipientUserId: recipient.id
     });
   }
 
@@ -178,8 +177,24 @@ async function handleSocketMessage(payload) {
   if (payload.type !== "open-guided-test-request") return;
   if (payload.recipientUserId !== game.user.id) return;
 
-  const request = payload.request;
-  const actor = request?.actorUuid ? await fromUuid(request.actorUuid).catch(() => null) : null;
+  const message = await waitForRequestMessage(payload.messageId);
+  const request = message?.getFlag(MODULE_ID, "testRequest");
+  const validRequest = Boolean(
+    message
+    && request
+    && message.author?.isGM
+    && request.requestedBy === message.author.id
+    && request.recipientUserId === game.user.id
+    && message.whisper?.includes(game.user.id)
+  );
+
+  if (!validRequest) {
+    console.warn("Dune QoL | Rejected an invalid test-request socket payload.", payload);
+    ui.notifications.error(localize("DUNEQOL.TestRequests.Errors.InvalidRequest"));
+    return;
+  }
+
+  const actor = request.actorUuid ? await fromUuid(request.actorUuid).catch(() => null) : null;
   if (!actor || !actor.isOwner) {
     ui.notifications.error(localize("DUNEQOL.TestRequests.Errors.ActorUnavailable"));
     return;
@@ -194,7 +209,7 @@ async function handleSocketMessage(payload) {
 
   queueGuidedTestPreset({
     actorUuid: actor.uuid,
-    requestMessageId: payload.messageId,
+    requestMessageId: message.id,
     requestedBy: request.requestedBy,
     requestedByName: request.requestedByName,
     preset: request.preset
@@ -237,6 +252,18 @@ async function configureRequestCard(message, html) {
       button.disabled = false;
     }
   });
+}
+
+async function waitForRequestMessage(messageId) {
+  if (!messageId) return null;
+
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const message = game.messages.get(messageId);
+    if (message) return message;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  return null;
 }
 
 function buildRequestDialogContent({ actor, recipients, skills, drives }) {
