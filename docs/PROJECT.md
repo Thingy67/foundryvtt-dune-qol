@@ -2,7 +2,7 @@
 
 This document is the central living reference for **Dune: Adventures in the Imperium QoL**.
 
-It intentionally combines product scope, architecture, roadmap, status, risks, testing notes and the decision log. Do not split those subjects into separate documents without an explicit recorded decision.
+It intentionally combines product scope, architecture, roadmap, current status, risks, testing notes and the decision log. Do not split those subjects into separate documents without an explicit recorded decision.
 
 Last updated: 2026-08-06
 
@@ -50,23 +50,30 @@ The project should improve comfort and traceability at the virtual table while p
 - Replace the upstream character, House, Asset or Item sheets without a specific demonstrated need.
 - Become a generic 2d20 framework.
 - Distribute rulebook text, proprietary artwork or commercial compendium data.
-- Guarantee compatibility with Foundry versions or upstream system versions that have not been tested.
+- Guarantee compatibility with Foundry or upstream versions that have not been tested.
 - Automate subjective game-master rulings.
 
 ## 4. Planned functional scope
 
 ### Phase 0 — Repository and loading scaffold
 
-Status: **In progress**
+Status: **Implemented; manual Foundry validation pending**
 
-- Foundry module manifest.
-- Minimal ES-module entry point.
-- Repository validation command.
-- English and French localization scaffold.
-- Centralized documentation and decision log.
-- Initial continuous-integration validation.
+Implemented:
 
-Exit condition: Foundry 13 recognizes and loads the module in a world using system `dune`, and repository checks pass.
+- Foundry module manifest;
+- minimal ES-module entry point;
+- dependency-free repository validation command;
+- English and French localization scaffold;
+- centralized documentation and decision log;
+- GitHub Actions validation;
+- editor and ignore rules.
+
+Remaining exit checks:
+
+- Foundry 13 recognizes and loads the module in a world using system `dune`;
+- the module initializes without console errors;
+- enabling or disabling it does not modify world data.
 
 ### Phase 1 — Guided test workflow
 
@@ -130,7 +137,7 @@ These are not committed scope and require separate decisions before implementati
 - conflict zones and Asset movement;
 - House-project and campaign clocks;
 - token HUD or Token Action HUD adapter;
-- macro compendium exposing the module API;
+- macro compendium exposing a future module API;
 - import/export helpers;
 - optional integrations with third-party modules.
 
@@ -189,13 +196,13 @@ Socket use must not be introduced until a concrete workflow requires it. When in
 
 ### Public module API
 
-A small API may eventually be exposed at:
+No public module API exists yet. A small API may later be exposed at:
 
 ```js
 game.modules.get("dune-qol")?.api
 ```
 
-No public API contract exists yet. Once published, breaking changes require versioning and migration notes.
+Publishing that API requires a decision defining its stability, versioning and compatibility expectations.
 
 ## 6. Documentation policy
 
@@ -214,18 +221,25 @@ This document is authoritative for:
 - manual test expectations;
 - project decisions.
 
-GitHub issues may hold actionable tasks and discussions, but accepted outcomes must be reflected here when they affect the project direction.
+GitHub issues may hold actionable tasks and discussions, but accepted outcomes must be reflected here when they affect project direction.
 
 ## 7. Testing strategy
 
 ### Automated repository checks
 
-The initial check command should verify at minimum:
+`npm run check` currently verifies:
 
 - required files exist;
 - JSON files parse;
-- `module.json` has the expected id and compatibility relationship;
-- referenced local entry-point files exist.
+- `module.json` has the expected id, package type and Foundry compatibility;
+- the manifest declares its relationship with system `dune`;
+- referenced ES modules and localization files exist;
+- package and manifest versions match;
+- the AI-assisted development disclosure remains present;
+- `docs/PROJECT.md` remains the central decision document;
+- additional Markdown files do not silently proliferate inside `docs/`.
+
+GitHub Actions runs this command on pushes to `main`, pull requests and manual dispatches.
 
 Later checks may add linting, formatting and unit tests when the codebase justifies the tooling.
 
@@ -239,7 +253,7 @@ For the initial scaffold:
 - [ ] The initialization message identifies the module version.
 - [ ] Enabling or disabling the module does not modify world data.
 
-Each user-facing feature must add its own concise manual checks here or replace them with automated coverage.
+Each user-facing feature must add concise manual checks here or replace them with automated coverage.
 
 ## 8. Known risks
 
@@ -276,12 +290,16 @@ Mitigation: enforce the three-document policy and keep this file as the source o
 ## 9. Current status
 
 - Repository created as private.
-- Project name and ids selected.
-- Initial goals discussed.
-- No user-facing functionality implemented yet.
-- Foundation files are being added.
+- Project name, repository name and module id selected.
+- README includes a prominent AI-assisted development disclosure.
+- `AGENTS.md` defines minimal-context and documentation rules for humans and AI agents.
+- This file centralizes scope, architecture, roadmap, status, testing and decisions.
+- Foundry manifest, localization scaffold and runtime entry point are present.
+- Dependency-free validation and GitHub Actions are configured and passing.
+- No user-facing functionality is implemented yet.
+- Manual loading validation in Foundry 13 remains pending.
 
-Next expected step: complete Phase 0, validate loading in Foundry 13 and then design the Phase 1 test adapter against the current upstream implementation.
+Next expected step: perform the Phase 0 manual Foundry checklist, then inspect the current upstream roll implementation and design the Phase 1 adapter before writing the guided test UI.
 
 ## 10. Decision log
 
@@ -348,3 +366,11 @@ Next expected step: complete Phase 0, validate loading in Foundry 13 and then de
 - Decision: Prioritize the guided test workflow, then pool transactions, Traits and Complications, and finally the activation tracker.
 - Rationale: The guided test and resource workflows are expected to remove the most frequent table friction and establish reusable foundations.
 - Consequences: Later campaign and HUD conveniences remain candidates rather than committed scope.
+
+### D-0009 — Use dependency-free validation for the initial scaffold
+
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Validate the initial repository with a small Node.js script using only standard-library APIs, executed locally and by GitHub Actions.
+- Rationale: The scaffold needs reliable structural checks without adding package-management overhead or premature linting frameworks.
+- Consequences: Node.js 20 or newer is required for repository checks. Additional tooling should be introduced only when the codebase provides a concrete need.
