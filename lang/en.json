@@ -74,6 +74,7 @@
   "DUNEQOL.Pools.Errors.Unknown": "Unknown error",
   "DUNEQOL.Pools.Errors.NoChanges": "This guided test has no shared-resource changes to apply.",
   "DUNEQOL.Pools.Errors.AlreadyApplied": "The shared-resource changes for this test were already applied.",
+  "DUNEQOL.Pools.Errors.AlreadyProcessing": "The shared-resource changes for this test are already being processed.",
   "DUNEQOL.Pools.Errors.NotAllowed": "You are not allowed to apply the resource changes for this test.",
   "DUNEQOL.Pools.Errors.AdapterUnavailable": "Dune QoL could not access the upstream shared pools: {message}",
   "DUNEQOL.Pools.Errors.InsufficientMomentum": "Not enough Momentum: {available} available, {required} required.",
