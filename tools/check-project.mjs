@@ -49,14 +49,18 @@ const requiredFiles = [
   "scripts/features/guided-test-ui.mjs",
   "scripts/services/pool-transactions.mjs",
   "scripts/services/complication-traits.mjs",
+  "scripts/services/temporary-traits.mjs",
   "scripts/services/test-requests.mjs",
   "scripts/services/test-request-completion.mjs",
   "styles/dune-qol.css",
+  "styles/temporary-traits.css",
   "tools/test-dune-test.mjs",
   "tools/test-pool-plan.mjs",
   "tools/test-complication-resolution.mjs",
   "lang/en.json",
-  "lang/fr.json"
+  "lang/fr.json",
+  "lang/en-temporary-traits.json",
+  "lang/fr-temporary-traits.json"
 ];
 
 for (const relativePath of requiredFiles) {
@@ -69,6 +73,8 @@ const manifest = await readJson("module.json");
 const packageJson = await readJson("package.json");
 await readJson("lang/en.json");
 await readJson("lang/fr.json");
+await readJson("lang/en-temporary-traits.json");
+await readJson("lang/fr-temporary-traits.json");
 
 if (manifest) {
   if (manifest.id !== "dune-qol") {
