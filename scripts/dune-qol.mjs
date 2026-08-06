@@ -5,6 +5,7 @@ import { registerComplicationTraitHooks } from "./services/complication-traits.m
 import { registerGroupToolHooks } from "./services/group-tools.mjs";
 import { registerLiveUpdateHooks } from "./services/live-updates.mjs";
 import { registerPartySheetCombatHooks } from "./services/party-sheet-combat.mjs";
+import { registerPartySheetNavigationHooks } from "./services/party-sheet-navigation.mjs";
 import { registerPartySheetShortcutHooks } from "./services/party-sheet-shortcuts.mjs";
 import { registerPartySheetHooks } from "./services/party-sheet.mjs";
 import { registerPoolTransactionHooks } from "./services/pool-transactions.mjs";
@@ -38,6 +39,7 @@ Hooks.once("init", () => {
   registerCombatManagerHooks();
   registerPartySheetCombatHooks();
   registerPartySheetShortcutHooks();
+  registerPartySheetNavigationHooks();
   registerLiveUpdateHooks();
 });
 
