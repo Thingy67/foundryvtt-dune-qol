@@ -6,6 +6,7 @@ import {
 
 const MODULE_ID = "dune-qol";
 const CONTROL_NAME = "dune-qol-guided-test";
+const EXTRA_DICE_SOURCES = new Set(["none", "unrecorded", "momentum", "threat", "other"]);
 
 export function registerGuidedTestHooks() {
   Hooks.on("getSceneControlButtons", (controls) => {
@@ -59,7 +60,7 @@ export async function openGuidedTest() {
     buttons: [
       {
         action: "roll",
-        label: "DUNEQOL.GuidedTest.Roll",
+        label: localize("DUNEQOL.GuidedTest.Roll"),
         icon: "fa-solid fa-dice-d20",
         default: true,
         callback: async (_event, button) => {
@@ -70,7 +71,7 @@ export async function openGuidedTest() {
       },
       {
         action: "cancel",
-        label: "Cancel",
+        label: localize("Cancel"),
         icon: "fa-solid fa-xmark"
       }
     ]
@@ -97,9 +98,12 @@ async function performGuidedTest(actor, formData) {
     const focus = String(formData.get("focus") ?? "").trim();
     const useDetermination = formData.has("determination");
     const context = String(formData.get("context") ?? "").trim();
-    const extraDiceSource = totalDice > TEST_LIMITS.minimumDice
+    const requestedSource = totalDice > TEST_LIMITS.minimumDice
       ? String(formData.get("extraDiceSource") ?? "unrecorded")
       : "none";
+    const extraDiceSource = EXTRA_DICE_SOURCES.has(requestedSource)
+      ? requestedSource
+      : "unrecorded";
 
     const availableDetermination = Number(actor.system?.resources?.determination?.value ?? 0);
     if (useDetermination && availableDetermination < 1) {
@@ -132,7 +136,6 @@ async function performGuidedTest(actor, formData) {
     }
 
     const content = buildChatCard({
-      actor,
       skill,
       drive,
       focus,
@@ -149,7 +152,7 @@ async function performGuidedTest(actor, formData) {
       {
         speaker: ChatMessage.getSpeaker({ actor }),
         content,
-        flavor: context || undefined,
+        flavor: context ? escapeHtml(context) : undefined,
         flags: {
           [MODULE_ID]: {
             guidedTest: {
@@ -195,7 +198,16 @@ function configureDialog(dialog) {
 
   const updateExtraDice = () => {
     const totalDice = Number(diceInput.value);
-    const extraDice = Math.max(0, totalDice - TEST_LIMITS.minimumDice);
+    const validDice = Number.isInteger(totalDice)
+      && totalDice >= TEST_LIMITS.minimumDice
+      && totalDice <= TEST_LIMITS.maximumDice;
+
+    if (!validDice) {
+      if (costOutput) costOutput.textContent = "";
+      return;
+    }
+
+    const extraDice = totalDice - TEST_LIMITS.minimumDice;
     const cost = extraDiceCost(totalDice);
 
     if (costOutput) {
@@ -217,7 +229,7 @@ function configureDialog(dialog) {
 }
 
 function getRollActor() {
-  const controlled = canvas?.tokens?.controlled ?? [];
+  const controlled = globalThis.canvas?.tokens?.controlled ?? [];
   if (controlled.length > 1) {
     ui.notifications.warn(localize("DUNEQOL.GuidedTest.Errors.MultipleTokens"));
     return null;
