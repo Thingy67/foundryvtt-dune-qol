@@ -3,7 +3,7 @@
   "type": "module",
   "title": "Dune: Adventures in the Imperium QoL",
   "description": "Optional quality-of-life workflows for the community Dune: Adventures in the Imperium game system.",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "authors": [
     {
       "name": "Thingy67",
@@ -35,7 +35,8 @@
   "styles": [
     "styles/dune-qol.css",
     "styles/temporary-traits.css",
-    "styles/group-tools.css"
+    "styles/group-tools.css",
+    "styles/party-sheet.css"
   ],
   "languages": [
     {
