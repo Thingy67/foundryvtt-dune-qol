@@ -3,7 +3,7 @@
 A companion module for Foundry Virtual Tabletop that adds optional quality-of-life workflows to the community **Dune: Adventures in the Imperium** system.
 
 > [!IMPORTANT]
-> This project is public and pre-alpha. Version `0.7.0` targets Foundry `13.351` and Dune `13.0.1`; runtime validation remains manual.
+> This project is public and pre-alpha. Version `0.9.0` targets Foundry `13.351` and Dune `13.0.1`; runtime validation remains manual.
 
 ## Installation through Foundry
 
@@ -18,7 +18,7 @@ In the Foundry setup screen:
 https://raw.githubusercontent.com/Thingy67/foundryvtt-dune-qol/main/module.json
 ```
 
-Do not use a GitHub page URL containing `/blob/main/module.json`; it returns HTML rather than the JSON manifest expected by Foundry.
+Do not use a GitHub page URL containing `/blob/main/module.json`; it returns HTML instead of the JSON manifest expected by Foundry.
 
 This pre-alpha installation downloads the current `main` branch. Restart or reload Foundry after updating.
 
@@ -28,60 +28,66 @@ The single user-facing manual is [`docs/USER-GUIDE.md`](docs/USER-GUIDE.md).
 
 ## Current features
 
-### Guided tests
+### Guided tests and shared resources
 
 - Actor-sheet launcher and optional Token-controls launcher;
 - optional hiding of the native Dune roller;
-- English or French module interface;
-- Skill, Drive, Focus, difficulty, dice and complication-range selection;
-- extra-die cost and declared source;
-- Determination spending;
-- successes, failure or success, complications and generated Momentum;
-- readable chat cards and structured flags.
+- English or French interface;
+- Skill, Drive, Focus, difficulty, dice, complication range and Determination;
+- extra-die cost and source;
+- readable result cards;
+- explicit Momentum and Threat application with history and duplicate protection.
 
-### Momentum, Threat and complications
+### Complications and Traits
 
-- explicit Momentum/Threat application from the result card;
-- active-GM authority for player requests;
-- transaction history and duplicate protection;
 - one upstream `trait` Item per resolved complication;
-- temporary or persistent complication Traits with provenance and history.
+- temporary or persistent Traits with provenance;
+- Actor-sheet manager for temporary Traits;
+- multi-Actor promotion or deletion from the Party Sheet;
+- explicit confirmation before deleting persistent Traits.
 
-### Temporary Trait manager
+Deleting a generated Trait never reopens the original complication.
 
-The **Temporary Traits** Actor-sheet action can select one or several temporary Traits and either make them persistent or delete them. Player actions are executed by the active GM.
+### Test requests
 
-### Game-master test requests
-
-From an Actor sheet, a GM can send one owner a test request with:
-
-- optional context;
+- individual requests from Actor sheets;
+- group requests from Token controls with player checkboxes and explicit Actor selection;
 - imposed or player-selected Skill and Drive;
-- editable proposed Focus;
-- difficulty and complication range;
-- persistent private delivery, including offline recipients;
-- automatic completion only after the matching result exists.
+- persistent private delivery for online or offline recipients;
+- independent state per recipient;
+- completion only after a matching result exists;
+- history, filters, request/result links and cancellation from the Party Sheet.
 
-### Group tools
+### Party Sheet
 
-Version `0.7.0` adds two GM-only actions to Token scene controls.
+Version `0.8.0` introduced a persistent Party Sheet accessible to GMs and players from Token controls.
 
-**Request a group test**:
+It includes:
 
-- select one or several players using checkboxes;
-- verify or change the Actor used by each player;
-- send common test parameters;
-- create an independent request and completion state for each recipient.
+- House information, overall party status, shared notes and objectives;
+- Momentum and Threat display;
+- primary and supporting characters;
+- owners, roles, portraits and individual resources;
+- quick Test, Traits, sheet-opening and token-selection actions;
+- all Traits grouped by Actor;
+- test-request tracking;
+- GM-only world-persistent editing and group Trait actions.
 
-**View party Traits**:
+### Combat management
 
-- display every compatible player-owned Actor once;
-- show owners, portrait and all Traits;
-- distinguish temporary, persistent and complication-generated Traits;
-- filter by player, Actor, Trait name or state;
-- open the relevant Actor sheet directly.
+Version `0.9.0` adds a Dune-oriented layer over Foundry's native Combat Tracker:
 
-This roster is the first foundation for the planned Dune Party Sheet.
+- active side: player characters or opposition;
+- acted and available combatants;
+- pass or retain initiative;
+- optional Momentum or Threat cost when retaining initiative;
+- side changes and round reset;
+- next-round synchronization with the native Combat document;
+- combat history;
+- token selection;
+- controls in both the Combat Tracker and the Party Sheet Combat tab.
+
+The module does not replace Foundry Combat or impose a fixed retention cost. The GM enters the cost explicitly when needed.
 
 ## Settings
 
@@ -95,7 +101,7 @@ Available settings:
 - **Guided test launcher**: Actor sheet, Token controls, or both;
 - **Hide the native Dune dice roller**: enabled by default.
 
-Reload after changing these settings.
+Party Sheet and combat data are stored in hidden world settings managed through their interfaces.
 
 ## Compatibility baseline
 
@@ -111,15 +117,15 @@ From a repository checkout with Node.js 20 or newer:
 npm run check
 ```
 
-Foundry runtime and visual validation remain manual. The checklist and development decisions are maintained in [`docs/PROJECT.md`](docs/PROJECT.md).
+Foundry runtime and visual validation remain manual. The checklist and decisions are maintained in [`docs/PROJECT.md`](docs/PROJECT.md).
 
-## Planned priorities
+## Remaining MVP work
 
-1. Validate group requests and the party Trait overview in Foundry.
-2. Build the first Dune Party Sheet.
-3. Add supporting-character and campaign conveniences.
-4. Later: combat and initiative management.
-5. Last major workflow: guided character creation.
+1. Validate and correct the Party Sheet and combat manager in Foundry.
+2. Complete multiplayer, roll-mode, Dice So Nice and light/dark-theme validation.
+3. Create a versioned GitHub release and stable release manifest.
+
+Post-MVP work includes deeper supporting-character controls, token HUD tools, conflict zones, Assets, House projects, campaign clocks, a public API and guided character creation.
 
 ## AI-assisted development disclosure
 
