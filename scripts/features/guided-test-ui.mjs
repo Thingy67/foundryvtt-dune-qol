@@ -2,10 +2,21 @@ import {
   TEST_LIMITS,
   extraDiceCost
 } from "../domain/dune-test.mjs";
-import { format } from "../localization.mjs";
+import { format, localize } from "../localization.mjs";
 
 const GUIDED_TEST_SELECTOR = ".dune-qol-guided-test";
 const BOUND_ATTRIBUTE = "duneQolExtraDiceBound";
+let pendingPreset = null;
+
+/**
+ * Queue a one-shot preset for the next Guided-test dialog rendered on this
+ * client. Test requests call this immediately before opening the dialog.
+ */
+export function queueGuidedTestPreset(request) {
+  pendingPreset = request && typeof request === "object"
+    ? foundry.utils.deepClone(request)
+    : null;
+}
 
 /**
  * Configure dynamic Guided-test form controls through Foundry's documented
@@ -20,9 +31,56 @@ Hooks.on("renderApplicationV2", (_application, element) => {
     : [...element.querySelectorAll(GUIDED_TEST_SELECTOR)];
 
   for (const root of roots) {
+    applyPendingPreset(root);
     configureExtraDiceControls(root);
   }
 });
+
+function applyPendingPreset(root) {
+  if (!pendingPreset) return;
+
+  const request = pendingPreset;
+  pendingPreset = null;
+  const preset = request.preset ?? {};
+
+  setSelectValue(root, "skill", preset.skill);
+  setSelectValue(root, "drive", preset.drive);
+  setInputValue(root, "focus", preset.focus);
+  setInputValue(root, "difficulty", preset.difficulty);
+  setInputValue(root, "complicationRange", preset.complicationRange);
+  setInputValue(root, "context", preset.context);
+
+  root.dataset.duneQolRequestMessageId = request.requestMessageId ?? "";
+  root.dataset.duneQolRequestedBy = request.requestedBy ?? "";
+
+  const banner = document.createElement("aside");
+  banner.className = "dune-qol-test-request-banner";
+  banner.innerHTML = `
+    <i class="fa-solid fa-paper-plane"></i>
+    <span>${escapeHtml(format("DUNEQOL.TestRequests.DialogBanner", {
+      user: request.requestedByName ?? localize("DUNEQOL.TestRequests.UnknownGm")
+    }))}</span>
+  `;
+  root.prepend(banner);
+}
+
+function setSelectValue(root, name, value) {
+  if (!value) return;
+  const select = root.querySelector(`select[name="${name}"]`);
+  if (!(select instanceof HTMLSelectElement)) return;
+  if (![...select.options].some((option) => option.value === String(value))) return;
+  select.value = String(value);
+  select.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+function setInputValue(root, name, value) {
+  if (value === null || value === undefined || value === "") return;
+  const input = root.querySelector(`input[name="${name}"]`);
+  if (!(input instanceof HTMLInputElement)) return;
+  input.value = String(value);
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  input.dispatchEvent(new Event("change", { bubbles: true }));
+}
 
 function configureExtraDiceControls(root) {
   const diceInput = root.querySelector('input[name="totalDice"]');
@@ -67,4 +125,13 @@ function configureExtraDiceControls(root) {
   diceInput.addEventListener("input", updateExtraDice);
   diceInput.addEventListener("change", updateExtraDice);
   updateExtraDice();
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
