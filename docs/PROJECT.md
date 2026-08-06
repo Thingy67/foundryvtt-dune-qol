@@ -14,7 +14,7 @@ Current baseline:
 - upstream system id: `dune`;
 - supported upstream version: **13.0.1**;
 - module id: `dune-qol`;
-- module version: **0.4.0**;
+- module version: **0.5.0**;
 - repository: public, pre-alpha.
 
 ## 2. Principles
@@ -98,7 +98,7 @@ Remaining:
 
 ### Phase 3 — Traits and Complications
 
-Status: **initial MVP implemented in 0.4.0; Foundry validation required**.
+Status: **initial MVP implemented and manually validated**.
 
 Implemented:
 
@@ -118,20 +118,37 @@ Implemented:
 
 Remaining:
 
-- validate Trait creation on every supported Actor type;
 - validate the player-request path;
-- confirm the upstream sheets refresh immediately and display the Trait correctly;
 - add quick management of temporary Traits;
 - decide later whether complications can also be converted to Threat or other table-defined outcomes.
 
 ### Phase 4 — Game-master test requests
 
-Status: **planned**.
+Status: **initial MVP implemented in 0.5.0; two-client validation required**.
 
-- game master prepares context and difficulty;
-- one player or several players receive the request;
-- the player selects the applicable Skill, Drive and Focus;
-- the result remains linked to the request.
+Implemented:
+
+- game-master-only **Request test** button on supported Actor sheets;
+- recipient selection among non-GM users with Owner permission on the Actor;
+- active recipients listed first and offline recipients identified;
+- difficulty, complication range and required context supplied by the game master;
+- optional Skill, Drive and Focus suggestions;
+- private request card whispered to the game master and selected player;
+- durable **Open test** action on the request card;
+- automatic socket notification and dialog opening for an active recipient;
+- one-shot Guided-test preset applied at render time;
+- requesting-game-master banner in the player dialog;
+- suggestions remain editable before the player rolls;
+- no automatic mutation or roll execution.
+
+Remaining:
+
+- validate simultaneous game-master and player clients;
+- validate online automatic opening and offline later opening;
+- validate Actors with one and several owning players;
+- decide whether a request should later track opened, rolled, cancelled or expired states;
+- decide whether a resulting roll should automatically link back to its request;
+- decide whether group requests are useful after the single-recipient workflow is stable.
 
 ### Phase 5 — Activation tracker
 
@@ -166,7 +183,8 @@ scripts/
 │   └── guided-test-ui.mjs
 └── services/
     ├── pool-transactions.mjs
-    └── complication-traits.mjs
+    ├── complication-traits.mjs
+    └── test-requests.mjs
 ```
 
 ### Guided tests
@@ -180,6 +198,8 @@ flags.dune-qol.guidedTest
 ```
 
 Existing schema version 2 messages remain readable. A message is upgraded to at least version 3 when a complication Trait is recorded.
+
+`features/guided-test-ui.mjs` owns render-time behavior that must not depend on `DialogV2.form` being ready. It also maintains one client-local, one-shot preset for the next requested Guided-test dialog.
 
 ### Localization and settings
 
@@ -226,6 +246,20 @@ The source Guided-test message stores created Trait records under:
 flags.dune-qol.guidedTest.complicationResolution
 ```
 
+### Game-master test requests
+
+`services/test-requests.mjs` adds the game-master Actor-sheet action, validates Actor ownership, creates the private request card and emits the optional online notification.
+
+Request cards store their complete preset and provenance under:
+
+```text
+flags.dune-qol.testRequest
+```
+
+The request is a suggestion and communication document, not an authoritative rule mutation. An active recipient receives the preset through the module socket; an offline recipient uses the persisted private card later.
+
+The preset is intentionally client-local and one-shot. `features/guided-test-ui.mjs` consumes it when the next Guided-test dialog renders, fills only fields that remain available on the Actor and adds a visible requester banner.
+
 ### Persistent data
 
 No custom world-data model exists. Storage preference remains:
@@ -258,62 +292,72 @@ npm run check
 
 The command performs JavaScript syntax checks, required-file and JSON checks, manifest validation, documentation-policy checks and pure regression checks for tests, pools and complication resolution. No GitHub Actions workflow is used.
 
-### Foundry checklist — 0.4.0
+### Foundry checklist — 0.5.0
 
 Loading:
 
-- [ ] Foundry 13.351 installs and displays module 0.4.0.
+- [ ] Foundry 13.351 installs and displays module 0.5.0.
 - [ ] Dune 13.0.1 satisfies the system relationship.
 - [ ] The module activates without console errors.
 
-Guided test and pools:
+Guided test, pools and complications:
 
 - [x] Actor-sheet Guided-test launcher works.
 - [x] Module language and launcher settings work.
 - [x] Extra-die source activates from 3 dice onward.
 - [x] A GM can apply generated Momentum and receive history.
-- [ ] A player can request a pool transaction from an active GM.
+- [x] A complication can create the expected Actor Trait.
+- [ ] A player can request pool and Trait mutations from an active GM.
 
-Complication Traits — GM:
+Game-master test requests — preparation:
 
-- [ ] A result with zero complications has no complication section.
-- [ ] A result with one complication offers one Trait creation.
-- [ ] A temporary Trait appears on the correct Actor.
-- [ ] Clearing the checkbox creates a persistent Trait.
-- [ ] The result shows the created Trait and zero remaining.
-- [ ] A second Trait cannot be created for the same single complication.
-- [ ] Two complications allow exactly two Trait creations.
-- [ ] A separate history message is created for each Trait.
-- [ ] An older compatible Guided-test message also receives the action.
+- [ ] A GM sees **Request test** on a supported Actor sheet.
+- [ ] A normal player does not see the request button.
+- [ ] Only non-GM Actor owners are offered as recipients.
+- [ ] Active owners appear before offline owners.
+- [ ] No-owner Actors produce a clear warning.
+- [ ] The request card is whispered only to the GM and recipient.
+- [ ] The card shows context, difficulty, complication range and suggestions.
 
-Complication Traits — multiplayer:
+Game-master test requests — online recipient:
 
-- [ ] A player owning the Actor can open the creation dialog.
-- [ ] Without an active GM, the player receives a clear error.
-- [ ] With an active GM, the Trait is created once.
-- [ ] The source message updates on every client.
-- [ ] Unauthorized users do not receive an actionable button.
+- [ ] The player receives a notification.
+- [ ] The Guided-test dialog opens automatically once.
+- [ ] Difficulty, complication range, context and valid suggestions are prefilled.
+- [ ] The requester banner identifies the GM.
+- [ ] The player can change suggested Skill, Drive and Focus.
+- [ ] Reopening from the private card works.
+
+Game-master test requests — offline recipient:
+
+- [ ] The GM can send the request while the owner is offline.
+- [ ] The player sees the private card after connecting.
+- [ ] **Open test** resolves the correct Actor and prefilled values.
+- [ ] Removed permissions or a missing Actor produce a clear error.
 
 ## 7. Risks
 
+- **Request completion is not tracked:** the same request card may be reopened and reused until a later status workflow is designed.
+- **One-shot client preset:** another Guided-test dialog opened between queuing and rendering could consume the preset; the current request flow opens immediately to minimize that window.
+- **Offline delivery:** the private ChatMessage is durable, but automatic opening is only attempted for an active recipient.
 - **Upstream Item schema changes:** the current system defines `trait` with a `temporary` boolean; retest each supported release.
 - **Concurrent requests:** local locks and source-message state reduce duplicates, but Foundry does not provide distributed atomic transactions.
 - **Deleted Traits:** deleting a created Trait does not automatically reopen the original complication.
 - **Partial operations:** Item creation is rolled back if source-message recording fails; history creation remains non-blocking.
-- **Actor-sheet variants:** embedded Traits may render differently across Actor types.
+- **Actor-sheet variants:** header controls and embedded Traits may render differently across Actor types.
 - **Foundry API changes:** support one major Foundry version at a time.
 - **Documentation sprawl:** keep only the approved project and user documents.
 
 ## 8. Current status
 
 - Repository is public and pre-alpha.
-- Module 0.4.0 targets Foundry 13.351 and Dune 13.0.1.
-- Guided test, language selection, launcher placement and GM pool transactions have passed initial manual testing.
-- Complication-Trait code, localization, styles and pure calculations are implemented.
+- Module 0.5.0 targets Foundry 13.351 and Dune 13.0.1.
+- Guided test, language selection, launcher placement, GM pool transactions and complication Traits have passed initial manual testing.
+- Game-master test requests, private cards, online opening and prefilled dialogs are implemented.
 - GitHub Actions are disabled.
-- Foundry runtime validation of complication Traits remains pending.
+- Two-client Foundry validation of test requests remains pending.
 
-Next step: update to 0.4.0, produce a Guided test with a complication, create a temporary Trait and confirm that the Actor sheet, source result and history message all update.
+Next step: update to 0.5.0, connect one GM and one owning player, send a request from the Actor sheet and verify automatic opening, prefilled values and the private fallback card.
 
 ## 9. Decision log
 
@@ -491,3 +535,24 @@ Next step: update to 0.4.0, produce a Guided test with a complication, create a 
 - Decision: Add the complication-resolution section through `renderChatMessage` instead of permanently rewriting the original HTML content.
 - Rationale: Dynamic rendering supports compatible existing Guided-test messages and reflects current flag state and language.
 - Consequence: The source message must contain complications and a valid Actor UUID; unsupported old messages remain unchanged.
+
+### D-0034 — Start test requests from the Actor sheet
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Add a game-master-only **Request test** action to supported Actor-sheet title bars and use the sheet Actor as the request target.
+- Rationale: The Actor sheet identifies the intended character without requiring a Scene or ambiguous token selection.
+- Consequence: The first request workflow is single-Actor and single-recipient; group requests are deferred.
+
+### D-0035 — Persist requests in private chat and optionally open them live
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Store each request as a private ChatMessage for the game master and recipient, while also sending an online socket notification that opens the prefilled dialog for an active recipient.
+- Rationale: Chat persistence provides a recoverable workflow for offline users or missed popups, while live opening reduces friction during play.
+- Consequence: The request card remains reusable and is not yet automatically marked completed.
+
+### D-0036 — Keep game-master test suggestions editable
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Difficulty, complication range and context are prefilled from the request; suggested Skill, Drive and Focus remain editable by the player before rolling.
+- Rationale: Dune tests often depend on the player's proposed approach, so the request should guide rather than silently lock the mechanical choice.
+- Consequence: The first MVP does not enforce a requested Skill, Drive or Focus.
