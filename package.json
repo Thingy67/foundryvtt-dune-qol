@@ -1,11 +1,11 @@
 {
   "name": "foundryvtt-dune-qol",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "Quality-of-life companion module for the Foundry VTT Dune system.",
   "scripts": {
-    "check": "node tools/check-project.mjs"
+    "check": "node tools/check-project.mjs && node tools/test-dune-test.mjs"
   },
   "engines": {
     "node": ">=20"
