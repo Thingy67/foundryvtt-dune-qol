@@ -1,0 +1,146 @@
+.dune-qol-group-request-dialog,
+.dune-qol-party-traits-dialog {
+  display: grid;
+  gap: 0.8rem;
+  min-width: 0;
+}
+
+.dune-qol-group-player-list {
+  display: grid;
+  gap: 0.5rem;
+  max-height: 18rem;
+  overflow: auto;
+  padding-inline-end: 0.25rem;
+}
+
+.dune-qol-group-player-row {
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.9fr) minmax(14rem, 1.1fr);
+  gap: 0.75rem;
+  align-items: end;
+  padding: 0.55rem;
+  border: 1px solid var(--color-border-light-tertiary, #888);
+  border-radius: 0.35rem;
+  background: rgb(0 0 0 / 4%);
+}
+
+.dune-qol-group-player-row label {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.dune-qol-group-player-row__player {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dune-qol-group-player-row__player small {
+  opacity: 0.7;
+}
+
+.dune-qol-party-traits-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(12rem, auto);
+  gap: 0.65rem;
+}
+
+.dune-qol-party-traits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 0.75rem;
+  min-height: 0;
+  overflow: auto;
+  padding-inline-end: 0.25rem;
+}
+
+.dune-qol-party-traits-card {
+  display: grid;
+  align-content: start;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0.65rem;
+  border: 1px solid var(--color-border-light-tertiary, #888);
+  border-radius: 0.4rem;
+  background: rgb(0 0 0 / 4%);
+}
+
+.dune-qol-party-traits-card[hidden] {
+  display: none;
+}
+
+.dune-qol-party-traits-card header {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.dune-qol-party-traits-card header img {
+  width: 2.75rem;
+  height: 2.75rem;
+  object-fit: cover;
+  border: 1px solid var(--color-border-light-tertiary, #888);
+  border-radius: 0.3rem;
+}
+
+.dune-qol-party-traits-card header div {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.dune-qol-party-traits-card header strong,
+.dune-qol-party-traits-card header small {
+  overflow-wrap: anywhere;
+}
+
+.dune-qol-party-traits-card header button {
+  width: 2.25rem;
+  min-width: 2.25rem;
+  margin: 0;
+}
+
+.dune-qol-party-traits-card ul {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dune-qol-party-traits-card li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.5rem;
+  align-items: center;
+  padding-block: 0.25rem;
+  border-bottom: 1px dotted var(--color-border-light-tertiary, #999);
+}
+
+.dune-qol-party-traits-card li span {
+  flex: 1 1 10rem;
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.dune-qol-party-traits-card li small {
+  padding: 0.08rem 0.35rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  opacity: 0.8;
+}
+
+.dune-qol-party-traits-card__empty {
+  opacity: 0.75;
+  font-style: italic;
+}
+
+@media (max-width: 680px) {
+  .dune-qol-group-player-row,
+  .dune-qol-party-traits-filters {
+    grid-template-columns: 1fr;
+  }
+}
