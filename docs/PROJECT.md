@@ -66,11 +66,11 @@ Implemented:
 - dependency-free repository validation command;
 - English and French localization scaffold;
 - centralized documentation and decision log;
-- GitHub Actions validation;
 - editor and ignore rules.
 
 Remaining exit checks:
 
+- `npm run check` passes when run manually;
 - Foundry 13 recognizes and loads the module in a world using system `dune`;
 - the module initializes without console errors;
 - enabling or disabling it does not modify world data.
@@ -225,9 +225,9 @@ GitHub issues may hold actionable tasks and discussions, but accepted outcomes m
 
 ## 7. Testing strategy
 
-### Automated repository checks
+### Manual repository checks
 
-`npm run check` currently verifies:
+Run `npm run check` manually before accepting a change. It currently verifies:
 
 - required files exist;
 - JSON files parse;
@@ -239,21 +239,22 @@ GitHub issues may hold actionable tasks and discussions, but accepted outcomes m
 - `docs/PROJECT.md` remains the central decision document;
 - additional Markdown files do not silently proliferate inside `docs/`.
 
-GitHub Actions runs this command on pushes to `main`, pull requests and manual dispatches.
+No GitHub Actions workflow is used. Automated checks may be reconsidered later only if their cost and maintenance burden are justified.
 
-Later checks may add linting, formatting and unit tests when the codebase justifies the tooling.
+Later local checks may add linting, formatting and unit tests when the codebase justifies the tooling.
 
 ### Manual Foundry checklist
 
 For the initial scaffold:
 
+- [ ] `npm run check` passes locally.
 - [ ] Foundry 13 lists the module.
 - [ ] A world using system `dune` can enable the module.
 - [ ] The module initializes without console errors.
 - [ ] The initialization message identifies the module version.
 - [ ] Enabling or disabling the module does not modify world data.
 
-Each user-facing feature must add concise manual checks here or replace them with automated coverage.
+Each user-facing feature must add concise manual checks here or replace them with automated coverage when explicitly approved.
 
 ## 8. Known risks
 
@@ -295,7 +296,8 @@ Mitigation: enforce the three-document policy and keep this file as the source o
 - `AGENTS.md` defines minimal-context and documentation rules for humans and AI agents.
 - This file centralizes scope, architecture, roadmap, status, testing and decisions.
 - Foundry manifest, localization scaffold and runtime entry point are present.
-- Dependency-free validation and GitHub Actions are configured and passing.
+- Dependency-free local validation is available through `npm run check`.
+- GitHub Actions have been removed to avoid consuming limited action credits.
 - No user-facing functionality is implemented yet.
 - Manual loading validation in Foundry 13 remains pending.
 
@@ -370,7 +372,15 @@ Next expected step: perform the Phase 0 manual Foundry checklist, then inspect t
 ### D-0009 — Use dependency-free validation for the initial scaffold
 
 - Date: 2026-08-06
-- Status: Accepted
+- Status: Superseded by D-0010
 - Decision: Validate the initial repository with a small Node.js script using only standard-library APIs, executed locally and by GitHub Actions.
-- Rationale: The scaffold needs reliable structural checks without adding package-management overhead or premature linting frameworks.
-- Consequences: Node.js 20 or newer is required for repository checks. Additional tooling should be introduced only when the codebase provides a concrete need.
+- Rationale: The scaffold needed reliable structural checks without adding package-management overhead or premature linting frameworks.
+- Consequences: The dependency-free local validation remains; the GitHub Actions portion has been removed.
+
+### D-0010 — Keep validation manual
+
+- Date: 2026-08-06
+- Status: Accepted
+- Decision: Do not use GitHub Actions for routine validation. Run `npm run check` and Foundry runtime checks manually.
+- Rationale: The repository has limited GitHub Actions credits, and continuous validation is not worth the recurring cost at this stage.
+- Consequences: Contributors and AI agents must report which checks were run. Automated validation may return later only through a new recorded decision.
