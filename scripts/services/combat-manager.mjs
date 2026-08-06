@@ -18,10 +18,7 @@ export function registerCombatManagerHooks() {
       order: Object.keys(controls.tokens.tools).length,
       button: true,
       visible: true,
-      onChange: () => {
-        ui.sidebar?.activateTab?.("combat");
-        ui.combat?.render?.({ force: false });
-      }
+      onChange: openCombatTracker
     };
   });
 
@@ -196,7 +193,10 @@ export async function applyCombatCommand(action, { combatantIds = [], cost = 0 }
         });
         break;
       case "retain": {
-        const normalizedCost = boundedInteger(cost, 0, 6, 0);
+        const normalizedCost = boundedInteger(cost, 0, 6);
+        if (normalizedCost === null) {
+          throw new Error(localize("DUNEQOL.Combat.Errors.InvalidCost"));
+        }
         const pool = next.activeSide === "players" ? "momentum" : "threat";
         if (normalizedCost > 0) {
           const pools = await readDunePools();
@@ -258,10 +258,12 @@ async function renderCombatTrackerPanel(html) {
   const wrapper = document.createElement("div");
   wrapper.innerHTML = buildCombatPanelHtml(model);
   const panel = wrapper.firstElementChild;
+  if (!(panel instanceof HTMLElement)) return;
+
   const target = root.querySelector(".combat-tracker") ?? root;
   target.prepend(panel);
   configureCombatPanel(panel, {
-    rerender: async () => ui.combat?.render?.({ force: false })
+    rerender: async () => renderCombatTrackerApplication()
   });
 }
 
@@ -349,14 +351,28 @@ function selectCombatantToken(combatantId) {
   void globalThis.canvas.animatePan({ x: token.center.x, y: token.center.y, duration: 250 });
 }
 
-function notifyCombatStateChanged() {
-  Hooks.callAll("duneQolCombatStateChanged");
-  ui.combat?.render?.({ force: false });
+function openCombatTracker() {
+  if (typeof ui.sidebar?.changeTab === "function") {
+    ui.sidebar.changeTab("combat", "primary", { force: true });
+  } else {
+    ui.sidebar?.activateTab?.("combat");
+  }
+  renderCombatTrackerApplication();
 }
 
-function boundedInteger(value, minimum, maximum, fallback) {
+function renderCombatTrackerApplication() {
+  const tracker = ui.combat ?? game.combats?.directory ?? null;
+  void tracker?.render?.({ force: false });
+}
+
+function notifyCombatStateChanged() {
+  Hooks.callAll("duneQolCombatStateChanged");
+  renderCombatTrackerApplication();
+}
+
+function boundedInteger(value, minimum, maximum) {
   const parsed = Number(value);
-  if (!Number.isInteger(parsed) || parsed < minimum || parsed > maximum) return fallback;
+  if (!Number.isInteger(parsed) || parsed < minimum || parsed > maximum) return null;
   return parsed;
 }
 
