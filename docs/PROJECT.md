@@ -103,9 +103,9 @@ Status: **delivery, constraints and completion tracking implemented through 0.5.
 - per-request duplicate protection;
 - player acknowledgement followed by GM cleanup of the inbox entry;
 - pressing **Open test**, opening the dialog or cancelling does not complete the request;
-- the roll action arms a short-lived request/result link;
-- creation of the matching Guided-test ChatMessage notifies the active GM;
-- the GM validates request author, recipient, Actor and result author before marking the request completed;
+- the request-message id is embedded in the submitted Guided-test form and stored in the result flags;
+- the matching result ChatMessage triggers a completion claim only after successful creation;
+- the GM validates request author, recipient, Actor, result author and the stored request-message id;
 - a completed request stores its result message id and no longer renders **Open test**.
 
 Not yet implemented: cancelled/expired states, group requests, a visible result backlink from the completed request.
@@ -152,7 +152,7 @@ scripts/
 - `services/` owns permissions, sockets, persistence and coordinated workflows.
 - `features/` owns user-facing test behavior and render-time UI.
 
-`features/guided-test-ui.mjs` arms a request only when the roll action is actually used. `services/test-request-completion.mjs` consumes the resulting Guided-test message, sends the completion claim to the active GM, validates both messages and updates the request state.
+`features/guided-test-ui.mjs` inserts the request-message id as a hidden form value. `features/guided-test.mjs` records that id on the successfully created result and emits a local completion hook. `services/test-request-completion.mjs` sends the claim to the active GM, validates both messages and updates the request state.
 
 ### Persistent data
 
@@ -174,7 +174,7 @@ flags.dune-qol.testRequestInbox
 flags.dune-qol.testRequestResult
 ```
 
-A completed request stores `status`, `completedAt`, `completedBy` and `resultMessageId`. The result stores a backlink to the request under `flags.dune-qol.testRequestResult`.
+A completed request stores `status`, `completedAt`, `completedBy` and `resultMessageId`. The result stores the originating request-message id in its Guided-test flags and a validated backlink under `flags.dune-qol.testRequestResult`.
 
 No public module API exists yet.
 
@@ -219,10 +219,11 @@ Request completion:
 - [ ] Opening and cancelling leave **Open test** visible.
 - [ ] Reopening without rolling leaves **Open test** visible.
 - [ ] Rolling creates the result before the request is marked completed.
+- [ ] The result Guided-test flag contains the source request-message id.
 - [ ] The GM console displays `Dune QoL | Test request marked as completed.`.
 - [ ] The request flag becomes `status: completed` and stores the result message id.
 - [ ] **Open test** disappears for both player and GM after synchronization.
-- [ ] An unrelated Guided test for another Actor does not complete the request.
+- [ ] An unrelated Guided test does not complete the request.
 
 Chat-card presentation:
 
@@ -243,7 +244,7 @@ Existing workflows:
 - A player client that has not loaded the updated module cannot process inbox or completion hooks.
 - User-flag delivery depends on a GM being allowed to update the recipient User document.
 - Request completion depends on the module socket reaching an active GM; the result remains valid even if the request card is not updated.
-- The short-lived completion arm expires after 60 seconds if no matching result message is created.
+- Completion requires Foundry `Roll.toMessage` to return the created ChatMessage, as expected on the supported Foundry baseline.
 - Imposed selections are ignored if the requested Skill or Drive no longer exists when the dialog opens.
 - Foundry and upstream schema changes require explicit compatibility testing.
 - Shared-state operations cannot be fully atomic across distributed clients.
@@ -256,7 +257,7 @@ Existing workflows:
 - Version 0.5.1 removed the header collision but ChatMessage/socket delivery still did not reach the tested player client.
 - Version 0.5.2 added a persistent User-document inbox.
 - Version 0.5.3 made context optional and enforced GM-selected Skill and Drive values.
-- Version 0.5.4 adds result-based request completion and redesigns the narrow chat result layout.
+- Version 0.5.4 adds direct result-based request completion and redesigns the narrow chat result layout.
 - Combat/initiative management and guided character creation are explicitly low-priority end-of-roadmap items.
 - GitHub Actions remain disabled.
 
