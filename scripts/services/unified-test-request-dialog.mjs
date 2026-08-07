@@ -10,11 +10,15 @@ export function registerUnifiedTestRequestDialogHooks() {
   Hooks.on("getSceneControlButtons", (controls) => {
     if (game.system.id !== "dune" || !game.user.isGM || !controls.tokens?.tools) return;
 
-    const tool = controls.tokens.tools[GROUP_REQUEST_CONTROL];
-    if (!tool) return;
-
-    tool.title = localize("DUNEQOL.GroupTools.GroupRequest.Control");
-    tool.onChange = () => void openUnifiedTestRequestDialog({ source: "token-controls" });
+    controls.tokens.tools[GROUP_REQUEST_CONTROL] = {
+      name: GROUP_REQUEST_CONTROL,
+      title: localize("DUNEQOL.GroupTools.GroupRequest.Control"),
+      icon: "fa-solid fa-users-rays",
+      order: Object.keys(controls.tokens.tools).length,
+      button: true,
+      visible: true,
+      onChange: () => void openUnifiedTestRequestDialog({ source: "token-controls" })
+    };
   });
 
   Hooks.on("renderActorSheet", (application, html) => {
@@ -24,13 +28,15 @@ export function registerUnifiedTestRequestDialogHooks() {
     if (!isSupportedActor(actor)) return;
 
     const root = getHtmlRoot(html);
-    const existing = root?.querySelector(`[data-dune-qol-action="${REQUEST_ACTION}"]`);
-    if (!(existing instanceof HTMLElement)) return;
+    const header = root?.querySelector(".window-header");
+    if (!header || header.querySelector(`[data-dune-qol-action="${REQUEST_ACTION}"]`)) return;
 
-    // Replace the button node to remove the older individual-dialog listener.
-    // The visible launcher remains unchanged, but all entry points now share one form.
-    const button = existing.cloneNode(true);
-    existing.replaceWith(button);
+    const button = document.createElement("a");
+    button.className = "header-button dune-qol-sheet-launcher";
+    button.dataset.duneQolAction = REQUEST_ACTION;
+    button.setAttribute("role", "button");
+    button.title = localize("DUNEQOL.TestRequests.SheetButtonTitle");
+    button.innerHTML = `<i class="fa-solid fa-paper-plane"></i> ${escapeHtml(localize("DUNEQOL.TestRequests.SheetButton"))}`;
     button.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -39,6 +45,10 @@ export function registerUnifiedTestRequestDialogHooks() {
         source: "actor-sheet"
       });
     }, { capture: true });
+
+    const guidedButton = header.querySelector('[data-dune-qol-action="dune-qol-guided-test"]');
+    const closeButton = header.querySelector(".close");
+    header.insertBefore(button, guidedButton ?? closeButton ?? null);
   });
 }
 
