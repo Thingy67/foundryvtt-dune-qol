@@ -46,6 +46,7 @@ Status: **core request delivery manually validated through 0.7.0; unified reques
 
 - Actor-sheet temporary-Trait manager;
 - one unified GM request form for Actor-sheet and Token-control launchers;
+- the unified request service owns both launchers directly; legacy individual/group request-form implementations were removed;
 - every non-GM player is shown in the form;
 - players with compatible owned Dune Actors can be checked individually or together;
 - players without a compatible Actor remain visible but disabled;
@@ -178,10 +179,12 @@ npm run check
 Validation status for 0.9.4 in this development session:
 
 - `module.json` and `package.json` are versioned together at 0.9.4;
-- the new unified request service is included in `check:syntax` and in the required project file list;
+- the unified request service is included in `check:syntax` and in the required project file list;
 - French and English group-tool dictionaries include the unified request labels;
-- a complete `npm run check` has not yet been executed on the final public 0.9.4 tree in this session;
-- Foundry runtime validation is required for the new launcher interception and preselection behavior.
+- legacy `openRequestDialog` and `openGroupRequestDialog` implementations were removed from the public source;
+- targeted `node --check` validation passed for the unified request service shape and module entry-point changes during development;
+- a complete `npm run check` has not yet been executed on the final public 0.9.4 tree in this session because the available container cannot resolve `github.com` for a fresh checkout;
+- Foundry runtime validation is required for launcher rendering and Actor-owner preselection behavior.
 
 ### Foundry checklist — 0.9.4
 
@@ -222,7 +225,7 @@ Regression:
 - Shared-state operations are not fully atomic across clients.
 - Group Trait history/provenance updates are best effort after Item changes.
 - Request history depends on request ChatMessages remaining in the world.
-- The unified launcher currently supersedes the older request-dialog listeners at render/control-hook time; runtime validation must confirm that Foundry hook ordering remains stable on the supported build.
+- Skill and Drive choices in the unified form are limited to stat keys common to all currently selectable compatible Actors; unusual custom Actor schemas may therefore reduce the shared choice list.
 - Worlds that used 0.9.0–0.9.2 may retain an inert legacy `dune-qol.combatState` value in storage.
 
 ## 9. Decision log
