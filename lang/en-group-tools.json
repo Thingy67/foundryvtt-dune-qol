@@ -1,8 +1,9 @@
 {
-  "DUNEQOL.GroupTools.GroupRequest.Control": "Request a group test",
-  "DUNEQOL.GroupTools.GroupRequest.Title": "Request a test from multiple players",
+  "DUNEQOL.GroupTools.GroupRequest.Control": "Request a test",
+  "DUNEQOL.GroupTools.GroupRequest.Title": "Request a test",
   "DUNEQOL.GroupTools.GroupRequest.Hint": "Select one or more players and verify the Actor used by each. An independent request is created for every recipient.",
   "DUNEQOL.GroupTools.GroupRequest.Actor": "Actor used",
+  "DUNEQOL.GroupTools.GroupRequest.NoCompatibleActor": "No compatible Actor",
   "DUNEQOL.GroupTools.GroupRequest.Send": "Send requests",
   "DUNEQOL.GroupTools.GroupRequest.Sent": "{count} test request(s) sent.",
   "DUNEQOL.GroupTools.GroupRequest.Partial": "Partial delivery: {sent} succeeded, {failed} failed. Check the console.",
