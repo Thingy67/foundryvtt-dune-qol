@@ -3,7 +3,7 @@
 A companion module for Foundry Virtual Tabletop that adds optional quality-of-life workflows to the community **Dune: Adventures in the Imperium** system.
 
 > [!IMPORTANT]
-> This project is public and pre-alpha. Version `0.9.3` targets Foundry `13.351` and Dune `13.0.1`; runtime validation remains manual.
+> This project is public and pre-alpha. Version `0.9.4` targets Foundry `13.351` and Dune `13.0.1`; runtime validation remains manual.
 
 ## Installation through Foundry
 
@@ -50,13 +50,18 @@ Deleting a generated Trait never reopens the original complication.
 
 ### Test requests
 
-- individual requests from Actor sheets;
-- group requests from Token controls with player checkboxes and explicit Actor selection;
-- imposed or player-selected Skill and Drive;
-- persistent private delivery for online or offline recipients;
-- independent state per recipient;
-- completion only after a matching result exists;
-- history, filters, request/result links and cancellation from the Party Sheet.
+All GM test-request launchers use the same form:
+
+- the form lists every non-GM player with a checkbox;
+- each eligible player has an explicit Actor selector;
+- one or several players can be selected in the same request batch;
+- opening the form from an Actor sheet preselects the most relevant owner and that Actor;
+- opening it from Token controls starts with no recipient selected;
+- players without a compatible Dune Actor remain visible but cannot be selected;
+- Skill and Drive may be imposed or left to the player;
+- delivery remains persistent for online or offline recipients;
+- each recipient keeps an independent request and completion state;
+- history, filters, request/result links and cancellation are available from the Party Sheet.
 
 ### Party Sheet
 
@@ -109,7 +114,7 @@ Foundry runtime and visual validation remain manual. The checklist and decisions
 
 ## Remaining MVP work
 
-1. Validate and correct the Party Sheet in Foundry as GM and player.
+1. Validate and correct the Party Sheet and unified request form in Foundry as GM and player.
 2. Complete multiplayer, roll-mode, Dice So Nice and light/dark-theme validation.
 3. Create a versioned GitHub release and stable release manifest.
 
