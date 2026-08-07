@@ -1,12 +1,12 @@
 {
   "name": "foundryvtt-dune-qol",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "private": true,
   "type": "module",
   "description": "Quality-of-life companion module for the Foundry VTT Dune system.",
   "scripts": {
-    "check:syntax": "node --check scripts/dune-qol.mjs && node --check scripts/settings.mjs && node --check scripts/localization.mjs && node --check scripts/adapters/dune-pools.mjs && node --check scripts/domain/dune-test.mjs && node --check scripts/domain/pool-plan.mjs && node --check scripts/domain/complication-resolution.mjs && node --check scripts/domain/combat-state.mjs && node --check scripts/features/guided-test.mjs && node --check scripts/features/guided-test-ui.mjs && node --check scripts/services/pool-transactions.mjs && node --check scripts/services/complication-traits.mjs && node --check scripts/services/temporary-traits.mjs && node --check scripts/services/test-requests.mjs && node --check scripts/services/test-request-completion.mjs && node --check scripts/services/group-tools.mjs && node --check scripts/services/party-sheet.mjs && node --check scripts/services/combat-manager.mjs && node --check scripts/services/party-sheet-combat.mjs && node --check scripts/services/party-sheet-shortcuts.mjs && node --check scripts/services/party-sheet-navigation.mjs && node --check scripts/services/live-updates.mjs",
-    "check": "npm run check:syntax && node tools/check-project.mjs && node tools/test-dune-test.mjs && node tools/test-pool-plan.mjs && node tools/test-complication-resolution.mjs && node tools/test-combat-state.mjs"
+    "check:syntax": "node --check scripts/dune-qol.mjs && node --check scripts/settings.mjs && node --check scripts/localization.mjs && node --check scripts/adapters/dune-pools.mjs && node --check scripts/domain/dune-test.mjs && node --check scripts/domain/pool-plan.mjs && node --check scripts/domain/complication-resolution.mjs && node --check scripts/features/guided-test.mjs && node --check scripts/features/guided-test-ui.mjs && node --check scripts/services/pool-transactions.mjs && node --check scripts/services/complication-traits.mjs && node --check scripts/services/temporary-traits.mjs && node --check scripts/services/test-requests.mjs && node --check scripts/services/test-request-completion.mjs && node --check scripts/services/group-tools.mjs && node --check scripts/services/party-sheet.mjs && node --check scripts/services/party-sheet-shortcuts.mjs && node --check scripts/services/party-sheet-navigation.mjs && node --check scripts/services/live-updates.mjs",
+    "check": "npm run check:syntax && node tools/check-project.mjs && node tools/test-dune-test.mjs && node tools/test-pool-plan.mjs && node tools/test-complication-resolution.mjs"
   },
   "engines": {
     "node": ">=20"
