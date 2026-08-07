@@ -1,8 +1,9 @@
 {
-  "DUNEQOL.GroupTools.GroupRequest.Control": "Demander un test groupé",
-  "DUNEQOL.GroupTools.GroupRequest.Title": "Demander un test à plusieurs joueurs",
+  "DUNEQOL.GroupTools.GroupRequest.Control": "Demander un test",
+  "DUNEQOL.GroupTools.GroupRequest.Title": "Demander un test",
   "DUNEQOL.GroupTools.GroupRequest.Hint": "Cochez un ou plusieurs joueurs et vérifiez le personnage utilisé par chacun. Une demande indépendante sera créée pour chaque destinataire.",
   "DUNEQOL.GroupTools.GroupRequest.Actor": "Personnage utilisé",
+  "DUNEQOL.GroupTools.GroupRequest.NoCompatibleActor": "Aucun personnage compatible",
   "DUNEQOL.GroupTools.GroupRequest.Send": "Envoyer les demandes",
   "DUNEQOL.GroupTools.GroupRequest.Sent": "{count} demande(s) de test envoyée(s).",
   "DUNEQOL.GroupTools.GroupRequest.Partial": "Envoi partiel : {sent} réussie(s), {failed} échouée(s). Consultez la console.",
