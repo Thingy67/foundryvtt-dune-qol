@@ -18,15 +18,21 @@ Depuis une fiche, **Traits temporaires** permet de sélectionner plusieurs Trait
 
 ### Demandes de test
 
-Depuis une fiche, le MJ peut envoyer une demande individuelle au propriétaire du personnage.
+Tous les boutons **Demander un test** ouvrent désormais le même formulaire.
 
-Depuis les contrôles de token, **Demander un test groupé** permet de :
+Le formulaire :
 
-1. cocher un ou plusieurs joueurs ;
-2. choisir explicitement le personnage utilisé par chacun ;
-3. imposer ou laisser libres Compétence et Motivation ;
-4. définir difficulté, complications, Spécialisation proposée et contexte ;
-5. envoyer une demande indépendante à chaque destinataire.
+1. affiche tous les joueurs non-MJ ;
+2. permet de cocher un ou plusieurs joueurs ;
+3. permet de choisir explicitement le personnage utilisé pour chaque joueur compatible ;
+4. affiche les joueurs sans personnage Dune compatible, mais leur case est désactivée ;
+5. permet d’imposer ou de laisser libres Compétence et Motivation ;
+6. permet de définir difficulté, plage de complication, Spécialisation proposée et contexte facultatif ;
+7. crée une demande indépendante pour chaque destinataire sélectionné.
+
+Depuis les contrôles de token, aucune case n’est cochée au départ.
+
+Depuis une fiche de personnage, le formulaire est identique, mais le propriétaire le plus pertinent est précoché et le personnage de la ligne correspondante est prérempli avec la fiche ouverte. Si plusieurs joueurs possèdent le personnage, le joueur auquel ce personnage est directement attribué est privilégié ; à défaut, le premier propriétaire disponible est précoché. Le MJ peut ensuite modifier librement toute la sélection avant l’envoi.
 
 Une demande reste ouverte tant qu’aucun résultat correspondant n’existe. Après le jet, **Ouvrir le test** disparaît uniquement pour le joueur ayant terminé sa demande.
 
@@ -88,7 +94,11 @@ Depuis le Setup Foundry, utilisez **Update**, puis rechargez complètement les c
 
 #### La Feuille de groupe ou les outils de groupe ne sont pas visibles
 
-Une scène active et les contrôles de token sont nécessaires. Vérifiez que le module affiche au minimum `0.9.3`, puis rechargez complètement.
+Une scène active et les contrôles de token sont nécessaires. Vérifiez que le module affiche au minimum `0.9.4`, puis rechargez complètement.
+
+#### Un joueur ne peut pas être coché dans Demander un test
+
+Le joueur apparaît quand même dans la liste, mais il doit posséder au moins un personnage Dune compatible pour pouvoir recevoir une demande. Sans personnage compatible, sa case et son sélecteur de personnage restent désactivés.
 
 #### Un personnage n’apparaît pas
 
@@ -118,7 +128,11 @@ Use **Guided test** on a compatible Actor sheet. Shared Momentum and Threat chan
 
 ### Test requests
 
-A GM may send one request from an Actor sheet or independent requests to several checked players from Token controls. Selected Skill and Drive values are mandatory; **Player chooses** remains editable. A request completes only after its matching result exists.
+Every **Request a test** launcher now opens the same form. It lists all non-GM players, allows one or several recipients to be checked, and provides an Actor selector for every eligible player. Players without a compatible Dune Actor remain visible but cannot be selected.
+
+Opening the form from Token controls starts with no recipient selected. Opening it from an Actor sheet preselects the most relevant owner and that Actor; the GM can still change the entire selection before sending.
+
+Selected Skill and Drive values are mandatory for recipients; **Player chooses** remains editable. Each selected recipient receives an independent request, and a request completes only after its matching result exists.
 
 ### Party Sheet
 
