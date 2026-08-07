@@ -8,7 +8,7 @@ Last updated: 2026-08-07
 
 - Foundry VTT 13, build 351;
 - Dune system id `dune`, version 13.0.1;
-- module id `dune-qol`, version 0.9.3;
+- module id `dune-qol`, version 0.9.4;
 - public pre-alpha repository;
 - English and French interfaces;
 - manual Foundry validation, without GitHub Actions;
@@ -40,20 +40,27 @@ Status: **core and GM paths manually validated; broader multiplayer validation r
 - one upstream `trait` Item per resolved complication;
 - temporary/persistent Traits, provenance and rollback.
 
-### Traits and requests
+### Traits and test requests
 
-Status: **manually validated through 0.7.0**.
+Status: **core request delivery manually validated through 0.7.0; unified request UI introduced in 0.9.4 and requires Foundry validation**.
 
 - Actor-sheet temporary-Trait manager;
-- individual and group test requests;
-- imposed or free Skill/Drive;
+- one unified GM request form for Actor-sheet and Token-control launchers;
+- every non-GM player is shown in the form;
+- players with compatible owned Dune Actors can be checked individually or together;
+- players without a compatible Actor remain visible but disabled;
+- an Actor selector is provided per eligible player;
+- Token controls start with no recipient selected;
+- Actor-sheet launch preselects the most relevant owner and the opened Actor;
+- if several users own the Actor, an assigned `user.character` owner is preferred, otherwise the first matching owner is used;
+- imposed or free Skill/Drive, advisory Focus, difficulty, complication range and optional context;
+- one independent request and completion state per recipient;
 - persistent private delivery and offline inbox;
-- independent completion per recipient;
 - global party Trait overview.
 
 ### Party Sheet
 
-Status: **implemented through 0.9.3; Foundry validation required**.
+Status: **implemented through 0.9.4; Foundry validation required**.
 
 Persistent ApplicationV2 accessible from Token controls to GMs and players.
 
@@ -71,23 +78,24 @@ Status: **not implemented**.
 
 The experimental combat-management layer from 0.9.0–0.9.2 was removed completely in 0.9.3 after manual review showed that the workflow and interface were too complex to be useful in their current form.
 
-Version 0.9.3 contains no combat hooks, Combat Tracker injection, combat state domain, combat-specific settings, combat styles, combat translations or combat tests. Foundry and the Dune system handle combat normally.
+Current versions contain no combat hooks, Combat Tracker injection, combat state domain, combat-specific settings, combat styles, combat translations or combat tests. Foundry and the Dune system handle combat normally.
 
-A previously stored `dune-qol.combatState` world-setting value may remain in worlds that loaded an earlier experimental version. It is no longer registered, read or written by the module and is inert. A future combat feature must not assume that stale value is valid.
+A previously stored `dune-qol.combatState` world-setting value may remain in worlds that loaded an earlier experimental version. It is no longer registered, read or written by the module and is inert.
 
 ## 4. MVP scope and remaining work
 
-The current MVP includes Guided Test, shared-pool transactions, complication Traits, temporary-Trait management, individual/group test requests and the Party Sheet.
+The current MVP includes Guided Test, shared-pool transactions, complication Traits, temporary-Trait management, unified multi-recipient test requests and the Party Sheet.
 
 Remaining work:
 
-1. validate Party Sheet as GM and player, including persistence and cross-client refresh;
-2. validate Chat navigation, cancellation confirmation and inbox cleanup;
-3. complete player-to-GM regressions for pools, Traits and requests;
-4. verify public, private, blind and self roll modes;
-5. validate Dice So Nice and light/dark themes;
-6. correct narrow-layout issues;
-7. create a versioned release artifact and stable manifest.
+1. validate the unified request form from Token controls and Actor sheets, including preselection, multiple recipients, offline users and disabled users without compatible Actors;
+2. validate Party Sheet as GM and player, including persistence and cross-client refresh;
+3. validate Chat navigation, cancellation confirmation and inbox cleanup;
+4. complete player-to-GM regressions for pools, Traits and requests;
+5. verify public, private, blind and self roll modes;
+6. validate Dice So Nice and light/dark themes;
+7. correct narrow-layout issues;
+8. create a versioned release artifact and stable manifest.
 
 After MVP:
 
@@ -122,6 +130,7 @@ scripts/
     ├── test-requests.mjs
     ├── test-request-completion.mjs
     ├── group-tools.mjs
+    ├── unified-test-request-dialog.mjs
     ├── party-sheet.mjs
     ├── party-sheet-shortcuts.mjs
     ├── party-sheet-navigation.mjs
@@ -166,35 +175,42 @@ Run from a complete checkout:
 npm run check
 ```
 
-Validation status for 0.9.3 in this development session:
+Validation status for 0.9.4 in this development session:
 
-- the public repository tree was inspected after the cleanup and contains no combat-specific source, style, localization or test files;
-- manifest/package references and project validation lists were updated to remove combat artifacts;
-- a complete `npm run check` could **not** be executed because the available container cannot resolve `github.com` to materialize a fresh checkout (`Could not resolve host: github.com`);
-- Foundry runtime validation remains required after updating both clients to 0.9.3.
+- `module.json` and `package.json` are versioned together at 0.9.4;
+- the new unified request service is included in `check:syntax` and in the required project file list;
+- French and English group-tool dictionaries include the unified request labels;
+- a complete `npm run check` has not yet been executed on the final public 0.9.4 tree in this session;
+- Foundry runtime validation is required for the new launcher interception and preselection behavior.
 
-### Foundry checklist — 0.9.3
+### Foundry checklist — 0.9.4
 
-Loading and cleanup:
+Unified requests:
 
-- [ ] 0.9.3 loads without initialization errors.
+- [ ] Token controls show **Demander un test / Request a test** and open the unified form with no player preselected.
+- [ ] every non-GM player is visible in the form.
+- [ ] players without compatible Actors are visible but disabled.
+- [ ] one or several eligible players can be checked and receive independent requests.
+- [ ] every checked player uses the Actor selected on that row.
+- [ ] opening from an Actor sheet opens the same form.
+- [ ] the most relevant owner is prechecked and the opened Actor is preselected.
+- [ ] the GM can change the preselection before sending.
+- [ ] Skill/Drive imposed values remain locked for recipients; free values remain editable.
+- [ ] optional Focus and context, difficulty and complication range are transmitted correctly.
+- [ ] offline delivery and later reconnect still work.
+
+Cleanup and Party Sheet:
+
 - [ ] Token controls contain no Dune QoL combat button.
-- [ ] the native Combat Tracker contains no Dune QoL combat panel or controls.
-- [ ] the Party Sheet contains no Combat tab.
-- [ ] ordinary Foundry/Dune combat behavior is unchanged by the module.
-
-Party Sheet:
-
-- [ ] GM edits persist; connected players refresh and see read-only data.
-- [ ] primary/supporting classification and roles persist.
-- [ ] Test, Traits, sheet and token actions target the correct Actor.
+- [ ] native Combat Tracker contains no Dune QoL combat panel or controls.
+- [ ] Party Sheet contains no Combat tab.
+- [ ] GM Party edits persist and connected players refresh.
+- [ ] request filters, request/result links and cancellation work.
 - [ ] cross-Actor Trait promotion/deletion and history work.
-- [ ] request filters and request/result links open the Chat tab and target message.
-- [ ] cancellation asks for confirmation, cleans the inbox and prevents later completion.
 
 Regression:
 
-- [ ] Guided tests, pools, complications, requests and group tools still work.
+- [ ] Guided tests, pools, complications and Trait tools still work.
 - [ ] player-to-GM pool and Trait requests work with two clients.
 - [ ] public, private, blind and self rolls behave acceptably.
 - [ ] Dice So Nice and both themes remain usable.
@@ -206,6 +222,7 @@ Regression:
 - Shared-state operations are not fully atomic across clients.
 - Group Trait history/provenance updates are best effort after Item changes.
 - Request history depends on request ChatMessages remaining in the world.
+- The unified launcher currently supersedes the older request-dialog listeners at render/control-hook time; runtime validation must confirm that Foundry hook ordering remains stable on the supported build.
 - Worlds that used 0.9.0–0.9.2 may retain an inert legacy `dune-qol.combatState` value in storage.
 
 ## 9. Decision log
@@ -245,7 +262,7 @@ Superseded and reversed decisions remain recorded for history.
 - **D-0031 — Accepted (2026-08-06):** record complication resolution and roll back on failure.
 - **D-0032 — Accepted (2026-08-06):** execute player Trait requests through active GM.
 - **D-0033 — Accepted (2026-08-06):** inject complication controls at chat render time.
-- **D-0034 — Accepted (2026-08-06):** start individual requests from target Actor sheet.
+- **D-0034 — Amended by D-0063 (2026-08-06):** Actor sheets remain a request launcher, but no longer use a separate individual-only form.
 - **D-0035 — Amended by D-0039 (2026-08-06):** persist requests in chat and User inbox.
 - **D-0036 — Superseded by D-0040 (2026-08-06):** initially keep GM-selected values editable.
 - **D-0037 — Superseded by D-0039 (2026-08-06):** initially make ChatMessage primary delivery event.
@@ -255,7 +272,7 @@ Superseded and reversed decisions remain recorded for history.
 - **D-0041 — Accepted (2026-08-06):** request context is optional.
 - **D-0042 — Accepted (2026-08-06):** complete request only after matching result exists.
 - **D-0043 — Superseded by D-0050, then D-0062 (2026-08-06):** combat was initially planned near roadmap end, briefly moved into MVP, then removed from current scope.
-- **D-0044 — Accepted (2026-08-06):** group requests use per-recipient Actors and states.
+- **D-0044 — Amended by D-0063 (2026-08-06):** requests may target several users with one independent request per recipient; the same form now also handles single-recipient launches.
 - **D-0045 — Accepted (2026-08-06):** manage temporary Traits with bulk actions and provenance.
 - **D-0046 — Accepted (2026-08-06):** isolated workflows may add supplemental language dictionaries.
 - **D-0047 — Accepted (2026-08-06):** provide GM global Trait overview.
@@ -274,3 +291,4 @@ Superseded and reversed decisions remain recorded for history.
 - **D-0060 — Reversed by D-0062 (2026-08-06):** maintain a pure combat-state domain and combat regression tests.
 - **D-0061 — Accepted (2026-08-06):** route Party Sheet request/result navigation through V13 `Sidebar.changeTab`, highlight the target ChatMessage, and require confirmation before cancelling a pending request.
 - **D-0062 — Accepted (2026-08-07):** remove the experimental combat feature completely from runtime, UI, settings, localization, styles, tests and current MVP scope. Rationale: the first integrated design became too dense and confusing in actual Foundry use. Consequence: 0.9.3 leaves native Foundry/Dune combat untouched; combat QoL may return later only through a smaller incremental design. Legacy stored combat-state data is intentionally ignored rather than migrated.
+- **D-0063 — Accepted (2026-08-07):** use one unified GM test-request form from every launcher. The form always lists all non-GM players with checkboxes and per-player Actor selection; incompatible players remain visible but disabled. Token controls start unselected. Actor-sheet launch prechecks the most relevant owner and the opened Actor, while still allowing the GM to change recipients before sending. Each selected player receives an independent persistent request.
