@@ -53,6 +53,7 @@ const requiredFiles = [
   "scripts/services/test-requests.mjs",
   "scripts/services/test-request-completion.mjs",
   "scripts/services/group-tools.mjs",
+  "scripts/services/unified-test-request-dialog.mjs",
   "scripts/services/party-sheet.mjs",
   "scripts/services/party-sheet-shortcuts.mjs",
   "scripts/services/party-sheet-navigation.mjs",
