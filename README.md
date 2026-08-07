@@ -3,7 +3,7 @@
 A companion module for Foundry Virtual Tabletop that adds optional quality-of-life workflows to the community **Dune: Adventures in the Imperium** system.
 
 > [!IMPORTANT]
-> This project is public and pre-alpha. Version `0.9.1` targets Foundry `13.351` and Dune `13.0.1`; runtime validation remains manual.
+> This project is public and pre-alpha. Version `0.9.3` targets Foundry `13.351` and Dune `13.0.1`; runtime validation remains manual.
 
 ## Installation through Foundry
 
@@ -69,25 +69,13 @@ The persistent Party Sheet is accessible to GMs and players from Token controls.
 - quick Test, Traits, sheet-opening and token-selection actions;
 - all Traits grouped by Actor;
 - test-request tracking;
-- GM-only world-persistent editing and group Trait actions;
-- an integrated combat tab.
+- GM-only world-persistent editing and group Trait actions.
 
-### Combat management
+## Combat
 
-Version `0.9.1` adds a Dune-oriented layer over Foundry's native Combat Tracker:
+Combat-management features introduced experimentally in earlier pre-alpha versions have been removed in `0.9.3`.
 
-- active side: player characters or opposition;
-- acted and available combatants;
-- pass or retain initiative;
-- default retention cost of 2, editable by the GM from 0 to 6;
-- player retention paid by spending Momentum or adding Threat;
-- opposition retention paid by spending Threat;
-- prevention of a second consecutive retention by the same side until an opponent acts;
-- side changes, activation reset and native round synchronization;
-- combat history and token selection;
-- controls in the Combat Tracker and Party Sheet Combat tab.
-
-The module does not replace Foundry Combat, Combatants or rounds. It validates and records the chosen payment but leaves the GM in control of exceptional costs.
+The module currently does not add anything to Foundry's Combat Tracker and does not manage initiative, activations, sides or combat rounds. Combat will be reconsidered later as a separate, incremental design rather than carried forward from the removed implementation.
 
 ## Settings
 
@@ -101,7 +89,7 @@ Available settings:
 - **Guided test launcher**: Actor sheet, Token controls, or both;
 - **Hide the native Dune dice roller**: enabled by default.
 
-Party Sheet and combat data are stored in hidden world settings managed through their interfaces.
+Party Sheet data is stored in a hidden world setting managed through its interface.
 
 ## Compatibility baseline
 
@@ -121,11 +109,11 @@ Foundry runtime and visual validation remain manual. The checklist and decisions
 
 ## Remaining MVP work
 
-1. Validate and correct the Party Sheet and combat manager in Foundry.
+1. Validate and correct the Party Sheet in Foundry as GM and player.
 2. Complete multiplayer, roll-mode, Dice So Nice and light/dark-theme validation.
 3. Create a versioned GitHub release and stable release manifest.
 
-Post-MVP work includes deeper supporting-character controls, token HUD tools, conflict zones, Assets, House projects, campaign clocks, a public API and guided character creation.
+Post-MVP work includes deeper supporting-character controls, token HUD tools, conflict zones, Assets, House projects, campaign clocks, a public API, guided character creation and a later incremental reconsideration of combat QoL.
 
 ## AI-assisted development disclosure
 
