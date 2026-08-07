@@ -166,6 +166,13 @@ Run from a complete checkout:
 npm run check
 ```
 
+Validation status for 0.9.3 in this development session:
+
+- the public repository tree was inspected after the cleanup and contains no combat-specific source, style, localization or test files;
+- manifest/package references and project validation lists were updated to remove combat artifacts;
+- a complete `npm run check` could **not** be executed because the available container cannot resolve `github.com` to materialize a fresh checkout (`Could not resolve host: github.com`);
+- Foundry runtime validation remains required after updating both clients to 0.9.3.
+
 ### Foundry checklist — 0.9.3
 
 Loading and cleanup:
