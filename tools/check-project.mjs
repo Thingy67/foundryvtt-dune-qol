@@ -45,7 +45,6 @@ const requiredFiles = [
   "scripts/domain/dune-test.mjs",
   "scripts/domain/pool-plan.mjs",
   "scripts/domain/complication-resolution.mjs",
-  "scripts/domain/combat-state.mjs",
   "scripts/features/guided-test.mjs",
   "scripts/features/guided-test-ui.mjs",
   "scripts/services/pool-transactions.mjs",
@@ -55,19 +54,17 @@ const requiredFiles = [
   "scripts/services/test-request-completion.mjs",
   "scripts/services/group-tools.mjs",
   "scripts/services/party-sheet.mjs",
-  "scripts/services/combat-manager.mjs",
-  "scripts/services/party-sheet-combat.mjs",
   "scripts/services/party-sheet-shortcuts.mjs",
+  "scripts/services/party-sheet-navigation.mjs",
   "scripts/services/live-updates.mjs",
   "styles/dune-qol.css",
   "styles/temporary-traits.css",
   "styles/group-tools.css",
   "styles/party-sheet.css",
-  "styles/combat-manager.css",
+  "styles/navigation.css",
   "tools/test-dune-test.mjs",
   "tools/test-pool-plan.mjs",
   "tools/test-complication-resolution.mjs",
-  "tools/test-combat-state.mjs",
   "lang/en.json",
   "lang/fr.json",
   "lang/en-temporary-traits.json",
@@ -75,9 +72,7 @@ const requiredFiles = [
   "lang/en-group-tools.json",
   "lang/fr-group-tools.json",
   "lang/en-party-sheet.json",
-  "lang/fr-party-sheet.json",
-  "lang/en-combat.json",
-  "lang/fr-combat.json"
+  "lang/fr-party-sheet.json"
 ];
 
 for (const relativePath of requiredFiles) {
@@ -96,9 +91,7 @@ for (const languageFile of [
   "lang/en-group-tools.json",
   "lang/fr-group-tools.json",
   "lang/en-party-sheet.json",
-  "lang/fr-party-sheet.json",
-  "lang/en-combat.json",
-  "lang/fr-combat.json"
+  "lang/fr-party-sheet.json"
 ]) {
   await readJson(languageFile);
 }
