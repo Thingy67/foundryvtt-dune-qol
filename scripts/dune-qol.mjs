@@ -10,6 +10,7 @@ import { registerPoolTransactionHooks } from "./services/pool-transactions.mjs";
 import { registerTemporaryTraitHooks } from "./services/temporary-traits.mjs";
 import { registerTestRequestCompletionHooks } from "./services/test-request-completion.mjs";
 import { registerTestRequestHooks } from "./services/test-requests.mjs";
+import { registerUnifiedTestRequestDialogHooks } from "./services/unified-test-request-dialog.mjs";
 import { registerSettings } from "./settings.mjs";
 
 const MODULE_ID = "dune-qol";
@@ -33,6 +34,7 @@ Hooks.once("init", () => {
   registerTestRequestHooks();
   registerTestRequestCompletionHooks();
   registerGroupToolHooks();
+  registerUnifiedTestRequestDialogHooks();
   registerPartySheetHooks();
   registerPartySheetShortcutHooks();
   registerPartySheetNavigationHooks();
