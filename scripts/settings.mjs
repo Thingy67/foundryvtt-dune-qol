@@ -4,8 +4,7 @@ export const SETTING_KEYS = Object.freeze({
   language: "language",
   launcherLocation: "launcherLocation",
   hideNativeRoller: "hideNativeRoller",
-  partyData: "partyData",
-  combatState: "combatState"
+  partyData: "partyData"
 });
 
 export const LAUNCHER_LOCATIONS = Object.freeze({
@@ -97,22 +96,6 @@ export function registerSettings() {
       groupNotes: "",
       objectives: "",
       actorMeta: {}
-    }
-  });
-
-  game.settings.register(MODULE_ID, SETTING_KEYS.combatState, {
-    name: "Dune QoL combat state",
-    scope: "world",
-    config: false,
-    type: Object,
-    default: {
-      version: 2,
-      combatId: null,
-      round: 0,
-      activeSide: "players",
-      actedCombatantIds: [],
-      retainLockedSide: null,
-      history: []
     }
   });
 
